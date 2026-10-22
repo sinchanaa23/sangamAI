@@ -3,6 +3,7 @@ import { bom } from '../data';
 import { district, explain, inr, isImported, isRural, lakh } from '../engine';
 import type { Chain } from '../engine';
 import type { Weights } from '../types';
+import type { Scenario } from '../scenario';
 import Slider from '../components/Slider';
 import ChainMap from '../components/ChainMap';
 
@@ -13,7 +14,7 @@ interface Props {
   onPick: (id: string) => void;
   weights: Weights;
   setWeights: (w: Weights) => void;
-  duty: number;
+  scenario: Scenario;
 }
 
 const PRIORITIES: { key: keyof Weights; label: string }[] = [
@@ -25,7 +26,7 @@ const PRIORITIES: { key: keyof Weights; label: string }[] = [
 
 const level = (v: number) => ['Ignore', 'Low', 'Some', 'Medium', 'High', 'Top'][v];
 
-export default function StepChains({ chains, chain, recommendedId, onPick, weights, setWeights, duty }: Props) {
+export default function StepChains({ chains, chain, recommendedId, onPick, weights, setWeights, scenario }: Props) {
   const [open, setOpen] = useState<string | null>(null);
   return (
     <div className="stack">
@@ -122,7 +123,7 @@ export default function StepChains({ chains, chain, recommendedId, onPick, weigh
       <div className="card">
         <div className="section-title">Why {chain.name.toLowerCase()}?</div>
         <ul className="why">
-          {explain(chain, duty).map((t) => <li key={t}>{t}</li>)}
+          {explain(chain, scenario).map((t) => <li key={t}>{t}</li>)}
         </ul>
         <p className="tiny" style={{ marginTop: 12 }}>
           Every figure comes from a transparent calculation on simulated data; an AI assistant (Joule in the SAP build) only puts it into words.

@@ -2,14 +2,11 @@
 import { bom, buyer, capacityCost, certGaps, districts, sellers } from './data';
 import { RURAL_TYPES } from './types';
 import type { BomLine, District, Gap, Option, Seller, Weights } from './types';
+import type { Scenario } from './scenario';
 
 const ROAD_FACTOR = 1.3;
 const FREIGHT_RS_PER_KG_KM = 0.005;
 const PRODUCTION_DAYS = 12;
-/** Chance per year that a disruption like the simulated one happens. */
-const DISRUPTION_CHANCE = 0.35;
-/** Contribution lost per scooter not built, in rupees. */
-const LOST_CONTRIBUTION = 1500;
 /** Exposure score for parts still imported (geopolitical and shipping risk). */
 const IMPORT_EXPOSURE = 0.65;
 const CURRENT_IMPORT_QUALITY = 0.88;
@@ -36,36 +33,16 @@ export const baseLineCost = (line: BomLine) => (buyer.unitCost * line.sharePct) 
 
 export const isImported = (line: BomLine) => line.importedFrom !== 'India';
 
-export function importLineCost(line: BomLine, dutyPct: number): number {
-  return isImported(line) ? baseLineCost(line) * (1 + dutyPct / 100) : baseLineCost(line);
+/** Cost of one BOM line per harness if it keeps coming from today's source under the scenario. */
+export function importLineCost(line: BomLine, s: Scenario): number {
+  return isImported(line) ? baseLineCost(line) * (1 + s.duty / 100) * (1 + s.fxPct / 100) : baseLineCost(line);
 }
+
+export const importUnitCost = (s: Scenario) => bom.reduce((sum, l) => sum + importLineCost(l, s), 0);
 
 export const baselineImportShare = () => bom.filter(isImported).reduce((s, l) => s + l.sharePct, 0);
 
-// ---------- Step 2: disruption ----------
-
-export interface Shock {
-  unitCost: number;
-  extraPerMonth: number;
-  leadDays: number;
-  stockoutDays: number;
-  lostUnits: number;
-}
-
-export function simulateShock(dutyPct: number, delayWeeks: number): Shock {
-  const unitCost = bom.reduce((s, l) => s + importLineCost(l, dutyPct), 0);
-  const delayDays = delayWeeks * 7;
-  const stockoutDays = Math.max(0, delayDays - buyer.safetyStockDays);
-  return {
-    unitCost,
-    extraPerMonth: (unitCost - buyer.unitCost) * buyer.monthlyUnits,
-    leadDays: buyer.importLeadDays + delayDays,
-    stockoutDays,
-    lostUnits: Math.round((stockoutDays * buyer.monthlyUnits) / 30),
-  };
-}
-
-// ---------- Step 3: matching and chain generation ----------
+// ---------- Matching and chain generation ----------
 
 function certGapsFor(seller: Seller, line: BomLine): Gap[] {
   return line.requiredCerts
@@ -88,12 +65,30 @@ function capacityGap(seller: Seller, needed: number): Gap[] {
   }];
 }
 
-function buildOption(line: BomLine, group: Seller[], needCapacityGap: boolean): Option {
+/** Gaps a seller must close to supply `neededUnits` a month of this line. */
+export const sellerGaps = (s: Seller, line: BomLine, neededUnits: number): Gap[] => [...certGapsFor(s, line), ...capacityGap(s, neededUnits)];
+
+/** Delivered cost per harness for this line from a district at a given price index. */
+export function deliveredCost(line: BomLine, priceIndex: number, districtId: string): number {
+  return baseLineCost(line) * priceIndex + line.weightKg * roadKm(district(districtId), plant()) * FREIGHT_RS_PER_KG_KM;
+}
+
+export function leadDaysFrom(districtId: string): number {
+  const d = district(districtId);
+  return PRODUCTION_DAYS + Math.ceil(roadKm(d, plant()) / (400 * d.connectivity)) + 1;
+}
+
+/**
+ * One way to supply a BOM line from one or more sellers.
+ * `neededUnits` is the monthly volume each seller must reach; null means the group shares the volume by capacity.
+ * `split` overrides how the volume is shared (defaults to capacity-weighted).
+ */
+export function buildOption(line: BomLine, group: Seller[], neededUnits: number | null, splitOverride?: number[]): Option {
   const totalCap = group.reduce((s, x) => s + x.monthlyCapacity, 0);
-  const split = group.map((s) => (group.length === 1 ? 1 : s.monthlyCapacity / totalCap));
+  const split = splitOverride ?? group.map((s) => (group.length === 1 ? 1 : s.monthlyCapacity / totalCap));
   const gaps = group.map((s) => ({
     sellerId: s.id,
-    gaps: [...certGapsFor(s, line), ...(needCapacityGap ? capacityGap(s, buyer.monthlyUnits) : [])],
+    gaps: [...certGapsFor(s, line), ...(neededUnits ? capacityGap(s, neededUnits) : [])],
   }));
   const all = gaps.flatMap((g) => g.gaps);
   const base = baseLineCost(line);
@@ -125,12 +120,12 @@ function buildOption(line: BomLine, group: Seller[], needCapacityGap: boolean): 
 /** Every single supplier, plus consortia of two when neither can supply the volume alone. */
 export function optionsFor(line: BomLine): Option[] {
   const cands = sellers.filter((s) => s.process === line.process);
-  const out: Option[] = cands.map((s) => buildOption(line, [s], true));
+  const out: Option[] = cands.map((s) => buildOption(line, [s], buyer.monthlyUnits));
   for (let i = 0; i < cands.length; i++) {
     for (let j = i + 1; j < cands.length; j++) {
       const a = cands[i], b = cands[j];
       const small = a.monthlyCapacity < buyer.monthlyUnits && b.monthlyCapacity < buyer.monthlyUnits;
-      if (small && a.monthlyCapacity + b.monthlyCapacity >= buyer.monthlyUnits) out.push(buildOption(line, [a, b], false));
+      if (small && a.monthlyCapacity + b.monthlyCapacity >= buyer.monthlyUnits) out.push(buildOption(line, [a, b], null));
     }
   }
   return out;
@@ -180,13 +175,13 @@ export interface Chain {
   gapCount: number;
 }
 
-function summarise(id: Chain['id'], name: string, tagline: string, picks: Chain['picks'], dutyPct: number): Chain {
+function summarise(id: Chain['id'], name: string, tagline: string, picks: Chain['picks'], s: Scenario): Chain {
   let unitCost = 0, leadDays = 0, quality = 0, exposure = 0, importShare = 0, ruralShare = 0, ruralJobs = 0, readyInMonths = 0, investmentLakh = 0, gapCount = 0;
   bom.forEach((line) => {
     const o = picks[line.id];
     const w = line.sharePct / 100;
     if (!o) {
-      unitCost += importLineCost(line, dutyPct);
+      unitCost += importLineCost(line, s);
       leadDays = Math.max(leadDays, buyer.importLeadDays);
       quality += w * CURRENT_IMPORT_QUALITY;
       exposure += w * (isImported(line) ? IMPORT_EXPOSURE : 0.3);
@@ -197,21 +192,21 @@ function summarise(id: Chain['id'], name: string, tagline: string, picks: Chain[
     leadDays = Math.max(leadDays, o.leadDays);
     quality += w * o.quality;
     exposure += w * o.climateRisk;
-    const cap = o.sellers.reduce((s, x) => s + x.monthlyCapacity, 0);
-    o.sellers.forEach((s) => {
-      if (isRural(s)) {
-        ruralShare += line.sharePct * (o.sellers.length === 1 ? 1 : s.monthlyCapacity / cap);
-        ruralJobs += s.workers;
+    const cap = o.sellers.reduce((sum, x) => sum + x.monthlyCapacity, 0);
+    o.sellers.forEach((x) => {
+      if (isRural(x)) {
+        ruralShare += line.sharePct * (o.sellers.length === 1 ? 1 : x.monthlyCapacity / cap);
+        ruralJobs += x.workers;
       }
     });
     readyInMonths = Math.max(readyInMonths, o.readyInMonths);
     investmentLakh += o.investmentLakh;
-    gapCount += o.gaps.reduce((s, g) => s + g.gaps.length, 0);
+    gapCount += o.gaps.reduce((sum, g) => sum + g.gaps.length, 0);
   });
   return { id, name, tagline, picks, unitCost, leadDays, quality, exposure, importShare, ruralShare, ruralJobs, readyInMonths, investmentLakh, gapCount };
 }
 
-export function generateChains(w: Weights, dutyPct: number): Chain[] {
+export function generateChains(w: Weights, s: Scenario): Chain[] {
   const ready: Chain['picks'] = {}, best: Chain['picks'] = {}, rural: Chain['picks'] = {};
   bom.forEach((line) => {
     const opts = optionsFor(line);
@@ -220,9 +215,9 @@ export function generateChains(w: Weights, dutyPct: number): Chain[] {
     rural[line.id] = pick(opts.filter((o) => o.rural), w) ?? best[line.id];
   });
   return [
-    summarise('ready', 'Switch now', 'Only suppliers who qualify today', ready, dutyPct),
-    summarise('best', 'Best balance', 'Ranked on your priorities, gaps closed within a year', best, dutyPct),
-    summarise('rural', 'Rural-first', 'Cooperatives and SHGs wherever they can qualify', rural, dutyPct),
+    summarise('ready', 'Switch now', 'Only suppliers who qualify today', ready, s),
+    summarise('best', 'Best balance', 'Ranked on your priorities, gaps closed within a year', best, s),
+    summarise('rural', 'Rural-first', 'Cooperatives and SHGs wherever they can qualify', rural, s),
   ];
 }
 
@@ -234,67 +229,13 @@ export function recommend(chains: Chain[], w: Weights): Chain {
   return chains[i];
 }
 
-// ---------- Step 4: five-year scenarios ----------
-
-export interface YearPoint {
-  year: string;
-  continue: number;
-  diversify: number;
-  localise: number;
-  continueImport: number;
-  diversifyImport: number;
-  localiseImport: number;
-}
-
-export function fiveYear(chain: Chain, dutyPct: number, delayWeeks: number): YearPoint[] {
-  const shock = simulateShock(dutyPct, delayWeeks);
-  const loss = (importShare: number, factor: number) =>
-    DISRUPTION_CHANCE * shock.stockoutDays * (buyer.monthlyUnits / 30) * LOST_CONTRIBUTION * (importShare / 100) * factor;
-  const importCost = bom.reduce((s, l) => s + importLineCost(l, dutyPct), 0);
-  const diversifyCost = bom.reduce((s, l) => {
-    if (!isImported(l)) return s + baseLineCost(l);
-    const second = baseLineCost(l) * 1.05 * (1 + dutyPct / 200); // second country, partial trade-agreement duty
-    return s + (importLineCost(l, dutyPct) + second) / 2;
-  }, 0);
-
-  const pts: YearPoint[] = [];
-  let cc = 0, cd = 0, cl = 0;
-  for (let y = 1; y <= 5; y++) {
-    const units = buyer.monthlyUnits * 12 * Math.pow(1.15, y - 1);
-    let locCost = 0, locImport = 0;
-    bom.forEach((line) => {
-      const o = chain.picks[line.id];
-      const live = o && y >= 1 + Math.ceil(o.readyInMonths / 12);
-      if (live) locCost += o!.unitCost;
-      else {
-        locCost += importLineCost(line, dutyPct);
-        if (isImported(line)) locImport += line.sharePct;
-      }
-    });
-    const setup = y === 1 ? (chain.investmentLakh * 1e5) / 2 + Object.values(chain.picks).filter(Boolean).length * 5e5 : 0;
-    cc += units * importCost + loss(baselineImportShare(), 1);
-    cd += units * diversifyCost + loss(baselineImportShare(), 0.5);
-    cl += units * locCost + loss(locImport, 1) + setup;
-    pts.push({
-      year: `Year ${y}`,
-      continue: cc / 1e7,
-      diversify: cd / 1e7,
-      localise: cl / 1e7,
-      continueImport: baselineImportShare(),
-      diversifyImport: baselineImportShare(),
-      localiseImport: locImport,
-    });
-  }
-  return pts;
-}
-
 // ---------- Explanation ----------
 
-export function explain(chain: Chain, dutyPct: number): string[] {
-  const today = simulateShock(dutyPct, 0).unitCost;
+export function explain(chain: Chain, s: Scenario): string[] {
+  const today = importUnitCost(s);
   const saving = ((today - chain.unitCost) / today) * 100;
   const lines = [
-    `Landed cost ${saving >= 0 ? 'falls' : 'rises'} ${Math.abs(saving).toFixed(1)}% against importing at the current duty (${inr(chain.unitCost)} vs ${inr(today)} per harness).`,
+    `Landed cost ${saving >= 0 ? 'falls' : 'rises'} ${Math.abs(saving).toFixed(1)}% against importing under this scenario (${inr(chain.unitCost)} vs ${inr(today)} per harness).`,
     `Import dependence drops from ${baselineImportShare()}% to ${chain.importShare.toFixed(0)}% of the harness value${chain.readyInMonths > 0 ? ' once the switch is complete' : ''}.`,
     `Longest delivery time falls from ${buyer.importLeadDays} days to ${chain.leadDays} days.`,
   ];

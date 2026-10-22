@@ -1,54 +1,57 @@
 import { useMemo, useState } from 'react';
 import { generateChains, recommend } from '../engine';
+import { riskFromSignals } from '../live';
+import { DEFAULT_SCENARIO } from '../scenario';
+import type { Scenario } from '../scenario';
 import type { Weights } from '../types';
 import StepToday from './StepToday';
-import StepShock from './StepShock';
+import SimulatorPage from './SimulatorPage';
+import type { SimTab } from './SimulatorPage';
+import RoutesPage from './RoutesPage';
+import type { RouteTab } from './RoutesPage';
 import StepChains from './StepChains';
-import StepPlan from './StepPlan';
+import NetworkPage from './NetworkPage';
+import { useLive } from './useLive';
 
-const STEPS = ['Today', 'What if', 'Indian options', '5-year plan'];
+const PAGES = ['Current suppliers', 'Simulator', 'Alternate routes', 'Indian options', 'Future network'];
 
 export default function BuyerFlow() {
-  const [step, setStep] = useState(0);
-  const [duty, setDuty] = useState(25);
-  const [delay, setDelay] = useState(4);
+  const [page, setPage] = useState(0);
+  const [simTab, setSimTab] = useState<SimTab>('live');
+  const [routeTab, setRouteTab] = useState<RouteTab>('intl');
+  const [scenario, setScenario] = useState<Scenario>(DEFAULT_SCENARIO);
   const [weights, setWeights] = useState<Weights>({ cost: 3, speed: 2, quality: 2, resilience: 2 });
   const [picked, setPicked] = useState<string | null>(null);
+  const live = useLive();
 
-  const chains = useMemo(() => generateChains(weights, duty), [weights, duty]);
+  const chains = useMemo(() => generateChains(weights, scenario), [weights, scenario]);
   const recommended = useMemo(() => recommend(chains, weights), [chains, weights]);
   const chain = chains.find((c) => c.id === picked) ?? recommended;
+  const risk = useMemo(() => riskFromSignals(live.signals), [live.signals]);
 
   return (
     <div>
-      <nav className="stepper" aria-label="Steps">
-        {STEPS.map((s, i) => (
-          <button key={s} className={`step ${i === step ? 'on' : i < step ? 'done' : ''}`} onClick={() => setStep(i)}>
-            <span className="num">{i < step ? '✓' : i + 1}</span>
+      <nav className="stepper" aria-label="Pages">
+        {PAGES.map((s, i) => (
+          <button key={s} className={`step ${i === page ? 'on' : i < page ? 'done' : ''}`} onClick={() => setPage(i)}>
+            <span className="num">{i + 1}</span>
             <span className="label">{s}</span>
           </button>
         ))}
       </nav>
 
-      {step === 0 && <StepToday />}
-      {step === 1 && <StepShock duty={duty} delay={delay} setDuty={setDuty} setDelay={setDelay} />}
-      {step === 2 && (
-        <StepChains
-          chains={chains}
-          chain={chain}
-          recommendedId={recommended.id}
-          onPick={setPicked}
-          weights={weights}
-          setWeights={setWeights}
-          duty={duty}
-        />
+      {page === 0 && <StepToday />}
+      {page === 1 && <SimulatorPage tab={simTab} setTab={setSimTab} scenario={scenario} setScenario={setScenario} live={live} />}
+      {page === 2 && <RoutesPage tab={routeTab} setTab={setRouteTab} scenario={scenario} risk={risk} chain={chain} />}
+      {page === 3 && (
+        <StepChains chains={chains} chain={chain} recommendedId={recommended.id} onPick={setPicked} weights={weights} setWeights={setWeights} scenario={scenario} />
       )}
-      {step === 3 && <StepPlan chain={chain} duty={duty} delay={delay} />}
+      {page === 4 && <NetworkPage scenario={scenario} weights={weights} />}
 
       <div className="nav">
-        <button className="btn" disabled={step === 0} onClick={() => setStep(step - 1)}>Back</button>
-        <button className="btn primary" disabled={step === STEPS.length - 1} onClick={() => setStep(step + 1)}>
-          Next: {STEPS[step + 1] ?? ''}
+        <button className="btn" disabled={page === 0} onClick={() => { setPage(page - 1); window.scrollTo(0, 0); }}>Back</button>
+        <button className="btn primary" disabled={page === PAGES.length - 1} onClick={() => { setPage(page + 1); window.scrollTo(0, 0); }}>
+          Next: {PAGES[page + 1] ?? ''}
         </button>
       </div>
     </div>

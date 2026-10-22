@@ -1,6 +1,6 @@
 // All data in this file is simulated for the prototype.
 // Place names are real; companies, capacities, prices and scores are fictional.
-import type { BomLine, Buyer, District, Seller } from './types';
+import type { BomLine, Buyer, District, NewSite, Seller } from './types';
 
 export const buyer: Buyer = {
   name: 'Veer Electric Mobility',
@@ -60,6 +60,16 @@ export const sellers: Seller[] = [
   // Packaging
   { id: 's16', name: 'Hosur Corrugated Boxes', type: 'MSME', districtId: 'hosur', process: 'Packaging', monthlyCapacity: 60000, certs: ['ISO 9001'], priceIndex: 0.92, quality: 0.84, verification: 'verified', workers: 40 },
   { id: 's17', name: 'Krishnagiri FPO Agro-fibre Packs', type: 'FPO', districtId: 'krishnagiri', process: 'Packaging', monthlyCapacity: 15000, certs: [], priceIndex: 0.82, quality: 0.76, verification: 'declared', workers: 55 },
+];
+
+/** Facilities that do not exist yet and would have to be set up (greenfield). */
+export const newSites: NewSite[] = [
+  { id: 'n1', name: 'Hosur Copper Wire Unit', process: 'Wire drawing', districtId: 'hosur', capexCr: 26, priceIndex: 0.95, readyMonths: 18, quality: 0.85, rural: false, workers: 120 },
+  { id: 'n2', name: 'Krishnagiri Extrusion Line (FPO joint venture)', process: 'Polymer extrusion', districtId: 'krishnagiri', capexCr: 3.5, priceIndex: 0.9, readyMonths: 9, quality: 0.82, rural: true, workers: 40 },
+  { id: 'n3', name: 'Hosur Connector Tooling Centre', process: 'Connector making', districtId: 'hosur', capexCr: 21, priceIndex: 1.0, readyMonths: 20, quality: 0.86, rural: false, workers: 150 },
+  { id: 'n4', name: 'Krishnagiri SHG Assembly Hub', process: 'Harness assembly', districtId: 'krishnagiri', capexCr: 3.2, priceIndex: 0.84, readyMonths: 8, quality: 0.78, rural: true, workers: 260 },
+  { id: 'n5', name: 'Madurai Rural Kitting Hub', process: 'Harness assembly', districtId: 'madurai', capexCr: 2.4, priceIndex: 0.84, readyMonths: 8, quality: 0.76, rural: true, workers: 200 },
+  { id: 'n6', name: 'Dharwad Co-op Moulding Line', process: 'Injection moulding', districtId: 'dharwad', capexCr: 1.8, priceIndex: 0.9, readyMonths: 6, quality: 0.78, rural: true, workers: 60 },
 ];
 
 /** Cost and time to close a gap. Indicative figures for the prototype. */

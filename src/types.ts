@@ -43,6 +43,19 @@ export interface Seller {
   workers: number;
 }
 
+export interface NewSite {
+  id: string;
+  name: string;
+  process: string;
+  districtId: string;
+  capexCr: number;
+  priceIndex: number;
+  readyMonths: number;
+  quality: number;
+  rural: boolean;
+  workers: number;
+}
+
 export interface Buyer {
   name: string;
   product: string;
