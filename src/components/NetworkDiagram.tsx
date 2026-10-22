@@ -62,7 +62,7 @@ export default function NetworkDiagram({ arch }: { arch: Architecture }) {
           <text x={NX + 14} y={ny(i) - 4} fontSize={12} fontWeight={600} fill="#18202b">{clip(n.name, 38)}</text>
           <text x={NX + 14} y={ny(i) + 13} fontSize={11} fill="#5a6472">
             {district(n.districtId).name} · {Math.round(n.share * 100)}% ·{' '}
-            <tspan fill={STATUS_COLOR[n.status]} fontWeight={600}>{STATUS_LABEL[n.status]}{n.capexCr > 0 ? ` ₹${n.capexCr < 1 ? n.capexCr.toFixed(2) : n.capexCr.toFixed(1)} Cr` : ''}</tspan>
+            <tspan fill={STATUS_COLOR[n.status]} fontWeight={600}>{STATUS_LABEL[n.status]}{n.capexCr > 0 ? (n.capexCr < 1 ? ` ₹${Math.round(n.capexCr * 100)} lakh` : ` ₹${n.capexCr.toFixed(1)} Cr`) : ''}</tspan>
           </text>
         </g>
       ))}

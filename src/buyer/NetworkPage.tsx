@@ -12,7 +12,8 @@ import NetworkDiagram, { STATUS_COLOR, STATUS_LABEL } from '../components/Networ
 import Slider from '../components/Slider';
 
 const HORIZONS = [5, 10, 12, 15, 20];
-const cr = (n: number) => `₹${Math.abs(n) >= 100 ? Math.round(n).toLocaleString('en-IN') : n.toFixed(1)} Cr`;
+const cr = (n: number) =>
+  Math.abs(n) < 1 && n !== 0 ? `₹${Math.round(n * 100)} lakh` : `₹${Math.abs(n) >= 100 ? Math.round(n).toLocaleString('en-IN') : n.toFixed(1)} Cr`;
 
 export default function NetworkPage({ scenario, weights }: { scenario: Scenario; weights: Weights }) {
   const [archId, setArchId] = useState<string | null>(null);
@@ -40,7 +41,7 @@ export default function NetworkPage({ scenario, weights }: { scenario: Scenario;
       id, at: [district(id).lon, district(id).lat] as [number, number], color: STATUS_COLOR[st as keyof typeof STATUS_COLOR], r: 5,
       label: district(id).name, side: (['vapi', 'rajkot', 'coimbatore', 'dharwad', 'satara', 'madurai'].includes(id) ? 'left' : 'right') as MapPoint['side'],
     })),
-    { id: 'plant', at: [plant.lon, plant.lat], color: '#0f766e', r: 6, ring: true, label: `Plant, ${plant.name}${seen.has(plant.id) ? ' (+ local sites)' : ''}`, side: 'left', bold: true },
+    { id: 'plant', at: [plant.lon, plant.lat], color: '#0f766e', r: 6, ring: true, label: `Plant, ${plant.name}${seen.has(plant.id) ? ' + local sites' : ''}`, side: 'bottom', bold: true },
   ];
 
   const pts = h.points.map((p) => ({ year: `Y${p.year}`, Import: Math.round(p.importCum), India: Math.round(p.indiaCum), net: Math.round(p.net) }));
@@ -159,7 +160,7 @@ export default function NetworkPage({ scenario, weights }: { scenario: Scenario;
                 <YAxis tickFormatter={(v) => `₹${v.toLocaleString('en-IN')}`} tick={{ fontSize: 12, fill: '#5a6472' }} axisLine={false} tickLine={false} width={70} unit=" Cr" />
                 <Tooltip formatter={(v: number) => `₹${v.toLocaleString('en-IN')} Cr`} />
                 <Legend iconType="plainline" wrapperStyle={{ fontSize: 13 }} />
-                {h.breakEvenYear && <ReferenceLine x={`Y${h.breakEvenYear}`} stroke="#0f766e" strokeDasharray="4 4" label={{ value: 'break-even', fontSize: 11, fill: '#0f766e', position: 'top' }} />}
+                {h.breakEvenYear && h.breakEvenYear > 1 && <ReferenceLine x={`Y${h.breakEvenYear}`} stroke="#0f766e" strokeDasharray="4 4" label={{ value: 'break-even', fontSize: 11, fill: '#0f766e', position: 'top' }} />}
                 <Line type="monotone" dataKey="Import" name="Keep importing" stroke="#94a3b8" strokeWidth={2} dot={false} isAnimationActive={false} />
                 <Line type="monotone" dataKey="India" name={`Build in India: ${arch.name}`} stroke="#0f766e" strokeWidth={3} dot={false} isAnimationActive={false} />
               </LineChart>

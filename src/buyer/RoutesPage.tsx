@@ -76,7 +76,7 @@ function International({ scenario, risk }: { scenario: Scenario; risk: Record<Ch
   const points: MapPoint[] = [
     ...all.filter((r) => r.lane.mode === 'sea').map((r) => ({
       id: r.lane.id, at: r.lane.originPoint, color: r === sel ? '#0f766e' : r === today ? '#334155' : '#64748b', r: r === sel ? 5 : 3.5,
-      label: r.lane.country.replace(' (EU)', ''), bold: r === sel, side: (r.lane.id === 'eu-sea' ? 'top' : r.lane.id === 'ae-sea' ? 'top' : r.lane.id === 'th-sea' ? 'left' : 'right') as MapPoint['side'],
+      label: r.lane.country.replace(' (EU)', ''), bold: r === sel, side: (r.lane.id === 'eu-sea' || r.lane.id === 'ae-sea' ? 'top' : r.lane.id === 'th-sea' || r.lane.id === 'kr-sea' || r.lane.id === 'cn-sea' ? 'left' : 'right') as MapPoint['side'],
     })),
     { id: 'chennai', at: CHENNAI_PORT, color: '#0f766e', label: 'Chennai', side: 'bottom', bold: true },
     ...CHOKEPOINTS.filter((c) => scenario.closed[c.id]).map((c) => ({ id: c.id, at: [c.lon, c.lat] as [number, number], color: '#b91c1c', r: 5, ring: true })),
@@ -113,7 +113,7 @@ function International({ scenario, risk }: { scenario: Scenario; risk: Record<Ch
           <div className="section-title">Time vs cost</div>
           <div style={{ height: 300 }}>
             <ResponsiveContainer>
-              <ScatterChart margin={{ top: 10, right: 24, bottom: 18, left: 8 }}>
+              <ScatterChart margin={{ top: 10, right: 64, bottom: 18, left: 8 }}>
                 <CartesianGrid stroke="#eef0f3" />
                 <XAxis type="number" dataKey="days" name="Days" unit=" d" tick={{ fontSize: 12, fill: '#5a6472' }} label={{ value: 'Door-to-door days', position: 'insideBottom', offset: -10, fontSize: 12, fill: '#8a93a0' }} />
                 <YAxis type="number" dataKey="cost" name="Cost" domain={['auto', 'auto']} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#5a6472' }} width={60} />
