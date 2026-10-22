@@ -95,6 +95,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 28px 24px 64px; }
 
 /* ---------- Tables / lists ---------- */
 table { width: 100%; border-collapse: collapse; }
+.table-wrap { overflow-x: auto; }
 th { text-align: left; font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 10px 8px; }
 td { padding: 12px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -155,6 +156,10 @@ details[open] summary { margin-bottom: 14px; }
   .roadmap::before { display: none; }
   .phase { padding: 0 0 16px; }
   .stepper .label { display: none; }
+  .hide-sm { display: none; }
+  .grid-2 > *, .grid-3 > * { min-width: 0; }
+  select { width: 100%; }
+  .lead { font-size: 22px; }
   .brand-tag { display: none; }
   .topbar { padding: 10px 16px; flex-wrap: wrap; }
   main { padding: 20px 16px 48px; }

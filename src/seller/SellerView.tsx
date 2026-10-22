@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { bom, buyer, demandSignals, sellers } from '../data';
 import { district, isRural, optionsFor, roadKm } from '../engine';
-import { processHi, strings } from './i18n';
+import { processHi, regionHi, strings, typeHi } from './i18n';
 import type { Lang } from './i18n';
 
 export default function SellerView() {
@@ -24,8 +24,8 @@ export default function SellerView() {
   return (
     <div className="stack">
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <label className="row small muted">
-          {t.viewingAs}
+        <label className="row small muted" style={{ flexWrap: 'wrap', gap: 8, minWidth: 0, maxWidth: '100%' }}>
+          <span style={{ whiteSpace: 'nowrap' }}>{t.viewingAs}</span>
           <select value={sellerId} onChange={(e) => setSellerId(e.target.value)}>
             {sellers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.type})</option>)}
           </select>
@@ -38,7 +38,7 @@ export default function SellerView() {
 
       <div className="card">
         <div className="row" style={{ flexWrap: 'wrap' }}>
-          <span className={`chip ${isRural(seller) ? 'rural' : 'plain'}`}>{seller.type}</span>
+          <span className={`chip ${isRural(seller) ? 'rural' : 'plain'}`}>{lang === 'hi' ? typeHi[seller.type] : seller.type}</span>
           <span className={`chip ${seller.verification === 'verified' ? 'ready' : 'potential'}`}>
             {seller.verification === 'verified' ? t.verified : t.declared}
           </span>
@@ -58,7 +58,7 @@ export default function SellerView() {
             <div className="card">
               <div className="section-title">{t.demandTitle}</div>
               <p style={{ fontSize: 17 }}>
-                {t.demandLine(signal.buyers, signal.monthlyUnits.toLocaleString('en-IN'), signal.from, signal.region)}
+                {t.demandLine(signal.buyers, signal.monthlyUnits.toLocaleString('en-IN'), signal.from, lang === 'hi' ? regionHi[signal.region] : signal.region)}
               </p>
               <p className="tiny" style={{ marginTop: 8 }}>{t.demandNote}</p>
             </div>
@@ -81,6 +81,9 @@ export default function SellerView() {
                   );
                 })}
               </ul>
+            )}
+            {teams.length > 0 && gaps.some((g) => g.kind === 'capacity') && (
+              <p className="tiny" style={{ marginTop: 10 }}>{t.teamSkips}</p>
             )}
           </div>
         </div>
@@ -112,7 +115,7 @@ export default function SellerView() {
                 ))}
               </ul>
               <p className="small" style={{ marginTop: 12, fontWeight: 500 }}>{t.total(fmtLakh(totalCost), months)}</p>
-              <p className="tiny" style={{ marginTop: 6 }}>Scheme names are indicative; eligibility must be checked.</p>
+              <p className="tiny" style={{ marginTop: 6 }}>{t.disclaimer}</p>
             </>
           )}
         </div>

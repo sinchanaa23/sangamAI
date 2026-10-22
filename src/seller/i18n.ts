@@ -22,6 +22,8 @@ const en = {
   lakh: 'lakh',
   months: 'months',
   requirement: 'Requirement',
+  teamSkips: 'Teaming up removes the capacity step.',
+  disclaimer: 'Scheme names are indicative; eligibility must be checked.',
 };
 
 const hi: typeof en = {
@@ -46,6 +48,22 @@ const hi: typeof en = {
   lakh: 'लाख',
   months: 'महीने',
   requirement: 'आवश्यकता',
+  teamSkips: 'साझेदारी से क्षमता बढ़ाने का कदम हट जाता है।',
+  disclaimer: 'योजनाओं के नाम सांकेतिक हैं; पात्रता की जाँच आवश्यक है।',
+};
+
+export const regionHi: Record<string, string> = {
+  'South India': 'दक्षिण भारत',
+  'All India': 'पूरे भारत',
+  'South and West India': 'दक्षिण और पश्चिम भारत',
+  'Tamil Nadu and Karnataka': 'तमिलनाडु और कर्नाटक',
+};
+
+export const typeHi: Record<string, string> = {
+  MSME: 'एमएसएमई',
+  'SHG federation': 'स्वयं सहायता समूह संघ',
+  FPO: 'किसान उत्पादक संगठन',
+  Cooperative: 'सहकारी समिति',
 };
 
 export const strings = { en, hi };

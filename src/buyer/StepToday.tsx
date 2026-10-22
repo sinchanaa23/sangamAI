@@ -19,12 +19,13 @@ export default function StepToday() {
 
       <div className="card">
         <div className="section-title">Where each part comes from</div>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
               <th>Part</th>
               <th>Source</th>
-              <th>Share of cost</th>
+              <th className="hide-sm">Share of cost</th>
               <th className="num">Cost per harness</th>
             </tr>
           </thead>
@@ -33,7 +34,7 @@ export default function StepToday() {
               <tr key={l.id}>
                 <td>{l.name}</td>
                 <td><span className={`chip ${isImported(l) ? 'import' : 'ready'}`}>{l.importedFrom}</span></td>
-                <td>
+                <td className="hide-sm">
                   <div className="row">
                     <div className="bar"><span style={{ width: `${l.sharePct * 2.5}%` }} /></div>
                     <span className="small muted">{l.sharePct}%</span>
@@ -44,6 +45,7 @@ export default function StepToday() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

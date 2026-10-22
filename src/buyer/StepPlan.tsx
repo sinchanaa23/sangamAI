@@ -64,7 +64,7 @@ export default function StepPlan({ chain, duty, delay }: Props) {
               <Tooltip formatter={(v: number) => (view === 'cost' ? `₹${v.toFixed(1)} Cr` : `${v.toFixed(0)}%`)} />
               <Legend iconType="plainline" wrapperStyle={{ fontSize: 13 }} />
               {series.map((s) => (
-                <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={s.key.startsWith('localise') ? 3 : 2} dot={{ r: 3 }} />
+                <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={s.key.startsWith('localise') ? 3 : 2} dot={{ r: 3 }} isAnimationActive={false} />
               ))}
             </LineChart>
           </ResponsiveContainer>
@@ -78,7 +78,9 @@ export default function StepPlan({ chain, duty, delay }: Props) {
             <div className="dot" />
             <h4>Next 3 months</h4>
             <ul>
-              {now.length ? now.map((l) => <li key={l.id}>Switch {l.name.toLowerCase()} to {chain.picks[l.id]!.sellers.map((s) => s.name).join(' + ')}</li>) : <li>Run trial orders with shortlisted suppliers</li>}
+              {now.length > 0 && <li>Trial orders, then switch:</li>}
+              {now.map((l) => <li key={l.id}><b>{l.name}</b>: {chain.picks[l.id]!.sellers.map((s) => s.name).join(' + ')}</li>)}
+              {now.length === 0 && <li>Run trial orders with shortlisted suppliers</li>}
             </ul>
           </div>
           <div className="phase">
@@ -87,8 +89,8 @@ export default function StepPlan({ chain, duty, delay }: Props) {
             <ul>
               {develop.map((l) => {
                 const o = chain.picks[l.id]!;
-                const items = o.gaps.flatMap((g) => g.gaps.map((x) => x.label));
-                return <li key={l.id}>{o.sellers.map((s) => s.name).join(' + ')}: {items.join(', ')}</li>;
+                const items = o.gaps.flatMap((g) => g.gaps.map((x) => (x.kind === 'capacity' ? 'a' + x.label.slice(1) : x.label)));
+                return <li key={l.id}><b>{o.sellers.map((s) => s.name).join(' + ')}</b>: {items.join(', ')}</li>;
               })}
               {develop.length > 0 && <li>Co-fund {lakh(chain.investmentLakh / 2)} of {lakh(chain.investmentLakh)} supplier development</li>}
               {develop.length === 0 && <li>Qualify a second Indian source for each part</li>}
