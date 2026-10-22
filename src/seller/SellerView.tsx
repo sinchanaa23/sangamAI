@@ -3,24 +3,16 @@ import { bom, buyer, demandSignals, sellers } from '../data';
 import { district, isRural, optionsFor, roadKm } from '../engine';
 import { processHi, regionHi, strings, typeHi } from './i18n';
 import type { Lang } from './i18n';
+import type { Seller } from '../types';
+import Tabs from '../components/Tabs';
+import Diversification from './Diversification';
 
 export default function SellerView() {
   const [sellerId, setSellerId] = useState('s13');
   const [lang, setLang] = useState<Lang>('en');
+  const [tab, setTab] = useState<'overview' | 'grow'>('overview');
   const t = strings[lang];
   const seller = sellers.find((s) => s.id === sellerId)!;
-  const place = district(seller.districtId);
-  const line = bom.find((l) => l.process === seller.process)!;
-  const opts = optionsFor(line);
-  const solo = opts.find((o) => o.sellers.length === 1 && o.sellers[0].id === seller.id)!;
-  const gaps = solo.gaps[0].gaps;
-  const teams = opts.filter((o) => o.sellers.length === 2 && o.sellers.some((s) => s.id === seller.id));
-  const signal = demandSignals.find((d) => d.process === seller.process);
-  const proc = lang === 'hi' ? processHi[seller.process] : seller.process;
-  const totalCost = gaps.reduce((s, g) => s + g.costLakh, 0);
-  const months = gaps.reduce((m, g) => Math.max(m, g.months), 0);
-  const fmtLakh = (n: number) => `₹${n} ${t.lakh}`;
-
   return (
     <div className="stack">
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
@@ -35,7 +27,30 @@ export default function SellerView() {
           <button className={lang === 'hi' ? 'on' : ''} onClick={() => setLang('hi')}>हिंदी</button>
         </div>
       </div>
+      <div>
+        <Tabs tabs={[{ id: 'overview', label: t.tabOverview }, { id: 'grow', label: t.tabGrow }]} value={tab} onChange={setTab} />
+        {tab === 'overview' ? <Overview seller={seller} lang={lang} /> : <Diversification seller={seller} lang={lang} />}
+      </div>
+    </div>
+  );
+}
 
+function Overview({ seller, lang }: { seller: Seller; lang: Lang }) {
+  const t = strings[lang];
+  const place = district(seller.districtId);
+  const line = bom.find((l) => l.process === seller.process)!;
+  const opts = optionsFor(line);
+  const solo = opts.find((o) => o.sellers.length === 1 && o.sellers[0].id === seller.id)!;
+  const gaps = solo.gaps[0].gaps;
+  const teams = opts.filter((o) => o.sellers.length === 2 && o.sellers.some((s) => s.id === seller.id));
+  const signal = demandSignals.find((d) => d.process === seller.process);
+  const proc = lang === 'hi' ? processHi[seller.process] : seller.process;
+  const totalCost = gaps.reduce((s, g) => s + g.costLakh, 0);
+  const months = gaps.reduce((m, g) => Math.max(m, g.months), 0);
+  const fmtLakh = (n: number) => `₹${n} ${t.lakh}`;
+
+  return (
+    <div className="stack">
       <div className="card">
         <div className="row" style={{ flexWrap: 'wrap' }}>
           <span className={`chip ${isRural(seller) ? 'rural' : 'plain'}`}>{lang === 'hi' ? typeHi[seller.type] : seller.type}</span>
