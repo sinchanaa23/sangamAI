@@ -1,5 +1,5 @@
 // Deterministic, explainable calculations. Every number shown in the UI comes from here.
-import { bom, buyer, capacityCost, certGaps, districts, sellers } from './data';
+import { bom, buyer, certInfo, districts, processInfo, sellers, unitLabel } from './data';
 import { RURAL_TYPES } from './types';
 import type { BomLine, District, Gap, Option, Seller, Weights } from './types';
 import type { Scenario } from './scenario';
@@ -28,12 +28,15 @@ export function roadKm(a: District, b: District): number {
 
 export const isRural = (s: Seller) => RURAL_TYPES.includes(s.type);
 
-/** Today's pre-duty cost of one BOM line per harness. */
-export const baseLineCost = (line: BomLine) => (buyer.unitCost * line.sharePct) / 100;
+/** Today's pre-duty cost of one BOM line per unit of the buyer's product. */
+export const baseLineCost = (line: BomLine) => line.cost;
+
+/** Road speed in km a day, faster where connectivity is better. */
+const kmPerDay = (d: District) => 300 + 250 * d.connectivity;
 
 export const isImported = (line: BomLine) => line.importedFrom !== 'India';
 
-/** Cost of one BOM line per harness if it keeps coming from today's source under the scenario. */
+/** Cost of one BOM line per unit if it keeps coming from today's source under the scenario. */
 export function importLineCost(line: BomLine, s: Scenario): number {
   return isImported(line) ? baseLineCost(line) * (1 + s.duty / 100) * (1 + s.fxPct / 100) : baseLineCost(line);
 }
@@ -47,20 +50,25 @@ export const baselineImportShare = () => bom.filter(isImported).reduce((s, l) =>
 function certGapsFor(seller: Seller, line: BomLine): Gap[] {
   return line.requiredCerts
     .filter((c) => !seller.certs.includes(c))
-    .map((c) => ({ kind: 'certification' as const, label: c, labelHi: certGaps[c].labelHi, costLakh: certGaps[c].costLakh, months: certGaps[c].months, schemes: certGaps[c].schemes }));
+    .map((c) => {
+      const i = certInfo(c);
+      return { kind: 'certification' as const, label: c, labelHi: i.labelHi, costLakh: i.costLakh, months: i.months, schemes: i.schemes };
+    });
 }
 
 function capacityGap(seller: Seller, needed: number): Gap[] {
   const short = needed - seller.monthlyCapacity;
   if (short <= 0) return [];
-  const c = capacityCost[seller.process];
-  const thousands = Math.ceil(short / 1000);
+  const p = processInfo(seller.process);
+  // Capacity is added in sensible steps: 1,000 units for high-volume parts, about 5% of a typical plant otherwise
+  const step = p.refCapacity >= 5000 ? 1000 : Math.max(1, Math.round(p.refCapacity / 20));
+  const add = Math.ceil(short / step) * step;
   return [{
     kind: 'capacity',
-    label: `Add ${(thousands * 1000).toLocaleString('en-IN')} units/month capacity`,
-    labelHi: `${(thousands * 1000).toLocaleString('en-IN')} यूनिट/माह क्षमता जोड़ें`,
-    costLakh: thousands * c.lakhPerThousand,
-    months: c.months,
+    label: `Add ${add.toLocaleString('en-IN')} ${unitLabel(add)}/month capacity`,
+    labelHi: `${add.toLocaleString('en-IN')} यूनिट/माह क्षमता जोड़ें`,
+    costLakh: +((add / 1000) * p.lakhPerThousand).toFixed(1),
+    months: p.months,
     schemes: ['CGTMSE credit guarantee', 'PMEGP'],
   }];
 }
@@ -68,14 +76,14 @@ function capacityGap(seller: Seller, needed: number): Gap[] {
 /** Gaps a seller must close to supply `neededUnits` a month of this line. */
 export const sellerGaps = (s: Seller, line: BomLine, neededUnits: number): Gap[] => [...certGapsFor(s, line), ...capacityGap(s, neededUnits)];
 
-/** Delivered cost per harness for this line from a district at a given price index. */
+/** Delivered cost per unit for this line from a district at a given price index. */
 export function deliveredCost(line: BomLine, priceIndex: number, districtId: string): number {
   return baseLineCost(line) * priceIndex + line.weightKg * roadKm(district(districtId), plant()) * FREIGHT_RS_PER_KG_KM;
 }
 
 export function leadDaysFrom(districtId: string): number {
   const d = district(districtId);
-  return PRODUCTION_DAYS + Math.ceil(roadKm(d, plant()) / (400 * d.connectivity)) + 1;
+  return PRODUCTION_DAYS + Math.ceil(roadKm(d, plant()) / kmPerDay(d)) + 1;
 }
 
 /**
@@ -97,7 +105,7 @@ export function buildOption(line: BomLine, group: Seller[], neededUnits: number 
     const d = district(s.districtId);
     const km = roadKm(d, plant());
     unitCost += split[i] * (base * s.priceIndex + line.weightKg * km * FREIGHT_RS_PER_KG_KM);
-    leadDays = Math.max(leadDays, PRODUCTION_DAYS + Math.ceil(km / (400 * d.connectivity)) + 1);
+    leadDays = Math.max(leadDays, PRODUCTION_DAYS + Math.ceil(km / kmPerDay(d)) + 1);
     quality += split[i] * s.quality * (s.verification === 'verified' ? 1 : 0.9);
     climateRisk += split[i] * (d.climateRisk * 0.7 + (1 - d.power) * 0.3);
   });
@@ -158,7 +166,7 @@ function pick(opts: Option[], w: Weights): Option | null {
 }
 
 export interface Chain {
-  id: 'ready' | 'best' | 'rural';
+  id: 'ready' | 'best' | 'rural' | 'optimised';
   name: string;
   tagline: string;
   /** null = this line stays imported */
@@ -175,7 +183,7 @@ export interface Chain {
   gapCount: number;
 }
 
-function summarise(id: Chain['id'], name: string, tagline: string, picks: Chain['picks'], s: Scenario): Chain {
+export function summarise(id: Chain['id'], name: string, tagline: string, picks: Chain['picks'], s: Scenario): Chain {
   let unitCost = 0, leadDays = 0, quality = 0, exposure = 0, importShare = 0, ruralShare = 0, ruralJobs = 0, readyInMonths = 0, investmentLakh = 0, gapCount = 0;
   bom.forEach((line) => {
     const o = picks[line.id];
@@ -235,8 +243,8 @@ export function explain(chain: Chain, s: Scenario): string[] {
   const today = importUnitCost(s);
   const saving = ((today - chain.unitCost) / today) * 100;
   const lines = [
-    `Landed cost ${saving >= 0 ? 'falls' : 'rises'} ${Math.abs(saving).toFixed(1)}% against importing under this scenario (${inr(chain.unitCost)} vs ${inr(today)} per harness).`,
-    `Import dependence drops from ${baselineImportShare()}% to ${chain.importShare.toFixed(0)}% of the harness value${chain.readyInMonths > 0 ? ' once the switch is complete' : ''}.`,
+    `Landed cost ${saving >= 0 ? 'falls' : 'rises'} ${Math.abs(saving).toFixed(1)}% against importing under this scenario (${inr(chain.unitCost)} vs ${inr(today)} per ${buyer.unitLabel}).`,
+    `Import dependence drops from ${baselineImportShare()}% to ${chain.importShare.toFixed(0)}% of the product value${chain.readyInMonths > 0 ? ' once the switch is complete' : ''}.`,
     `Longest delivery time falls from ${buyer.importLeadDays} days to ${chain.leadDays} days.`,
   ];
   if (chain.ruralShare > 0) lines.push(`${chain.ruralShare.toFixed(0)}% of the value goes to rural collectives, supporting about ${chain.ruralJobs} workers.`);
@@ -248,5 +256,5 @@ export function explain(chain: Chain, s: Scenario): string[] {
 
 export const inr = (n: number) => '₹' + Math.round(n).toLocaleString('en-IN');
 export const crore = (n: number) => '₹' + n.toFixed(1) + ' Cr';
-export const lakh = (n: number) => '₹' + Math.round(n).toLocaleString('en-IN') + ' lakh';
+export const lakh = (n: number) => '₹' + (Math.abs(n) < 10 ? (+n.toFixed(1)).toString() : Math.round(n).toLocaleString('en-IN')) + ' lakh';
 export const pct = (n: number) => Math.round(n * 100) + '%';

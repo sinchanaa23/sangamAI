@@ -1,19 +1,21 @@
-// International sea/air lanes and domestic multimodal lanes.
-// Waypoints follow real shipping lanes; prices, freight rates and risk priors are simulated.
-import { buyer } from './data';
-import { district } from './engine';
+// International sea/air lanes and domestic multimodal lanes, each broken into legs (a route roadmap).
+// Waypoints, ports and documents are real. Logistics performance comes from the World Bank LPI (real).
+// Supplier prices, freight rates, port charges and quality figures are indicative or simulated and labelled so.
+import { bom, buyer } from './data';
+import { district, isImported } from './engine';
+import { lpi } from './realdata';
 import type { Chokepoint, Scenario } from './scenario';
-import type { District } from './types';
+import type { District, Provenance } from './types';
 
 export type LonLat = [number, number];
 
 const CHENNAI: LonLat = [80.35, 13.1];
 const SEA_KM_PER_DAY = 700;
-const HARNESS_PER_FEU = 3500;
 const USD_INR = 94.5;
-/** Pre-duty value of imported parts per harness, net of freight and inland haulage. */
-const GOODS_VALUE = 3898;
-const INLAND_RS = 12;
+const BASE_DUTY = 0.1; // indicative basic customs duty on today's imports
+// Indicative charges per 40-ft container, rupees
+const THC_ORIGIN = 18000, THC_DEST = 16000, CHA_FEE = 9000, DOCS = 3500, FIRST_MILE = 12000, TRUCK_PER_KM = 65;
+const INSURANCE = 0.003, CARRYING_RATE = 0.12;
 
 /** Baseline risk of each chokepoint (0-1). The live page can raise these from news and hazard signals. */
 export const RISK_PRIOR: Record<Chokepoint, number> = { taiwan: 0.35, malacca: 0.15, redSea: 0.6, hormuz: 0.4 };
@@ -43,68 +45,72 @@ interface Segment {
 export interface IntlLane {
   id: string;
   origin: string;
+  port: string;
   country: string;
+  iso3: string;
+  region: string;
   originPoint: LonLat;
   mode: 'sea' | 'air';
   segments: Segment[];
+  hub?: string;
   priceIndex: number;
   /** duty difference vs today's source, percentage points */
   dutyDelta: number;
   agreement?: string;
   freightUsdPerFeu: number;
-  /** goods from today's source region: extra duty and delay in the scenario apply */
-  todaySource: boolean;
+  /** simulated typical defect rate of suppliers in this origin, parts per million */
+  defectPpm: number;
 }
 
 export const LANES: IntlLane[] = [
   {
-    id: 'cn-sea', origin: 'Shanghai', country: 'China', originPoint: [121.8, 31.0], mode: 'sea', priceIndex: 1, dutyDelta: 0, freightUsdPerFeu: 1400, todaySource: true,
+    id: 'cn-sea', origin: 'Shanghai', port: 'Port of Shanghai (Yangshan)', country: 'China', iso3: 'CHN', region: 'Yangtze River Delta', originPoint: [121.8, 31.0], mode: 'sea', priceIndex: 1, dutyDelta: 0, freightUsdPerFeu: 1400, defectPpm: 800,
     segments: [
       { via: 'taiwan', path: [[121.8, 31.0], [123, 28.5], [119.5, 24], [116.5, 21.5], [112.5, 16], [109.5, 10]], alt: [[121.8, 31.0], [124, 27], ...LUZON_TO_SCS], altNote: 'east of Taiwan' },
       { via: 'malacca', path: SCS_VIA_MALACCA, alt: SCS_VIA_SUNDA, altNote: 'via Sunda Strait' },
     ],
   },
   {
-    id: 'cn-air', origin: 'Shanghai (air)', country: 'China', originPoint: [121.8, 31.15], mode: 'air', priceIndex: 1, dutyDelta: 0, freightUsdPerFeu: 0, todaySource: true,
+    id: 'cn-air', origin: 'Shanghai (air)', port: 'Shanghai Pudong airport (PVG)', country: 'China', iso3: 'CHN', region: 'Yangtze River Delta', originPoint: [121.8, 31.15], mode: 'air', priceIndex: 1, dutyDelta: 0, freightUsdPerFeu: 0, defectPpm: 800,
     segments: [{ path: [[121.8, 31.15], [80.17, 12.99]] }],
   },
   {
-    id: 'vn-sea', origin: 'Hai Phong', country: 'Vietnam', originPoint: [106.75, 20.8], mode: 'sea', priceIndex: 1.06, dutyDelta: -5, agreement: 'ASEAN–India FTA', freightUsdPerFeu: 1300, todaySource: false,
+    id: 'vn-sea', origin: 'Hai Phong', port: 'Port of Hai Phong', country: 'Vietnam', iso3: 'VNM', region: 'Red River Delta', originPoint: [106.75, 20.8], mode: 'sea', priceIndex: 1.06, dutyDelta: -5, agreement: 'ASEAN–India FTA', freightUsdPerFeu: 1300, defectPpm: 1200,
     segments: [
       { path: [[106.75, 20.8], [107.6, 19.2], [107.8, 17], [109.5, 12.5], [109.5, 10]] },
       { via: 'malacca', path: SCS_VIA_MALACCA, alt: SCS_VIA_SUNDA, altNote: 'via Sunda Strait' },
     ],
   },
   {
-    id: 'th-sea', origin: 'Laem Chabang', country: 'Thailand', originPoint: [100.9, 13.1], mode: 'sea', priceIndex: 1.08, dutyDelta: -5, agreement: 'ASEAN–India FTA', freightUsdPerFeu: 1100, todaySource: false,
+    id: 'th-sea', origin: 'Laem Chabang', port: 'Laem Chabang Port', country: 'Thailand', iso3: 'THA', region: 'Eastern Economic Corridor', originPoint: [100.9, 13.1], mode: 'sea', priceIndex: 1.08, dutyDelta: -5, agreement: 'ASEAN–India FTA', freightUsdPerFeu: 1100, defectPpm: 900,
     segments: [
       { path: [[100.9, 13.1], [101.3, 11.5], [102.5, 8.5], [104, 4.5]] },
       { via: 'malacca', path: [[104, 4.5], [104.2, 1.25], [100.5, 3.2], [97.5, 5.6], [92, 8], [85, 11], CHENNAI], alt: [[104, 4.5], [106, 0.5], [105.9, -2.6], [106.8, -4.8], [105.8, -6.1], [100, -4], [90, 4], [85, 10], CHENNAI], altNote: 'via Sunda Strait' },
     ],
   },
   {
-    id: 'kr-sea', origin: 'Busan', country: 'South Korea', originPoint: [129.05, 35.1], mode: 'sea', priceIndex: 1.15, dutyDelta: -4, agreement: 'India–Korea CEPA', freightUsdPerFeu: 1600, todaySource: false,
+    id: 'kr-sea', origin: 'Busan', port: 'Port of Busan', country: 'South Korea', iso3: 'KOR', region: 'Gyeongsang', originPoint: [129.05, 35.1], mode: 'sea', priceIndex: 1.15, dutyDelta: -4, agreement: 'India–Korea CEPA', freightUsdPerFeu: 1600, defectPpm: 400, hub: 'Singapore',
     segments: [
       { path: [[129.05, 35.1], [128.5, 33.8], [126, 30], [124.5, 26], ...LUZON_TO_SCS] },
       { via: 'malacca', path: SCS_VIA_MALACCA, alt: SCS_VIA_SUNDA, altNote: 'via Sunda Strait' },
     ],
   },
   {
-    id: 'jp-sea', origin: 'Yokohama', country: 'Japan', originPoint: [139.65, 35.4], mode: 'sea', priceIndex: 1.22, dutyDelta: -4, agreement: 'India–Japan CEPA', freightUsdPerFeu: 1800, todaySource: false,
+    id: 'jp-sea', origin: 'Yokohama', port: 'Port of Yokohama', country: 'Japan', iso3: 'JPN', region: 'Kanto', originPoint: [139.65, 35.4], mode: 'sea', priceIndex: 1.22, dutyDelta: -4, agreement: 'India–Japan CEPA', freightUsdPerFeu: 1800, defectPpm: 250, hub: 'Singapore',
     segments: [
       { path: [[139.65, 35.4], [139.8, 34.6], [135.5, 33], [131.5, 31], [126, 26.5], ...LUZON_TO_SCS] },
       { via: 'malacca', path: SCS_VIA_MALACCA, alt: SCS_VIA_SUNDA, altNote: 'via Sunda Strait' },
     ],
   },
   {
-    id: 'ae-sea', origin: 'Jebel Ali', country: 'UAE', originPoint: [55.0, 25.05], mode: 'sea', priceIndex: 1.18, dutyDelta: -5, agreement: 'India–UAE CEPA', freightUsdPerFeu: 900, todaySource: false,
+    id: 'ae-sea', origin: 'Jebel Ali', port: 'Jebel Ali Port', country: 'UAE', iso3: 'ARE', region: 'Dubai free zones', originPoint: [55.0, 25.05], mode: 'sea', priceIndex: 1.18, dutyDelta: -5, agreement: 'India–UAE CEPA', freightUsdPerFeu: 900, defectPpm: 1000,
     segments: [
       { via: 'hormuz', path: [[55.0, 25.05], [55.6, 25.8], [56.4, 26.4], [57.5, 25.2], [59, 24], [62, 21.5]], alt: [[56.4, 25.15], [58, 24.2], [62, 21.5]], altNote: 'trucked to Fujairah' },
       { path: [[62, 21.5], [72, 12], ...ARABIAN_TO_CHENNAI] },
     ],
   },
   {
-    id: 'eu-sea', origin: 'Rotterdam', country: 'Netherlands (EU)', originPoint: [4.05, 51.95], mode: 'sea', priceIndex: 1.3, dutyDelta: 0, freightUsdPerFeu: 2200, todaySource: false,
+    id: 'eu-sea', origin: 'Rotterdam', port: 'Port of Rotterdam', country: 'Netherlands (EU)', iso3: 'NLD', region: 'Northwest Europe', originPoint: [4.05, 51.95], mode: 'sea', priceIndex: 1.3, dutyDelta: 0, freightUsdPerFeu: 2200, defectPpm: 300, hub: 'Colombo',
     segments: [
       { path: [[4.05, 51.95], [2, 51.2], [-1.5, 50.2], [-5.8, 48.6], [-9.8, 43.2], [-9.8, 38.5]] },
       {
@@ -117,6 +123,40 @@ export const LANES: IntlLane[] = [
   },
 ];
 
+// ---------- What is imported today ----------
+
+export const importedCost = () => bom.filter(isImported).reduce((s, l) => s + l.cost, 0);
+export const importedKg = () => bom.filter(isImported).reduce((s, l) => s + l.weightKg, 0);
+export const domesticCost = () => bom.filter((l) => !isImported(l)).reduce((s, l) => s + l.cost, 0);
+
+/** The lane today's imports use: the lane whose country supplies the most imported value. */
+export function todayLane(): IntlLane {
+  const byCountry = new Map<string, number>();
+  bom.filter(isImported).forEach((l) => byCountry.set(l.importedFrom, (byCountry.get(l.importedFrom) ?? 0) + l.cost));
+  const top = [...byCountry.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  return LANES.find((l) => l.mode === 'sea' && top && l.country.startsWith(top)) ?? LANES[0];
+}
+
+// ---------- Legs ----------
+
+export interface Leg {
+  id: string;
+  title: string;
+  who: string;
+  place: string;
+  mode: 'make' | 'road' | 'rail' | 'sea' | 'air' | 'port' | 'customs' | 'check';
+  days: number;
+  p90: number;
+  cost: number;
+  reliability: number;
+  damagePct: number;
+  co2Kg: number;
+  documents: string[];
+  risks: string[];
+  src: Provenance;
+  note?: string;
+}
+
 export interface LaneResult {
   lane: IntlLane;
   status: 'normal' | 'rerouted' | 'blocked';
@@ -124,16 +164,33 @@ export interface LaneResult {
   paths: LonLat[][];
   distanceKm: number;
   days: number;
-  costPerHarness: number;
+  p90: number;
+  costPerUnit: number;
+  reliability: number;
   risk: number;
   chokepoints: Chokepoint[];
+  legs: Leg[];
+  co2Kg: number;
+  lpi: number | null;
+}
+
+const lpiOf = (iso3: string) => lpi(iso3)?.score ?? 3.2;
+const p90Total = (legs: Leg[]) => Math.round(legs.reduce((s, l) => s + l.days, 0) + Math.sqrt(legs.reduce((s, l) => s + (l.p90 - l.days) ** 2, 0)));
+
+function goodsValue() {
+  // Calibrate so today's lane in a calm scenario reproduces today's imported cost
+  const per = buyer.unitsPerContainer;
+  const today = todayLane();
+  const nonGoods = (today.freightUsdPerFeu * USD_INR + THC_ORIGIN + THC_DEST + CHA_FEE + DOCS + FIRST_MILE + TRUCK_PER_KM * 260) / per;
+  const carrying = CARRYING_RATE * (buyer.importLeadDays / 365);
+  return Math.max(1, (importedCost() - nonGoods) / (1 + BASE_DUTY + INSURANCE + carrying + (today.defectPpm / 1e6) * 3));
 }
 
 export function evaluateLane(lane: IntlLane, s: Scenario, risk: Record<Chokepoint, number> = RISK_PRIOR): LaneResult {
   const paths: LonLat[][] = [];
   const used: Chokepoint[] = [];
-  let status: LaneResult['status'] = 'normal';
   const notes: string[] = [];
+  let status: LaneResult['status'] = 'normal';
   let r = 0;
   for (const seg of lane.segments) {
     if (seg.via && s.closed[seg.via]) {
@@ -150,18 +207,69 @@ export function evaluateLane(lane: IntlLane, s: Scenario, risk: Record<Chokepoin
   const baseKm = lane.segments.reduce((sum, seg) => sum + pathKm(seg.path), 0);
   const distanceKm = paths.reduce((sum, p) => sum + pathKm(p), 0);
   const fx = USD_INR * (1 + s.fxPct / 100);
-  let days: number, freight: number;
+  const per = buyer.unitsPerContainer;
+  const L = lpiOf(lane.iso3);
+  const isToday = lane.country === todayLane().country;
+  const goods = goodsValue() * lane.priceIndex * (1 + s.fxPct / 100);
+  const plant = district(buyer.plantDistrictId);
+  const inlandKm = Math.round(km(CHENNAI, [plant.lon, plant.lat]) * 1.3);
+  const kg = importedKg();
+  const delay = isToday && lane.mode === 'sea' ? s.delayWeeks * 7 : 0;
+  const portDwell = (q: number) => +(1.5 + (4.2 - q) * 1.6).toFixed(1);
+  const legs: Leg[] = [];
+
+  legs.push({
+    id: 'make', title: 'Supplier factory', who: `Contract manufacturers, ${lane.region}`, place: lane.country, mode: 'make',
+    days: 10, p90: 14, cost: goods, reliability: 0.9, damagePct: lane.defectPpm / 10000, co2Kg: 0,
+    documents: ['Purchase order', 'Commercial invoice', 'Packing list'], risks: isToday && s.duty > 0 ? ['Trade friction with this country raises duty'] : [],
+    src: 'simulated', note: `Typical defect rate ${lane.defectPpm} ppm (simulated)`,
+  });
   if (lane.mode === 'air') {
-    days = 5;
-    freight = 3 * 3.0 * fx * s.freightX ** 0.3; // ~3 kg per harness at about $3/kg
+    const air = kg * 3.0 * fx * s.freightX ** 0.3;
+    legs.push(
+      { id: 'first', title: 'Truck to airport', who: 'Freight forwarder', place: lane.port, mode: 'road', days: 1, p90: 2, cost: 4 * kg, reliability: 0.95, damagePct: 0.05, co2Kg: (kg / 1000) * 50 * 0.062, documents: ['Air waybill'], risks: [], src: 'estimated' },
+      { id: 'air', title: 'Air freight', who: 'Scheduled freighter or belly cargo', place: `${lane.port} to Chennai air cargo complex`, mode: 'air', days: 1, p90: 3, cost: air, reliability: 0.9, damagePct: 0.05, co2Kg: kg * distanceKm * 0.0006, documents: ['Air waybill', 'Dangerous goods declaration if batteries'], risks: ['Capacity tight in peak season'], src: 'estimated', note: 'About $3 per kg (indicative)' },
+      { id: 'customs', title: 'Customs clearance', who: 'Customs broker (CHA), ICEGATE filing', place: 'Chennai air cargo complex', mode: 'customs', days: 1, p90: 3, cost: goods * (BASE_DUTY + lane.dutyDelta / 100 + (isToday ? s.duty / 100 : 0) + INSURANCE) + CHA_FEE / per, reliability: 0.9, damagePct: 0, co2Kg: 0, documents: ['Bill of Entry', 'Commercial invoice', 'Packing list'], risks: ['Physical examination by customs'], src: 'estimated' },
+    );
   } else {
-    days = Math.round(distanceKm / SEA_KM_PER_DAY + 3 + 4 + 1);
-    freight = ((lane.freightUsdPerFeu * s.freightX * fx) / HARNESS_PER_FEU) * (distanceKm / baseKm);
+    const fr = (lane.freightUsdPerFeu * s.freightX * fx / per) * (distanceKm / baseKm);
+    const seaDays = Math.round(distanceKm / SEA_KM_PER_DAY);
+    const sched = Math.max(0.35, Math.min(0.85, 0.4 + (L - 2.5) * 0.2));
+    legs.push(
+      { id: 'first', title: 'Truck to port', who: 'Freight forwarder (pick-up and export packing)', place: lane.port, mode: 'road', days: 1, p90: 2, cost: FIRST_MILE / per, reliability: 0.95, damagePct: 0.05, co2Kg: (kg / 1000) * 60 * 0.062, documents: ['Shipping instruction'], risks: [], src: 'estimated' },
+      { id: 'oport', title: 'Origin port and export customs', who: 'Port terminal and origin customs', place: lane.port, mode: 'port', days: portDwell(L), p90: portDwell(L) * 2, cost: (THC_ORIGIN + DOCS / 2) / per, reliability: Math.min(0.95, L / 4.5), damagePct: 0.02, co2Kg: 0, documents: ['Export declaration', 'Bill of lading'], risks: [], src: 'estimated', note: `${lane.country} logistics performance ${L.toFixed(1)}/5 (World Bank)` },
+      {
+        id: 'ocean', title: 'Ocean freight', who: lane.hub ? `Mainline service with transshipment at ${lane.hub}` : 'Direct mainline service', place: `${lane.port} to Chennai, ${Math.round(distanceKm).toLocaleString('en-IN')} km`, mode: 'sea',
+        days: seaDays + (lane.hub ? 3 : 0) + delay, p90: Math.round((seaDays + (lane.hub ? 3 : 0) + delay) * 1.35 + 4), cost: fr, reliability: sched, damagePct: 0.05,
+        co2Kg: (kg / 1000) * distanceKm * 0.012, documents: ['Bill of lading', 'Insurance certificate'],
+        risks: [...used.map((c) => `Passes ${({ taiwan: 'Taiwan Strait', malacca: 'Strait of Malacca', redSea: 'Red Sea and Suez', hormuz: 'Strait of Hormuz' } as const)[c]}`), ...(notes.length ? [`Rerouted ${notes.join(' and ')}`] : []), ...(delay ? [`${s.delayWeeks}-week delay in your scenario`] : [])],
+        src: 'estimated', note: `Freight about $${Math.round(lane.freightUsdPerFeu * s.freightX).toLocaleString('en-IN')} per 40-ft container (indicative)`,
+      },
+      { id: 'dport', title: 'Chennai port', who: 'Container terminal, Chennai Port', place: 'Chennai', mode: 'port', days: 2.5, p90: 5, cost: THC_DEST / per, reliability: 0.85, damagePct: 0.02, co2Kg: 0, documents: ['Delivery order'], risks: ['Congestion in north-east monsoon (Oct-Dec)'], src: 'estimated' },
+      {
+        id: 'customs', title: 'Customs clearance', who: 'Customs broker (CHA), ICEGATE filing', place: 'Chennai Custom House', mode: 'customs', days: 1.5, p90: 4,
+        cost: goods * (BASE_DUTY + lane.dutyDelta / 100 + (isToday ? s.duty / 100 : 0)) + goods * INSURANCE + (CHA_FEE + DOCS / 2) / per,
+        reliability: 0.88, damagePct: 0, co2Kg: 0,
+        documents: ['Bill of Entry', 'Commercial invoice', 'Packing list', 'Bill of lading', ...(lane.agreement ? [`Certificate of origin (${lane.agreement})`] : [])],
+        risks: ['Physical examination by customs', ...(lane.agreement ? ['Duty benefit lost if origin rules are not met'] : [])],
+        src: 'estimated', note: `Duty ${Math.round((BASE_DUTY + lane.dutyDelta / 100 + (isToday ? s.duty / 100 : 0)) * 100)}% (indicative), plus insurance ${INSURANCE * 100}%`,
+      },
+    );
   }
-  if (lane.todaySource && lane.mode === 'sea') days += s.delayWeeks * 7;
-  const duty = 1 + lane.dutyDelta / 100 + (lane.todaySource ? s.duty / 100 : 0);
-  const costPerHarness = GOODS_VALUE * lane.priceIndex * duty * (1 + s.fxPct / 100) + freight + INLAND_RS;
-  return { lane, status, note: notes.join(' and ') || undefined, paths, distanceKm, days, costPerHarness, risk: Math.min(1, r), chokepoints: used };
+  legs.push(
+    { id: 'inland', title: 'Truck to plant', who: 'Contract trucker, 40-ft trailer', place: `Chennai to ${plant.name}, ${inlandKm} km`, mode: 'road', days: 1, p90: 2, cost: (TRUCK_PER_KM * inlandKm) / per, reliability: 0.93, damagePct: 0.05, co2Kg: (kg / 1000) * inlandKm * 0.062, documents: ['E-way bill', 'Lorry receipt'], risks: [], src: 'estimated' },
+    { id: 'check', title: 'Receiving inspection', who: 'Your quality team', place: plant.name, mode: 'check', days: 1, p90: 2, cost: goods * (lane.defectPpm / 1e6) * 3, reliability: 1, damagePct: 0, co2Kg: 0, documents: ['Goods receipt note'], risks: [], src: 'estimated', note: 'Cost of defects: rework or scrap at 3x part value' },
+  );
+  const days = Math.round(legs.reduce((s2, l) => s2 + l.days, 0));
+  const carrying = goods * CARRYING_RATE * (days / 365);
+  legs.push({ id: 'stock', title: 'Inventory in transit', who: 'Your working capital', place: `${days} days on the way`, mode: 'check', days: 0, p90: 0, cost: carrying, reliability: 1, damagePct: 0, co2Kg: 0, documents: [], risks: [], src: 'estimated', note: '12% a year cost of capital' });
+
+  const reliability = legs.reduce((p, l) => p * (l.reliability > 0.99 ? 1 : 0.6 + 0.4 * l.reliability), 1);
+  return {
+    lane, status, note: notes.join(' and ') || undefined, paths, distanceKm,
+    days, p90: p90Total(legs), costPerUnit: legs.reduce((s2, l) => s2 + l.cost, 0),
+    reliability, risk: Math.min(1, r), chokepoints: used, legs, co2Kg: legs.reduce((s2, l) => s2 + l.co2Kg, 0), lpi: lpi(lane.iso3)?.score ?? null,
+  };
 }
 
 export const evaluateLanes = (s: Scenario, risk?: Record<Chokepoint, number>) => LANES.map((l) => evaluateLane(l, s, risk));
@@ -175,8 +283,12 @@ const ICDS: { name: string; at: LonLat }[] = [
   { name: 'JNPT rail terminal', at: [73.0, 18.95] },
   { name: 'Talegaon ICD, Pune', at: [73.7, 18.72] },
   { name: 'Tughlakabad ICD, Delhi', at: [77.28, 28.5] },
+  { name: 'Nagpur MIHAN ICD', at: [79.05, 21.1] },
+  { name: 'Dadri ICD', at: [77.55, 28.55] },
+  { name: 'Kolkata (Shalimar) terminal', at: [88.3, 22.57] },
+  { name: 'Whitefield ICD, Bengaluru', at: [77.75, 12.98] },
+  { name: 'Irugur ICD, Coimbatore', at: [77.08, 11.02] },
 ];
-const DEST_ICD: LonLat = [77.75, 12.98]; // Whitefield ICD, Bengaluru
 const WEST_PORTS: { name: string; at: LonLat }[] = [
   { name: 'Mundra', at: [69.7, 22.75] },
   { name: 'Pipavav', at: [71.5, 20.9] },
@@ -198,51 +310,62 @@ export interface DomesticLane {
   /** rupees per tonne */
   costPerT: number;
   co2PerT: number;
+  /** the movement broken into legs (per tonne figures) */
+  legs: Leg[];
 }
 
 const ll = (d: District): LonLat => [d.lon, d.lat];
+const roadDays = (k: number) => Math.max(1, Math.ceil(k / 450));
 
-export function domesticLanes(from: District): DomesticLane[] {
-  const plant = district(buyer.plantDistrictId);
+export function domesticLanes(from: District, to?: District): DomesticLane[] {
+  const plant = to ?? district(buyer.plantDistrictId);
   const o = ll(from), p = ll(plant);
   const roadKm = km(o, p) * ROAD_FACTOR;
+  const roadLeg = (title: string, place: string, k: number): Leg => ({ id: `road-${title}`, title, who: 'Contract trucker (full truck load)', place: `${place}, ${Math.round(k)} km`, mode: 'road', days: roadDays(k), p90: roadDays(k) + 1, cost: k * RATE.road, reliability: 0.9, damagePct: 0.08, co2Kg: k * CO2_KG_PER_TKM.road, documents: ['E-way bill', 'Lorry receipt'], risks: k > 800 ? ['Long haul: driver hours and checkpoints'] : [], src: 'estimated' });
   const out: DomesticLane[] = [{
-    mode: 'road', path: [o, p], km: roadKm, days: Math.max(1, Math.ceil(roadKm / 500)),
+    mode: 'road', path: [o, p], km: roadKm, days: roadDays(roadKm),
     costPerT: roadKm * RATE.road, co2PerT: roadKm * CO2_KG_PER_TKM.road,
+    legs: [roadLeg('Truck to plant', `${from.name} to ${plant.name}`, roadKm)],
   }];
 
-  const icd = ICDS.map((i) => ({ ...i, d: km(o, i.at) * ROAD_FACTOR })).sort((a, b) => a.d - b.d)[0];
-  if (roadKm > 600 && icd.d < 200) {
-    const railKm = km(icd.at, DEST_ICD) * 1.2;
-    const lastKm = km(DEST_ICD, p) * ROAD_FACTOR;
+  const near = (list: { name: string; at: LonLat }[], pt: LonLat) => list.map((i) => ({ ...i, d: km(pt, i.at) * ROAD_FACTOR })).sort((a, b) => a.d - b.d)[0];
+  const icd = near(ICDS, o);
+  const destIcd = near(ICDS, p);
+  if (roadKm > 600 && icd.d < 200 && destIcd.d < 120 && icd.name !== destIcd.name) {
+    const railKm = km(icd.at, destIcd.at) * 1.2;
+    const legs: Leg[] = [
+      roadLeg('Truck to rail terminal', `${from.name} to ${icd.name}`, icd.d),
+      { id: 'rail', title: 'Container train', who: 'Container rail operator', place: `${icd.name} to ${destIcd.name}, ${Math.round(railKm)} km`, mode: 'rail', days: Math.ceil(railKm / 550) + 2, p90: Math.ceil(railKm / 550) + 4, cost: railKm * RATE.rail + 2 * TERMINAL_RS_PER_T.rail, reliability: 0.82, damagePct: 0.03, co2Kg: railKm * CO2_KG_PER_TKM.rail, documents: ['Railway receipt', 'E-way bill'], risks: ['Rake availability'], src: 'estimated' },
+      roadLeg('Truck to plant', `${destIcd.name} to ${plant.name}`, destIcd.d),
+    ];
     out.push({
-      mode: 'rail', via: icd.name, path: [o, icd.at, DEST_ICD, p], km: icd.d + railKm + lastKm,
-      days: Math.ceil(icd.d / 500 + 1 + railKm / 550 + 1 + lastKm / 500),
-      costPerT: (icd.d + lastKm) * RATE.road + railKm * RATE.rail + 2 * TERMINAL_RS_PER_T.rail,
-      co2PerT: (icd.d + lastKm) * CO2_KG_PER_TKM.road + railKm * CO2_KG_PER_TKM.rail,
+      mode: 'rail', via: `${icd.name} to ${destIcd.name}`, path: [o, icd.at, destIcd.at, p], km: icd.d + railKm + destIcd.d,
+      days: legs.reduce((s, l) => s + l.days, 0), costPerT: legs.reduce((s, l) => s + l.cost, 0), co2PerT: legs.reduce((s, l) => s + l.co2Kg, 0), legs,
     });
   }
 
-  const port = WEST_PORTS.map((w) => ({ ...w, d: km(o, w.at) * ROAD_FACTOR })).sort((a, b) => a.d - b.d)[0];
-  if (port.d < 220) {
+  const port = near(WEST_PORTS, o);
+  if (port.d < 220 && plant.lon > 76 && plant.lat < 16) {
     const sea = [port.at, ...COAST_TO_CHENNAI];
     const seaKm = pathKm(sea);
     const lastKm = km(CHENNAI, p) * ROAD_FACTOR;
+    const legs: Leg[] = [
+      roadLeg('Truck to port', `${from.name} to ${port.name}`, port.d),
+      { id: 'coastal', title: 'Coastal ship', who: 'Coastal container service', place: `${port.name} to Chennai, ${Math.round(seaKm)} km around Kanyakumari`, mode: 'sea', days: Math.ceil(seaKm / 450) + 4, p90: Math.ceil(seaKm / 450) + 8, cost: seaKm * RATE.coastal + 2 * TERMINAL_RS_PER_T.coastal, reliability: 0.75, damagePct: 0.04, co2Kg: seaKm * CO2_KG_PER_TKM.coastal, documents: ['Coastal bill of lading', 'E-way bill'], risks: ['Monsoon weather windows'], src: 'estimated' },
+      roadLeg('Truck to plant', `Chennai to ${plant.name}`, lastKm),
+    ];
     out.push({
       mode: 'coastal', via: `${port.name} to Chennai`, path: [o, ...sea, p], km: port.d + seaKm + lastKm,
-      days: Math.ceil(port.d / 500 + 2 + seaKm / 450 + 2 + lastKm / 500),
-      costPerT: (port.d + lastKm) * RATE.road + seaKm * RATE.coastal + 2 * TERMINAL_RS_PER_T.coastal,
-      co2PerT: (port.d + lastKm) * CO2_KG_PER_TKM.road + seaKm * CO2_KG_PER_TKM.coastal,
+      days: legs.reduce((s, l) => s + l.days, 0), costPerT: legs.reduce((s, l) => s + l.cost, 0), co2PerT: legs.reduce((s, l) => s + l.co2Kg, 0), legs,
     });
   }
   return out;
 }
 
 /** Imports today land at Chennai port and travel by road to the plant. */
-export function importInlandLane(): DomesticLane {
+export function importInlandLane(): { path: LonLat[] } {
   const p = ll(district(buyer.plantDistrictId));
-  const k = km(CHENNAI, p) * ROAD_FACTOR;
-  return { mode: 'road', via: 'Chennai port', path: [CHENNAI, p], km: k, days: 1, costPerT: k * RATE.road, co2PerT: k * CO2_KG_PER_TKM.road };
+  return { path: [CHENNAI, p] };
 }
 
 export const CHENNAI_PORT = CHENNAI;

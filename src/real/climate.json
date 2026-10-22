@@ -1,0 +1,230 @@
+{
+ "source": "Open-Meteo historical weather (ERA5), daily 2015-2024; thresholds follow IMD heavy (64.5 mm) and very heavy (115.6 mm) rain",
+ "fetched": "2026-10-22",
+ "districts": {
+  "hosur": {
+   "heavyRainDays": 0.2,
+   "veryHeavyRainDays": 0,
+   "hotDays": 0,
+   "annualRainMm": 948,
+   "maxDayRainMm": 100
+  },
+  "krishnagiri": {
+   "heavyRainDays": 0.5,
+   "veryHeavyRainDays": 0,
+   "hotDays": 0.8,
+   "annualRainMm": 1001,
+   "maxDayRainMm": 85
+  },
+  "chennai": {
+   "heavyRainDays": 1.5,
+   "veryHeavyRainDays": 0.4,
+   "hotDays": 8.2,
+   "annualRainMm": 1242,
+   "maxDayRainMm": 199
+  },
+  "coimbatore": {
+   "heavyRainDays": 0.2,
+   "veryHeavyRainDays": 0.1,
+   "hotDays": 1.3,
+   "annualRainMm": 1192,
+   "maxDayRainMm": 142
+  },
+  "madurai": {
+   "heavyRainDays": 0.6,
+   "veryHeavyRainDays": 0,
+   "hotDays": 20.6,
+   "annualRainMm": 1143,
+   "maxDayRainMm": 86
+  },
+  "tiruppur": {
+   "heavyRainDays": 0.3,
+   "veryHeavyRainDays": 0,
+   "hotDays": 6.7,
+   "annualRainMm": 1021,
+   "maxDayRainMm": 112
+  },
+  "dharwad": {
+   "heavyRainDays": 0.6,
+   "veryHeavyRainDays": 0.1,
+   "hotDays": 0.2,
+   "annualRainMm": 1067,
+   "maxDayRainMm": 116
+  },
+  "tumakuru": {
+   "heavyRainDays": 0.1,
+   "veryHeavyRainDays": 0,
+   "hotDays": 0,
+   "annualRainMm": 1091,
+   "maxDayRainMm": 76
+  },
+  "mysuru": {
+   "heavyRainDays": 0.1,
+   "veryHeavyRainDays": 0,
+   "hotDays": 0,
+   "annualRainMm": 1158,
+   "maxDayRainMm": 76
+  },
+  "pune": {
+   "heavyRainDays": 1.6,
+   "veryHeavyRainDays": 0.1,
+   "hotDays": 2.6,
+   "annualRainMm": 1182,
+   "maxDayRainMm": 179
+  },
+  "satara": {
+   "heavyRainDays": 1.1,
+   "veryHeavyRainDays": 0,
+   "hotDays": 0.1,
+   "annualRainMm": 1154,
+   "maxDayRainMm": 98
+  },
+  "aurangabad": {
+   "heavyRainDays": 0.5,
+   "veryHeavyRainDays": 0.2,
+   "hotDays": 17.7,
+   "annualRainMm": 968,
+   "maxDayRainMm": 179
+  },
+  "nashik": {
+   "heavyRainDays": 1.2,
+   "veryHeavyRainDays": 0.3,
+   "hotDays": 1.4,
+   "annualRainMm": 1060,
+   "maxDayRainMm": 215
+  },
+  "nagpur": {
+   "heavyRainDays": 2.3,
+   "veryHeavyRainDays": 0.3,
+   "hotDays": 47.5,
+   "annualRainMm": 1401,
+   "maxDayRainMm": 227
+  },
+  "silvassa": {
+   "heavyRainDays": 3.3,
+   "veryHeavyRainDays": 0.7,
+   "hotDays": 6.2,
+   "annualRainMm": 1763,
+   "maxDayRainMm": 293
+  },
+  "vapi": {
+   "heavyRainDays": 3.6,
+   "veryHeavyRainDays": 0.7,
+   "hotDays": 1.5,
+   "annualRainMm": 1727,
+   "maxDayRainMm": 252
+  },
+  "rajkot": {
+   "heavyRainDays": 1.8,
+   "veryHeavyRainDays": 0.5,
+   "hotDays": 35.5,
+   "annualRainMm": 842,
+   "maxDayRainMm": 607
+  },
+  "sanand": {
+   "heavyRainDays": 2.9,
+   "veryHeavyRainDays": 1,
+   "hotDays": 49.7,
+   "annualRainMm": 1029,
+   "maxDayRainMm": 242
+  },
+  "manesar": {
+   "heavyRainDays": 0.8,
+   "veryHeavyRainDays": 0.1,
+   "hotDays": 25.2,
+   "annualRainMm": 686,
+   "maxDayRainMm": 127
+  },
+  "noida": {
+   "heavyRainDays": 0.6,
+   "veryHeavyRainDays": 0.3,
+   "hotDays": 26.6,
+   "annualRainMm": 802,
+   "maxDayRainMm": 252
+  },
+  "lucknow": {
+   "heavyRainDays": 1.2,
+   "veryHeavyRainDays": 0.4,
+   "hotDays": 27.4,
+   "annualRainMm": 1086,
+   "maxDayRainMm": 145
+  },
+  "ludhiana": {
+   "heavyRainDays": 0.9,
+   "veryHeavyRainDays": 0.1,
+   "hotDays": 20,
+   "annualRainMm": 800,
+   "maxDayRainMm": 127
+  },
+  "pithampur": {
+   "heavyRainDays": 2,
+   "veryHeavyRainDays": 0.5,
+   "hotDays": 13.5,
+   "annualRainMm": 1164,
+   "maxDayRainMm": 251
+  },
+  "jamshedpur": {
+   "heavyRainDays": 1.6,
+   "veryHeavyRainDays": 0.2,
+   "hotDays": 25.3,
+   "annualRainMm": 1517,
+   "maxDayRainMm": 127
+  },
+  "howrah": {
+   "heavyRainDays": 1.3,
+   "veryHeavyRainDays": 0.1,
+   "hotDays": 3.1,
+   "annualRainMm": 1882,
+   "maxDayRainMm": 142
+  },
+  "khordha": {
+   "heavyRainDays": 2.3,
+   "veryHeavyRainDays": 0.4,
+   "hotDays": 3.4,
+   "annualRainMm": 1786,
+   "maxDayRainMm": 292
+  },
+  "visakhapatnam": {
+   "heavyRainDays": 2.8,
+   "veryHeavyRainDays": 0.3,
+   "hotDays": 1.7,
+   "annualRainMm": 1358,
+   "maxDayRainMm": 296
+  },
+  "vijayawada": {
+   "heavyRainDays": 1.3,
+   "veryHeavyRainDays": 0.4,
+   "hotDays": 17.3,
+   "annualRainMm": 1221,
+   "maxDayRainMm": 229
+  },
+  "anantapur": {
+   "heavyRainDays": 0.1,
+   "veryHeavyRainDays": 0,
+   "hotDays": 18,
+   "annualRainMm": 721,
+   "maxDayRainMm": 66
+  },
+  "kochi": {
+   "heavyRainDays": 2.8,
+   "veryHeavyRainDays": 0.5,
+   "hotDays": 0,
+   "annualRainMm": 2960,
+   "maxDayRainMm": 170
+  },
+  "guwahati": {
+   "heavyRainDays": 2.7,
+   "veryHeavyRainDays": 0.2,
+   "hotDays": 0,
+   "annualRainMm": 2502,
+   "maxDayRainMm": 157
+  },
+  "agartala": {
+   "heavyRainDays": 2,
+   "veryHeavyRainDays": 0.4,
+   "hotDays": 0,
+   "annualRainMm": 1906,
+   "maxDayRainMm": 175
+  }
+ }
+}

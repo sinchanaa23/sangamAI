@@ -1,8 +1,8 @@
-import { buyer } from '../data';
+import { buyer, unitLabel } from '../data';
 import { inr } from '../engine';
 import { suggestScenario } from '../live';
 import type { FeedState } from '../live';
-import { LANES, evaluateLane } from '../routes';
+import { evaluateLane, todayLane } from '../routes';
 import { CHOKEPOINTS } from '../scenario';
 import type { Scenario } from '../scenario';
 import { NEUTRAL, simulateShock } from '../sim';
@@ -11,19 +11,11 @@ import type { MapLine, MapPoint } from '../components/MapCanvas';
 import Slider from '../components/Slider';
 import Tabs from '../components/Tabs';
 import type { Live } from './useLive';
+import { useBuyer } from './context';
 
 export type SimTab = 'live' | 'whatif';
 
-interface Props {
-  tab: SimTab;
-  setTab: (t: SimTab) => void;
-  scenario: Scenario;
-  setScenario: (s: Scenario) => void;
-  live: Live;
-}
-
 const LEVEL_COLOR = { low: '#15803d', elevated: '#b45309', high: '#b91c1c' };
-const TODAY_LANE = LANES.find((l) => l.id === 'cn-sea')!;
 
 function FeedDot({ name, state }: { name: string; state: FeedState<unknown> }) {
   const cls = state.status === 'ok' ? 'ok' : state.status === 'error' ? 'err' : 'load';
@@ -31,7 +23,8 @@ function FeedDot({ name, state }: { name: string; state: FeedState<unknown> }) {
   return <span className="feed"><span className={`d ${cls}`} />{name}: {text}</span>;
 }
 
-export default function SimulatorPage({ tab, setTab, scenario, setScenario, live }: Props) {
+export default function SimulatorPage() {
+  const { simTab: tab, setSimTab: setTab, scenario, setScenario, live } = useBuyer();
   return (
     <div>
       <Tabs
@@ -48,7 +41,7 @@ export default function SimulatorPage({ tab, setTab, scenario, setScenario, live
 
 function LiveWorld({ live, scenario, onApply }: { live: Live; scenario: Scenario; onApply: (s: Scenario) => void }) {
   const { fx, hazards, news, signals, refresh } = live;
-  const lane = evaluateLane(TODAY_LANE, NEUTRAL);
+  const lane = evaluateLane(todayLane(), NEUTRAL);
   const hz = hazards.status === 'ok' ? hazards.data : [];
   const fxData = fx.status === 'ok' ? fx.data : null;
   const proposal = suggestScenario(scenario, signals, fxData);
@@ -81,7 +74,7 @@ function LiveWorld({ live, scenario, onApply }: { live: Live; scenario: Scenario
         <div className="card">
           <MapCanvas view="world" lines={lines} points={points} ariaLabel="Live risk on today's shipping lane" />
           <div className="legend">
-            <span><i style={{ background: '#334155' }} />Today&apos;s lane, Shanghai to Chennai</span>
+            <span><i style={{ background: '#334155' }} />Today&apos;s lane, {todayLane().origin} to Chennai</span>
             <span><i className="dot" style={{ background: '#15803d' }} />Low</span>
             <span><i className="dot" style={{ background: '#b45309' }} />Elevated</span>
             <span><i className="dot" style={{ background: '#b91c1c' }} />High</span>
@@ -157,7 +150,7 @@ function LiveWorld({ live, scenario, onApply }: { live: Live; scenario: Scenario
 function WhatIf({ scenario: s, setScenario }: { scenario: Scenario; setScenario: (s: Scenario) => void }) {
   const set = (patch: Partial<Scenario>) => setScenario({ ...s, ...patch });
   const shock = simulateShock(s);
-  const base = evaluateLane(TODAY_LANE, NEUTRAL);
+  const base = evaluateLane(todayLane(), NEUTRAL);
   const rise = ((shock.unitCost - buyer.unitCost) / buyer.unitCost) * 100;
 
   const lines: MapLine[] = [
@@ -165,7 +158,7 @@ function WhatIf({ scenario: s, setScenario }: { scenario: Scenario; setScenario:
     ...shock.lane.paths.map((p, i) => ({ id: `l${i}`, coords: p, color: shock.lane.status === 'normal' ? '#334155' : '#b45309', width: 2.2 })),
   ];
   const points: MapPoint[] = [
-    { id: 'o', at: TODAY_LANE.originPoint, color: '#334155', label: 'Shanghai', side: 'right' },
+    { id: 'o', at: todayLane().originPoint, color: '#334155', label: todayLane().origin, side: 'right' },
     { id: 'd', at: [80.35, 13.1], color: '#0f766e', label: 'Chennai', side: 'bottom', bold: true },
     ...CHOKEPOINTS.map((c) => ({ id: c.id, at: [c.lon, c.lat] as [number, number], color: s.closed[c.id] ? '#b91c1c' : '#94a3b8', r: s.closed[c.id] ? 6 : 4, ring: s.closed[c.id], label: s.closed[c.id] ? `${c.name} closed` : undefined, side: (c.id === 'redSea' || c.id === 'hormuz' ? 'left' : 'right') as MapPoint['side'] })),
   ];
@@ -195,14 +188,14 @@ function WhatIf({ scenario: s, setScenario }: { scenario: Scenario; setScenario:
 
       <div className="grid-4">
         <div className="stat">
-          <div className="label">Cost per harness</div>
+          <div className="label">Cost per {buyer.unitLabel}</div>
           <div className="value">{inr(shock.unitCost)}</div>
           <div className={`delta ${rise > 0.5 ? 'up' : 'muted'}`}>{rise > 0.5 ? `+${rise.toFixed(1)}% vs today` : 'About the same'}</div>
         </div>
         <div className="stat">
           <div className="label">Extra cost per month</div>
           <div className="value">{'₹'}{(shock.extraPerMonth / 1e7).toFixed(2)} Cr</div>
-          <div className="delta muted">{buyer.monthlyUnits.toLocaleString('en-IN')} harnesses</div>
+          <div className="delta muted">{buyer.monthlyUnits.toLocaleString('en-IN')} {unitLabel()}</div>
         </div>
         <div className="stat">
           <div className="label">Lead time</div>

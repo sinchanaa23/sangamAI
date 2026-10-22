@@ -1,0 +1,1423 @@
+{
+ "source": "UN Comtrade public API (preview), reporter India (699), imports",
+ "fetched": "2026-10-22",
+ "codes": {
+  "100829": {
+   "hs": "100829",
+   "label": "Millet",
+   "year": 2024,
+   "totalUsd": 534943,
+   "netKg": 1295780,
+   "hhi": 8238,
+   "partners": [
+    {
+     "code": 699,
+     "iso3": "IND",
+     "name": "India",
+     "usd": 483550,
+     "share": 0.9039
+    },
+    {
+     "code": 643,
+     "iso3": "RUS",
+     "name": "Russian Federation",
+     "usd": 43210,
+     "share": 0.0808
+    },
+    {
+     "code": 784,
+     "iso3": "ARE",
+     "name": "United Arab Emirates",
+     "usd": 8184,
+     "share": 0.0153
+    }
+   ]
+  },
+  "190410": {
+   "hs": "190410",
+   "label": "Cereal flakes and puffed products",
+   "year": 2024,
+   "totalUsd": 598809,
+   "netKg": 132674,
+   "hhi": 2569,
+   "partners": [
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 257789,
+     "share": 0.4305
+    },
+    {
+     "code": 458,
+     "iso3": "MYS",
+     "name": "Malaysia",
+     "usd": 137549,
+     "share": 0.2297
+    },
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 64110,
+     "share": 0.1071
+    },
+    {
+     "code": 724,
+     "iso3": "ESP",
+     "name": "Spain",
+     "usd": 31316,
+     "share": 0.0523
+    },
+    {
+     "code": 100,
+     "iso3": "BGR",
+     "name": "Bulgaria",
+     "usd": 19651,
+     "share": 0.0328
+    },
+    {
+     "code": 251,
+     "iso3": "FRA",
+     "name": "France",
+     "usd": 19025,
+     "share": 0.0318
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 18329,
+     "share": 0.0306
+    },
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 16356,
+     "share": 0.0273
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 12144,
+     "share": 0.0203
+    },
+    {
+     "code": 699,
+     "iso3": "IND",
+     "name": "India",
+     "usd": 10106,
+     "share": 0.0169
+    }
+   ]
+  },
+  "252329": {
+   "hs": "252329",
+   "label": "Portland cement",
+   "year": 2024,
+   "totalUsd": 45898514,
+   "netKg": 731512093,
+   "hhi": 3105,
+   "partners": [
+    {
+     "code": 64,
+     "iso3": "BTN",
+     "name": "Bhutan",
+     "usd": 15110574,
+     "share": 0.3292
+    },
+    {
+     "code": 50,
+     "iso3": "BGD",
+     "name": "Bangladesh",
+     "usd": 14761517,
+     "share": 0.3216
+    },
+    {
+     "code": 524,
+     "iso3": "NPL",
+     "name": "Nepal",
+     "usd": 14319531,
+     "share": 0.312
+    },
+    {
+     "code": 784,
+     "iso3": "ARE",
+     "name": "United Arab Emirates",
+     "usd": 1670944,
+     "share": 0.0364
+    },
+    {
+     "code": 512,
+     "iso3": "OMN",
+     "name": "Oman",
+     "usd": 33283,
+     "share": 0.0007
+    },
+    {
+     "code": 490,
+     "iso3": "S19",
+     "name": "Other Asia, nes",
+     "usd": 987,
+     "share": 0
+    },
+    {
+     "code": 96,
+     "iso3": "BRN",
+     "name": "Brunei Darussalam",
+     "usd": 963,
+     "share": 0
+    },
+    {
+     "code": 48,
+     "iso3": "BHR",
+     "name": "Bahrain",
+     "usd": 575,
+     "share": 0
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 80,
+     "share": 0
+    },
+    {
+     "code": 300,
+     "iso3": "GRC",
+     "name": "Greece",
+     "usd": 61,
+     "share": 0
+    }
+   ]
+  },
+  "390410": {
+   "hs": "390410",
+   "label": "PVC, not mixed",
+   "year": 2024,
+   "totalUsd": 2589606753,
+   "netKg": null,
+   "hhi": 2133,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 1009370043,
+     "share": 0.3898
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 370551926,
+     "share": 0.1431
+    },
+    {
+     "code": 490,
+     "iso3": "S19",
+     "name": "Other Asia, nes",
+     "usd": 348908228,
+     "share": 0.1347
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 285607013,
+     "share": 0.1103
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 238327707,
+     "share": 0.092
+    },
+    {
+     "code": 360,
+     "iso3": "IDN",
+     "name": "Indonesia",
+     "usd": 84722628,
+     "share": 0.0327
+    },
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 62793704,
+     "share": 0.0242
+    },
+    {
+     "code": 484,
+     "iso3": "MEX",
+     "name": "Mexico",
+     "usd": 30017386,
+     "share": 0.0116
+    },
+    {
+     "code": 251,
+     "iso3": "FRA",
+     "name": "France",
+     "usd": 27527571,
+     "share": 0.0106
+    },
+    {
+     "code": 50,
+     "iso3": "BGD",
+     "name": "Bangladesh",
+     "usd": 26568597,
+     "share": 0.0103
+    }
+   ]
+  },
+  "390810": {
+   "hs": "390810",
+   "label": "Polyamides (nylon 6, 6-6 and others)",
+   "year": 2024,
+   "totalUsd": 699965766,
+   "netKg": 318296953.028,
+   "hhi": 2555,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 323504147,
+     "share": 0.4622
+    },
+    {
+     "code": 490,
+     "iso3": "S19",
+     "name": "Other Asia, nes",
+     "usd": 94181366,
+     "share": 0.1346
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 62546077,
+     "share": 0.0894
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 50374903,
+     "share": 0.072
+    },
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 48293347,
+     "share": 0.069
+    },
+    {
+     "code": 643,
+     "iso3": "RUS",
+     "name": "Russian Federation",
+     "usd": 47145478,
+     "share": 0.0674
+    },
+    {
+     "code": 56,
+     "iso3": "BEL",
+     "name": "Belgium",
+     "usd": 14475970,
+     "share": 0.0207
+    },
+    {
+     "code": 702,
+     "iso3": "SGP",
+     "name": "Singapore",
+     "usd": 13191021,
+     "share": 0.0188
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 8318297,
+     "share": 0.0119
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 8088756,
+     "share": 0.0116
+    }
+   ]
+  },
+  "392321": {
+   "hs": "392321",
+   "label": "Polyethylene sacks and bags",
+   "year": 2024,
+   "totalUsd": 19785420,
+   "netKg": null,
+   "hhi": 1320,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 4395333,
+     "share": 0.2222
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 4364685,
+     "share": 0.2206
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 2340597,
+     "share": 0.1183
+    },
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 1678581,
+     "share": 0.0848
+    },
+    {
+     "code": 616,
+     "iso3": "POL",
+     "name": "Poland",
+     "usd": 1209265,
+     "share": 0.0611
+    },
+    {
+     "code": 704,
+     "iso3": "VNM",
+     "name": "Viet Nam",
+     "usd": 1160655,
+     "share": 0.0587
+    },
+    {
+     "code": 699,
+     "iso3": "IND",
+     "name": "India",
+     "usd": 906559,
+     "share": 0.0458
+    },
+    {
+     "code": 56,
+     "iso3": "BEL",
+     "name": "Belgium",
+     "usd": 803290,
+     "share": 0.0406
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 478455,
+     "share": 0.0242
+    },
+    {
+     "code": 458,
+     "iso3": "MYS",
+     "name": "Malaysia",
+     "usd": 402445,
+     "share": 0.0203
+    }
+   ]
+  },
+  "392690": {
+   "hs": "392690",
+   "label": "Other plastic articles (clips, grommets)",
+   "year": 2024,
+   "totalUsd": 1133401796,
+   "netKg": 200235687.573,
+   "hhi": 2105,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 487257029,
+     "share": 0.4299
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 102984392,
+     "share": 0.0909
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 84169835,
+     "share": 0.0743
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 77394770,
+     "share": 0.0683
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 66208852,
+     "share": 0.0584
+    },
+    {
+     "code": 251,
+     "iso3": "FRA",
+     "name": "France",
+     "usd": 34575327,
+     "share": 0.0305
+    },
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 29012178,
+     "share": 0.0256
+    },
+    {
+     "code": 490,
+     "iso3": "S19",
+     "name": "Other Asia, nes",
+     "usd": 21928446,
+     "share": 0.0193
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 21857760,
+     "share": 0.0193
+    },
+    {
+     "code": 524,
+     "iso3": "NPL",
+     "name": "Nepal",
+     "usd": 19044882,
+     "share": 0.0168
+    }
+   ]
+  },
+  "441873": {
+   "hs": "441873",
+   "label": "Bamboo assembled panels and flooring",
+   "year": 2024,
+   "totalUsd": 176018,
+   "netKg": 117541,
+   "hhi": 10000,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 176018,
+     "share": 1
+    }
+   ]
+  },
+  "481910": {
+   "hs": "481910",
+   "label": "Corrugated paper cartons and boxes",
+   "year": 2024,
+   "totalUsd": 32952907,
+   "netKg": 10810037.067,
+   "hhi": 3001,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 16529347,
+     "share": 0.5016
+    },
+    {
+     "code": 144,
+     "iso3": "LKA",
+     "name": "Sri Lanka",
+     "usd": 5332300,
+     "share": 0.1618
+    },
+    {
+     "code": 704,
+     "iso3": "VNM",
+     "name": "Viet Nam",
+     "usd": 4380967,
+     "share": 0.1329
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 1404577,
+     "share": 0.0426
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 1166048,
+     "share": 0.0354
+    },
+    {
+     "code": 344,
+     "iso3": "HKG",
+     "name": "China, Hong Kong SAR",
+     "usd": 705238,
+     "share": 0.0214
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 639106,
+     "share": 0.0194
+    },
+    {
+     "code": 699,
+     "iso3": "IND",
+     "name": "India",
+     "usd": 541861,
+     "share": 0.0164
+    },
+    {
+     "code": 490,
+     "iso3": "S19",
+     "name": "Other Asia, nes",
+     "usd": 417205,
+     "share": 0.0127
+    },
+    {
+     "code": 528,
+     "iso3": "NLD",
+     "name": "Netherlands",
+     "usd": 320668,
+     "share": 0.0097
+    }
+   ]
+  },
+  "690721": {
+   "hs": "690721",
+   "label": "Ceramic tiles, low water absorption",
+   "year": 2024,
+   "totalUsd": 20889923,
+   "netKg": 37517623.958,
+   "hhi": 4116,
+   "partners": [
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 12446140,
+     "share": 0.5958
+    },
+    {
+     "code": 724,
+     "iso3": "ESP",
+     "name": "Spain",
+     "usd": 4648471,
+     "share": 0.2225
+    },
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 1558844,
+     "share": 0.0746
+    },
+    {
+     "code": 784,
+     "iso3": "ARE",
+     "name": "United Arab Emirates",
+     "usd": 569283,
+     "share": 0.0273
+    },
+    {
+     "code": 699,
+     "iso3": "IND",
+     "name": "India",
+     "usd": 355868,
+     "share": 0.017
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 248386,
+     "share": 0.0119
+    },
+    {
+     "code": 620,
+     "iso3": "PRT",
+     "name": "Portugal",
+     "usd": 207500,
+     "share": 0.0099
+    },
+    {
+     "code": 792,
+     "iso3": "TUR",
+     "name": "Türkiye",
+     "usd": 184517,
+     "share": 0.0088
+    },
+    {
+     "code": 458,
+     "iso3": "MYS",
+     "name": "Malaysia",
+     "usd": 163020,
+     "share": 0.0078
+    },
+    {
+     "code": 524,
+     "iso3": "NPL",
+     "name": "Nepal",
+     "usd": 133487,
+     "share": 0.0064
+    }
+   ]
+  },
+  "721420": {
+   "hs": "721420",
+   "label": "Steel reinforcing bars (rebar)",
+   "year": 2024,
+   "totalUsd": 37227580,
+   "netKg": null,
+   "hhi": 9715,
+   "partners": [
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 36691928,
+     "share": 0.9856
+    },
+    {
+     "code": 50,
+     "iso3": "BGD",
+     "name": "Bangladesh",
+     "usd": 355834,
+     "share": 0.0096
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 104860,
+     "share": 0.0028
+    },
+    {
+     "code": 724,
+     "iso3": "ESP",
+     "name": "Spain",
+     "usd": 39203,
+     "share": 0.0011
+    },
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 16028,
+     "share": 0.0004
+    },
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 7268,
+     "share": 0.0002
+    },
+    {
+     "code": 36,
+     "iso3": "AUS",
+     "name": "Australia",
+     "usd": 5479,
+     "share": 0.0001
+    },
+    {
+     "code": 702,
+     "iso3": "SGP",
+     "name": "Singapore",
+     "usd": 4103,
+     "share": 0.0001
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 1444,
+     "share": 0
+    },
+    {
+     "code": 512,
+     "iso3": "OMN",
+     "name": "Oman",
+     "usd": 1433,
+     "share": 0
+    }
+   ]
+  },
+  "740311": {
+   "hs": "740311",
+   "label": "Refined copper cathodes",
+   "year": 2024,
+   "totalUsd": 2671625978,
+   "netKg": 291902154.454,
+   "hhi": 5653,
+   "partners": [
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 1949283606,
+     "share": 0.7296
+    },
+    {
+     "code": 178,
+     "iso3": "COG",
+     "name": "Congo",
+     "usd": 440000491,
+     "share": 0.1647
+    },
+    {
+     "code": 180,
+     "iso3": "COD",
+     "name": "Dem. Rep. of the Congo",
+     "usd": 173914042,
+     "share": 0.0651
+    },
+    {
+     "code": 894,
+     "iso3": "ZMB",
+     "name": "Zambia",
+     "usd": 106966727,
+     "share": 0.04
+    },
+    {
+     "code": 608,
+     "iso3": "PHL",
+     "name": "Philippines",
+     "usd": 834991,
+     "share": 0.0003
+    },
+    {
+     "code": 152,
+     "iso3": "CHL",
+     "name": "Chile",
+     "usd": 399635,
+     "share": 0.0001
+    },
+    {
+     "code": 458,
+     "iso3": "MYS",
+     "name": "Malaysia",
+     "usd": 94812,
+     "share": 0
+    },
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 42173,
+     "share": 0
+    },
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 27463,
+     "share": 0
+    },
+    {
+     "code": 528,
+     "iso3": "NLD",
+     "name": "Netherlands",
+     "usd": 21288,
+     "share": 0
+    }
+   ]
+  },
+  "740811": {
+   "hs": "740811",
+   "label": "Refined copper wire, over 6 mm",
+   "year": 2024,
+   "totalUsd": 898086772,
+   "netKg": 99484333,
+   "hhi": 7840,
+   "partners": [
+    {
+     "code": 784,
+     "iso3": "ARE",
+     "name": "United Arab Emirates",
+     "usd": 789437693,
+     "share": 0.879
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 95205272,
+     "share": 0.106
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 9622413,
+     "share": 0.0107
+    },
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 1729408,
+     "share": 0.0019
+    },
+    {
+     "code": 490,
+     "iso3": "S19",
+     "name": "Other Asia, nes",
+     "usd": 1015912,
+     "share": 0.0011
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 944009,
+     "share": 0.0011
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 45459,
+     "share": 0.0001
+    },
+    {
+     "code": 528,
+     "iso3": "NLD",
+     "name": "Netherlands",
+     "usd": 23547,
+     "share": 0
+    },
+    {
+     "code": 458,
+     "iso3": "MYS",
+     "name": "Malaysia",
+     "usd": 22238,
+     "share": 0
+    },
+    {
+     "code": 246,
+     "iso3": "FIN",
+     "name": "Finland",
+     "usd": 17499,
+     "share": 0
+    }
+   ]
+  },
+  "761010": {
+   "hs": "761010",
+   "label": "Aluminium doors and windows",
+   "year": 2024,
+   "totalUsd": 24065833,
+   "netKg": 3852190,
+   "hhi": 3611,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 12124250,
+     "share": 0.5038
+    },
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 7751009,
+     "share": 0.3221
+    },
+    {
+     "code": 528,
+     "iso3": "NLD",
+     "name": "Netherlands",
+     "usd": 1161986,
+     "share": 0.0483
+    },
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 443567,
+     "share": 0.0184
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 348013,
+     "share": 0.0145
+    },
+    {
+     "code": 458,
+     "iso3": "MYS",
+     "name": "Malaysia",
+     "usd": 340345,
+     "share": 0.0141
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 258673,
+     "share": 0.0107
+    },
+    {
+     "code": 705,
+     "iso3": "SVN",
+     "name": "Slovenia",
+     "usd": 230598,
+     "share": 0.0096
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 195707,
+     "share": 0.0081
+    },
+    {
+     "code": 36,
+     "iso3": "AUS",
+     "name": "Australia",
+     "usd": 183131,
+     "share": 0.0076
+    }
+   ]
+  },
+  "841931": {
+   "hs": "841931",
+   "label": "Dryers for agricultural products",
+   "year": null,
+   "totalUsd": 0,
+   "netKg": null,
+   "hhi": 0,
+   "partners": []
+  },
+  "848180": {
+   "hs": "848180",
+   "label": "Taps, cocks and valves",
+   "year": 2024,
+   "totalUsd": 1319129230,
+   "netKg": 64037183.221,
+   "hhi": 1059,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 294086949,
+     "share": 0.2229
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 188582239,
+     "share": 0.143
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 154476773,
+     "share": 0.1171
+    },
+    {
+     "code": 251,
+     "iso3": "FRA",
+     "name": "France",
+     "usd": 98606820,
+     "share": 0.0748
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 80691506,
+     "share": 0.0612
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 74784191,
+     "share": 0.0567
+    },
+    {
+     "code": 380,
+     "iso3": "ITA",
+     "name": "Italy",
+     "usd": 73369286,
+     "share": 0.0556
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 64993638,
+     "share": 0.0493
+    },
+    {
+     "code": 704,
+     "iso3": "VNM",
+     "name": "Viet Nam",
+     "usd": 52561449,
+     "share": 0.0398
+    },
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 42926700,
+     "share": 0.0325
+    }
+   ]
+  },
+  "853690": {
+   "hs": "853690",
+   "label": "Connectors and other electrical apparatus, up to 1,000 V",
+   "year": 2024,
+   "totalUsd": 1035245765,
+   "netKg": 20464908.235,
+   "hhi": 1964,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 409952350,
+     "share": 0.396
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 134259991,
+     "share": 0.1297
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 107675233,
+     "share": 0.104
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 73790416,
+     "share": 0.0713
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 58348150,
+     "share": 0.0564
+    },
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 33268819,
+     "share": 0.0321
+    },
+    {
+     "code": 251,
+     "iso3": "FRA",
+     "name": "France",
+     "usd": 29764196,
+     "share": 0.0288
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 22826604,
+     "share": 0.022
+    },
+    {
+     "code": 702,
+     "iso3": "SGP",
+     "name": "Singapore",
+     "usd": 15176503,
+     "share": 0.0147
+    },
+    {
+     "code": 490,
+     "iso3": "S19",
+     "name": "Other Asia, nes",
+     "usd": 13894829,
+     "share": 0.0134
+    }
+   ]
+  },
+  "854430": {
+   "hs": "854430",
+   "label": "Wiring sets for vehicles",
+   "year": 2024,
+   "totalUsd": 118186757,
+   "netKg": 4278964.113,
+   "hhi": 821,
+   "partners": [
+    {
+     "code": 144,
+     "iso3": "LKA",
+     "name": "Sri Lanka",
+     "usd": 17943020,
+     "share": 0.1518
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 13347543,
+     "share": 0.1129
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 11267570,
+     "share": 0.0953
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 10527450,
+     "share": 0.0891
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 9692432,
+     "share": 0.082
+    },
+    {
+     "code": 764,
+     "iso3": "THA",
+     "name": "Thailand",
+     "usd": 9126853,
+     "share": 0.0772
+    },
+    {
+     "code": 704,
+     "iso3": "VNM",
+     "name": "Viet Nam",
+     "usd": 8702628,
+     "share": 0.0736
+    },
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 7935703,
+     "share": 0.0671
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 6478714,
+     "share": 0.0548
+    },
+    {
+     "code": 752,
+     "iso3": "SWE",
+     "name": "Sweden",
+     "usd": 3933588,
+     "share": 0.0333
+    }
+   ]
+  },
+  "854442": {
+   "hs": "854442",
+   "label": "Insulated conductors fitted with connectors, up to 1,000 V",
+   "year": 2024,
+   "totalUsd": 500197241,
+   "netKg": 9387765.919,
+   "hhi": 2362,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 223178905,
+     "share": 0.4462
+    },
+    {
+     "code": 704,
+     "iso3": "VNM",
+     "name": "Viet Nam",
+     "usd": 75273650,
+     "share": 0.1505
+    },
+    {
+     "code": 842,
+     "iso3": "USA",
+     "name": "USA",
+     "usd": 39515919,
+     "share": 0.079
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 30240102,
+     "share": 0.0605
+    },
+    {
+     "code": 484,
+     "iso3": "MEX",
+     "name": "Mexico",
+     "usd": 19421013,
+     "share": 0.0388
+    },
+    {
+     "code": 360,
+     "iso3": "IDN",
+     "name": "Indonesia",
+     "usd": 14874218,
+     "share": 0.0297
+    },
+    {
+     "code": 410,
+     "iso3": "KOR",
+     "name": "Rep. of Korea",
+     "usd": 11421176,
+     "share": 0.0228
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 11151549,
+     "share": 0.0223
+    },
+    {
+     "code": 616,
+     "iso3": "POL",
+     "name": "Poland",
+     "usd": 8173115,
+     "share": 0.0163
+    },
+    {
+     "code": 392,
+     "iso3": "JPN",
+     "name": "Japan",
+     "usd": 8024946,
+     "share": 0.016
+    }
+   ]
+  },
+  "071290": {
+   "hs": "071290",
+   "label": "Dried vegetables",
+   "year": 2024,
+   "totalUsd": 6228572,
+   "netKg": 2352496.62,
+   "hhi": 2066,
+   "partners": [
+    {
+     "code": 156,
+     "iso3": "CHN",
+     "name": "China",
+     "usd": 2363510,
+     "share": 0.3795
+    },
+    {
+     "code": 792,
+     "iso3": "TUR",
+     "name": "Türkiye",
+     "usd": 1076139,
+     "share": 0.1728
+    },
+    {
+     "code": 276,
+     "iso3": "DEU",
+     "name": "Germany",
+     "usd": 741726,
+     "share": 0.1191
+    },
+    {
+     "code": 376,
+     "iso3": "ISR",
+     "name": "Israel",
+     "usd": 535282,
+     "share": 0.0859
+    },
+    {
+     "code": 818,
+     "iso3": "EGY",
+     "name": "Egypt",
+     "usd": 464801,
+     "share": 0.0746
+    },
+    {
+     "code": 699,
+     "iso3": "IND",
+     "name": "India",
+     "usd": 301214,
+     "share": 0.0484
+    },
+    {
+     "code": 826,
+     "iso3": "GBR",
+     "name": "United Kingdom",
+     "usd": 299533,
+     "share": 0.0481
+    },
+    {
+     "code": 724,
+     "iso3": "ESP",
+     "name": "Spain",
+     "usd": 152904,
+     "share": 0.0245
+    },
+    {
+     "code": 364,
+     "iso3": "IRN",
+     "name": "Iran",
+     "usd": 81096,
+     "share": 0.013
+    },
+    {
+     "code": 348,
+     "iso3": "HUN",
+     "name": "Hungary",
+     "usd": 58314,
+     "share": 0.0094
+    }
+   ]
+  }
+ }
+}

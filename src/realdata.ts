@@ -1,0 +1,102 @@
+// Real public data fetched by scripts/fetch-real-data.mjs, and the district scores derived from it.
+import comtradeFile from './real/comtrade.json';
+import lpiFile from './real/lpi.json';
+import districtList from './geo/districts.json';
+import type { District, Provenance } from './types';
+
+// Optional files: present after `npm run data:refresh` has fetched them
+const optional = import.meta.glob('./real/{climate,osm}.json', { eager: true, import: 'default' }) as Record<string, unknown>;
+interface ClimateRow { heavyRainDays: number; veryHeavyRainDays: number; hotDays: number; annualRainMm: number; maxDayRainMm: number }
+interface OsmRow { industrialAreas: number; railStations: number; airports: number; highwaySegments: number }
+const climateFile = optional['./real/climate.json'] as { source: string; fetched: string; districts: Record<string, ClimateRow> } | undefined;
+const osmFile = optional['./real/osm.json'] as { source: string; fetched: string; districts: Record<string, OsmRow> } | undefined;
+
+export interface TradePartner { code: number; iso3: string; name: string; usd: number; share: number }
+export interface TradeStat { hs: string; label: string; year: number | null; totalUsd: number; hhi: number; partners: TradePartner[] }
+
+export const SOURCES = {
+  comtrade: { name: 'UN Comtrade', detail: comtradeFile.source, fetched: comtradeFile.fetched, url: 'https://comtradeplus.un.org' },
+  lpi: { name: 'World Bank LPI', detail: lpiFile.source, fetched: lpiFile.fetched, url: 'https://lpi.worldbank.org' },
+  climate: { name: 'Open-Meteo', detail: climateFile?.source ?? 'Not fetched yet', fetched: climateFile?.fetched ?? '', url: 'https://open-meteo.com' },
+  osm: { name: 'OpenStreetMap', detail: osmFile?.source ?? 'Not fetched yet', fetched: osmFile?.fetched ?? '', url: 'https://www.openstreetmap.org/copyright' },
+};
+
+export function trade(hs?: string): TradeStat | null {
+  if (!hs) return null;
+  const t = (comtradeFile.codes as Record<string, TradeStat>)[hs];
+  return t && t.year ? t : null;
+}
+
+export function lpi(iso3: string): { score: number; year: number } | null {
+  return (lpiFile.countries as Record<string, { score: number; year: number }>)[iso3] ?? null;
+}
+
+// ---------- District scores ----------
+
+const MAJOR_PORTS: [string, number, number][] = [
+  ['Mundra', 69.7, 22.75], ['Kandla', 70.22, 23.0], ['JNPT', 72.95, 18.95], ['Mormugao', 73.8, 15.41], ['New Mangalore', 74.81, 12.93],
+  ['Kochi', 76.26, 9.97], ['Tuticorin', 78.2, 8.75], ['Chennai', 80.3, 13.1], ['Kamarajar', 80.33, 13.26], ['Krishnapatnam', 80.13, 14.25],
+  ['Visakhapatnam', 83.3, 17.69], ['Paradip', 86.67, 20.26], ['Kolkata/Haldia', 88.07, 22.03],
+];
+
+/** State-level grid reliability, 0-1. An estimate: no open dataset was reachable at district level. */
+const POWER_EST: Record<string, number> = {
+  'Tamil Nadu': 0.9, Karnataka: 0.86, Maharashtra: 0.9, Gujarat: 0.93, 'Dadra and Nagar Haveli': 0.9, Haryana: 0.9, 'Uttar Pradesh': 0.78,
+  Punjab: 0.88, 'Madhya Pradesh': 0.83, Jharkhand: 0.72, 'West Bengal': 0.82, Odisha: 0.8, 'Andhra Pradesh': 0.87, Kerala: 0.9, Assam: 0.74, Tripura: 0.75,
+};
+
+const kmBetween = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const r = 6371, rad = Math.PI / 180;
+  const h = Math.sin(((lat2 - lat1) * rad) / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(((lon2 - lon1) * rad) / 2) ** 2;
+  return 2 * r * Math.asin(Math.sqrt(h));
+};
+
+type Base = { id: string; name: string; state: string; lat: number; lon: number };
+const base = districtList as Base[];
+
+const norm = (vals: number[]) => {
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  return (v: number) => (hi === lo ? 0.5 : (v - lo) / (hi - lo));
+};
+
+export interface DistrictMetrics {
+  climate: ClimateRow | null;
+  osm: OsmRow | null;
+  nearestPort: { name: string; km: number };
+  climateScore: number;
+  connectivityScore: number;
+  industrialScore: number;
+  power: number;
+  provenance: { climate: Provenance; connectivity: Provenance; industrial: Provenance; power: Provenance };
+}
+
+const climateRows = base.map((d) => climateFile?.districts[d.id] ?? null);
+const osmRows = base.map((d) => osmFile?.districts[d.id] ?? null);
+const nHeavy = norm(climateRows.filter(Boolean).map((c) => c!.heavyRainDays));
+const nVery = norm(climateRows.filter(Boolean).map((c) => c!.veryHeavyRainDays));
+const nHot = norm(climateRows.filter(Boolean).map((c) => c!.hotDays));
+const nRail = norm(osmRows.filter(Boolean).map((o) => Math.log1p(o!.railStations)));
+const nRoad = norm(osmRows.filter(Boolean).map((o) => Math.log1p(o!.highwaySegments)));
+const nInd = norm(osmRows.filter(Boolean).map((o) => Math.log1p(o!.industrialAreas)));
+
+export const METRICS: Record<string, DistrictMetrics> = Object.fromEntries(base.map((d, i) => {
+  const c = climateRows[i], o = osmRows[i];
+  const port = MAJOR_PORTS.map(([name, lon, lat]) => ({ name, km: Math.round(kmBetween(d.lat, d.lon, lat, lon) * 1.3) })).sort((a, b) => a.km - b.km)[0];
+  const portScore = Math.max(0, 1 - port.km / 900);
+  const climateScore = c ? 0.1 + 0.8 * (0.4 * nHeavy(c.heavyRainDays) + 0.3 * nVery(c.veryHeavyRainDays) + 0.3 * nHot(c.hotDays)) : 0.35;
+  const connectivityScore = o ? 0.3 * nRail(Math.log1p(o.railStations)) + 0.2 * (o.airports > 0 ? 1 : 0) + 0.2 * nRoad(Math.log1p(o.highwaySegments)) + 0.3 * portScore : 0.4 + 0.3 * portScore;
+  const industrialScore = o ? nInd(Math.log1p(o.industrialAreas)) : 0.4;
+  return [d.id, {
+    climate: c, osm: o, nearestPort: port,
+    climateScore: +climateScore.toFixed(2), connectivityScore: +connectivityScore.toFixed(2), industrialScore: +industrialScore.toFixed(2),
+    power: POWER_EST[d.state] ?? 0.8,
+    provenance: { climate: c ? 'public' : 'estimated', connectivity: o ? 'public' : 'estimated', industrial: o ? 'public' : 'estimated', power: 'estimated' },
+  } as DistrictMetrics];
+}));
+
+export const ALL_DISTRICTS: District[] = base.map((d) => ({
+  ...d,
+  climateRisk: METRICS[d.id].climateScore,
+  power: METRICS[d.id].power,
+  connectivity: +METRICS[d.id].connectivityScore.toFixed(2),
+}));

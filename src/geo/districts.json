@@ -1,0 +1,226 @@
+[
+ {
+  "id": "hosur",
+  "name": "Hosur",
+  "state": "Tamil Nadu",
+  "lat": 12.74,
+  "lon": 77.83
+ },
+ {
+  "id": "krishnagiri",
+  "name": "Krishnagiri",
+  "state": "Tamil Nadu",
+  "lat": 12.52,
+  "lon": 78.21
+ },
+ {
+  "id": "chennai",
+  "name": "Sriperumbudur",
+  "state": "Tamil Nadu",
+  "lat": 12.97,
+  "lon": 79.95
+ },
+ {
+  "id": "coimbatore",
+  "name": "Coimbatore",
+  "state": "Tamil Nadu",
+  "lat": 11.02,
+  "lon": 76.96
+ },
+ {
+  "id": "madurai",
+  "name": "Madurai",
+  "state": "Tamil Nadu",
+  "lat": 9.93,
+  "lon": 78.12
+ },
+ {
+  "id": "tiruppur",
+  "name": "Tiruppur",
+  "state": "Tamil Nadu",
+  "lat": 11.11,
+  "lon": 77.34
+ },
+ {
+  "id": "dharwad",
+  "name": "Dharwad",
+  "state": "Karnataka",
+  "lat": 15.46,
+  "lon": 75.01
+ },
+ {
+  "id": "tumakuru",
+  "name": "Tumakuru",
+  "state": "Karnataka",
+  "lat": 13.34,
+  "lon": 77.1
+ },
+ {
+  "id": "mysuru",
+  "name": "Mysuru",
+  "state": "Karnataka",
+  "lat": 12.3,
+  "lon": 76.64
+ },
+ {
+  "id": "pune",
+  "name": "Chakan, Pune",
+  "state": "Maharashtra",
+  "lat": 18.76,
+  "lon": 73.86
+ },
+ {
+  "id": "satara",
+  "name": "Satara",
+  "state": "Maharashtra",
+  "lat": 17.68,
+  "lon": 74
+ },
+ {
+  "id": "aurangabad",
+  "name": "Chhatrapati Sambhajinagar",
+  "state": "Maharashtra",
+  "lat": 19.88,
+  "lon": 75.34
+ },
+ {
+  "id": "nashik",
+  "name": "Nashik",
+  "state": "Maharashtra",
+  "lat": 20,
+  "lon": 73.79
+ },
+ {
+  "id": "nagpur",
+  "name": "Nagpur",
+  "state": "Maharashtra",
+  "lat": 21.15,
+  "lon": 79.09
+ },
+ {
+  "id": "silvassa",
+  "name": "Silvassa",
+  "state": "Dadra and Nagar Haveli",
+  "lat": 20.27,
+  "lon": 73.02
+ },
+ {
+  "id": "vapi",
+  "name": "Vapi",
+  "state": "Gujarat",
+  "lat": 20.37,
+  "lon": 72.9
+ },
+ {
+  "id": "rajkot",
+  "name": "Rajkot",
+  "state": "Gujarat",
+  "lat": 22.3,
+  "lon": 70.8
+ },
+ {
+  "id": "sanand",
+  "name": "Sanand",
+  "state": "Gujarat",
+  "lat": 22.99,
+  "lon": 72.38
+ },
+ {
+  "id": "manesar",
+  "name": "Manesar",
+  "state": "Haryana",
+  "lat": 28.36,
+  "lon": 76.94
+ },
+ {
+  "id": "noida",
+  "name": "Noida",
+  "state": "Uttar Pradesh",
+  "lat": 28.54,
+  "lon": 77.39
+ },
+ {
+  "id": "lucknow",
+  "name": "Lucknow",
+  "state": "Uttar Pradesh",
+  "lat": 26.85,
+  "lon": 80.95
+ },
+ {
+  "id": "ludhiana",
+  "name": "Ludhiana",
+  "state": "Punjab",
+  "lat": 30.9,
+  "lon": 75.85
+ },
+ {
+  "id": "pithampur",
+  "name": "Pithampur",
+  "state": "Madhya Pradesh",
+  "lat": 22.61,
+  "lon": 75.68
+ },
+ {
+  "id": "jamshedpur",
+  "name": "Jamshedpur",
+  "state": "Jharkhand",
+  "lat": 22.8,
+  "lon": 86.18
+ },
+ {
+  "id": "howrah",
+  "name": "Howrah",
+  "state": "West Bengal",
+  "lat": 22.59,
+  "lon": 88.31
+ },
+ {
+  "id": "khordha",
+  "name": "Khordha",
+  "state": "Odisha",
+  "lat": 20.3,
+  "lon": 85.82
+ },
+ {
+  "id": "visakhapatnam",
+  "name": "Visakhapatnam",
+  "state": "Andhra Pradesh",
+  "lat": 17.69,
+  "lon": 83.22
+ },
+ {
+  "id": "vijayawada",
+  "name": "Vijayawada",
+  "state": "Andhra Pradesh",
+  "lat": 16.51,
+  "lon": 80.65
+ },
+ {
+  "id": "anantapur",
+  "name": "Anantapur",
+  "state": "Andhra Pradesh",
+  "lat": 14.68,
+  "lon": 77.6
+ },
+ {
+  "id": "kochi",
+  "name": "Kochi",
+  "state": "Kerala",
+  "lat": 9.98,
+  "lon": 76.28
+ },
+ {
+  "id": "guwahati",
+  "name": "Guwahati",
+  "state": "Assam",
+  "lat": 26.14,
+  "lon": 91.74
+ },
+ {
+  "id": "agartala",
+  "name": "Agartala",
+  "state": "Tripura",
+  "lat": 23.83,
+  "lon": 91.28
+ }
+]

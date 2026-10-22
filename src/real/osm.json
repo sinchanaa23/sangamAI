@@ -1,0 +1,66 @@
+{
+ "source": "OpenStreetMap via Overpass API (ODbL): industrial land-use areas within 20 km, rail stations within 25 km, airports with IATA codes within 80 km, motorway/trunk road segments within 20 km",
+ "fetched": "2026-10-22",
+ "districts": {
+  "hosur": {
+   "industrialAreas": 363,
+   "railStations": 14,
+   "airports": 1,
+   "highwaySegments": 300
+  },
+  "coimbatore": {
+   "industrialAreas": 183,
+   "railStations": 13,
+   "airports": 1,
+   "highwaySegments": 540
+  },
+  "madurai": {
+   "industrialAreas": 76,
+   "railStations": 10,
+   "airports": 1,
+   "highwaySegments": 579
+  },
+  "dharwad": {
+   "industrialAreas": 38,
+   "railStations": 10,
+   "airports": 2,
+   "highwaySegments": 129
+  },
+  "mysuru": {
+   "industrialAreas": 129,
+   "railStations": 10,
+   "airports": 1,
+   "highwaySegments": 241
+  },
+  "pune": {
+   "industrialAreas": 176,
+   "railStations": 46,
+   "airports": 1,
+   "highwaySegments": 368
+  },
+  "nashik": {
+   "industrialAreas": 210,
+   "railStations": 5,
+   "airports": 3,
+   "highwaySegments": 254
+  },
+  "vapi": {
+   "industrialAreas": 118,
+   "railStations": 7,
+   "airports": 1,
+   "highwaySegments": 167
+  },
+  "krishnagiri": {
+   "industrialAreas": 17,
+   "railStations": 1,
+   "airports": 0,
+   "highwaySegments": 199
+  },
+  "chennai": {
+   "industrialAreas": 317,
+   "railStations": 41,
+   "airports": 1,
+   "highwaySegments": 572
+  }
+ }
+}

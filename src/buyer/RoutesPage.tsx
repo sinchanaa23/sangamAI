@@ -1,42 +1,29 @@
 import { useState } from 'react';
 import { CartesianGrid, LabelList, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from 'recharts';
 import { bom, buyer } from '../data';
-import { district, inr } from '../engine';
-import type { Chain } from '../engine';
-import { CHENNAI_PORT, domesticLanes, evaluateLanes, importInlandLane } from '../routes';
-import type { DomesticLane, LaneResult, Mode } from '../routes';
-import type { Chokepoint, Scenario } from '../scenario';
+import { district, inr, isRural } from '../engine';
+import { partRoute, rank } from '../chainRoute';
+import type { Priority } from '../chainRoute';
+import { CHENNAI_PORT, evaluateLanes, importInlandLane, todayLane } from '../routes';
+import type { LaneResult, Mode } from '../routes';
 import { CHOKEPOINTS } from '../scenario';
+import { trustScore } from '../trust';
+import { useStore } from '../store';
+import { useUi } from '../ui';
 import MapCanvas from '../components/MapCanvas';
 import type { MapLine, MapPoint } from '../components/MapCanvas';
+import Roadmap, { LandedCostBar } from '../components/Roadmap';
 import Tabs from '../components/Tabs';
+import Src from '../components/Src';
+import { useBuyer } from './context';
 
 export type RouteTab = 'intl' | 'domestic';
-type Priority = 'cost' | 'time' | 'balanced';
-
-interface Props {
-  tab: RouteTab;
-  setTab: (t: RouteTab) => void;
-  scenario: Scenario;
-  risk: Record<Chokepoint, number>;
-  chain: Chain;
-}
 
 const PRIORITIES: { id: Priority; label: string }[] = [
   { id: 'cost', label: 'Cheapest' },
   { id: 'time', label: 'Fastest' },
   { id: 'balanced', label: 'Balanced' },
 ];
-
-function rank<T>(items: T[], cost: (t: T) => number, time: (t: T) => number, extra: (t: T) => number, p: Priority): T[] {
-  const n = (f: (t: T) => number) => {
-    const v = items.map(f), lo = Math.min(...v), hi = Math.max(...v);
-    return (t: T) => (hi === lo ? 0 : (f(t) - lo) / (hi - lo));
-  };
-  const c = n(cost), t = n(time);
-  const w = p === 'cost' ? [1, 0.15] : p === 'time' ? [0.15, 1] : [1, 1];
-  return [...items].sort((a, b) => w[0] * c(a) + w[1] * t(a) + extra(a) - (w[0] * c(b) + w[1] * t(b) + extra(b)));
-}
 
 function PriorityPills({ value, onChange }: { value: Priority; onChange: (p: Priority) => void }) {
   return (
@@ -46,27 +33,32 @@ function PriorityPills({ value, onChange }: { value: Priority; onChange: (p: Pri
   );
 }
 
-export default function RoutesPage({ tab, setTab, scenario, risk, chain }: Props) {
+const pct = (x: number) => `${Math.round(x * 100)}%`;
+
+export default function RoutesPage() {
+  const { routeTab: tab, setRouteTab: setTab } = useBuyer();
   return (
     <div>
       <Tabs tabs={[{ id: 'intl', label: 'International' }, { id: 'domestic', label: 'Domestic' }]} value={tab} onChange={setTab} />
-      {tab === 'intl' ? <International scenario={scenario} risk={risk} /> : <Domestic chain={chain} />}
+      {tab === 'intl' ? <International /> : <Domestic />}
     </div>
   );
 }
 
 // ---------------- International ----------------
 
-function International({ scenario, risk }: { scenario: Scenario; risk: Record<Chokepoint, number> }) {
+function International() {
+  const { scenario, risk } = useBuyer();
   const [priority, setPriority] = useState<Priority>('balanced');
   const [picked, setPicked] = useState<string | null>(null);
   const all = evaluateLanes(scenario, risk);
-  const today = all.find((r) => r.lane.id === 'cn-sea')!;
-  const open = all.filter((r) => r.status !== 'blocked' && r.lane.id !== 'cn-sea');
-  const ranked = rank(open, (r) => r.costPerHarness, (r) => r.days, (r) => r.risk * 0.6, priority);
+  const today = all.find((r) => r.lane.id === todayLane().id)!;
+  const open = all.filter((r) => r.status !== 'blocked' && r !== today);
+  const ranked = rank(open, (r) => r.costPerUnit, (r) => r.p90, (r) => r.risk * 0.6 + (1 - r.reliability) * 0.5, priority);
   const best = ranked[0];
   const sel = all.find((r) => r.lane.id === picked) ?? best;
-  const vs = (r: LaneResult) => ((r.costPerHarness - today.costPerHarness) / today.costPerHarness) * 100;
+  const vs = (r: LaneResult) => ((r.costPerUnit - today.costPerUnit) / today.costPerUnit) * 100;
+  const u = buyer.unitLabel;
 
   const lines: MapLine[] = [
     ...all.filter((r) => r !== sel && r !== today).flatMap((r) => r.paths.map((p, i) => ({ id: `${r.lane.id}${i}`, coords: p, color: '#94a3b8', width: 1.2, opacity: 0.55, dash: r.lane.mode === 'air' ? '3 4' : undefined }))),
@@ -76,23 +68,21 @@ function International({ scenario, risk }: { scenario: Scenario; risk: Record<Ch
   const points: MapPoint[] = [
     ...all.filter((r) => r.lane.mode === 'sea').map((r) => ({
       id: r.lane.id, at: r.lane.originPoint, color: r === sel ? '#0f766e' : r === today ? '#334155' : '#64748b', r: r === sel ? 5 : 3.5,
-      label: r.lane.country.replace(' (EU)', ''), bold: r === sel, side: (r.lane.id === 'eu-sea' || r.lane.id === 'ae-sea' ? 'top' : r.lane.id === 'th-sea' || r.lane.id === 'kr-sea' || r.lane.id === 'cn-sea' ? 'left' : 'right') as MapPoint['side'],
+      label: r.lane.country.replace(' (EU)', ''), bold: r === sel, side: (r.lane.id === 'eu-sea' || r.lane.id === 'ae-sea' ? 'top' : ['th-sea', 'kr-sea', 'cn-sea'].includes(r.lane.id) ? 'left' : 'right') as MapPoint['side'],
     })),
     { id: 'chennai', at: CHENNAI_PORT, color: '#0f766e', label: 'Chennai', side: 'bottom', bold: true },
     ...CHOKEPOINTS.filter((c) => scenario.closed[c.id]).map((c) => ({ id: c.id, at: [c.lon, c.lat] as [number, number], color: '#b91c1c', r: 5, ring: true })),
   ];
-
-  const scatter = all.filter((r) => r.status !== 'blocked').map((r) => ({ id: r.lane.id, name: r.lane.mode === 'air' ? 'China (air)' : r.lane.country.replace(' (EU)', ''), days: r.days, cost: Math.round(r.costPerHarness) }));
+  const scatter = all.filter((r) => r.status !== 'blocked').map((r) => ({ id: r.lane.id, name: r.lane.mode === 'air' ? `${r.lane.country} (air)` : r.lane.country.replace(' (EU)', ''), days: r.p90, cost: Math.round(r.costPerUnit) }));
+  const compare = Object.fromEntries(today.legs.map((l) => [l.id, l]));
 
   return (
     <div className="stack">
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 className="lead">
-            Best alternative: {best.lane.origin}, {best.lane.country}
-          </h1>
+          <h1 className="lead">Best alternative: {best.lane.origin}, {best.lane.country}</h1>
           <p className="muted" style={{ marginTop: 6 }}>
-            {best.days} days and {inr(best.costPerHarness)} per harness, {Math.abs(vs(best)).toFixed(1)}% {vs(best) < 0 ? 'cheaper' : 'dearer'} than today&apos;s lane under your scenario.
+            {best.days} days (up to {best.p90}) and {inr(best.costPerUnit)} per {u} landed, {Math.abs(vs(best)).toFixed(1)}% {vs(best) < 0 ? 'cheaper' : 'dearer'} than today&apos;s route under your scenario.
           </p>
         </div>
         <PriorityPills value={priority} onChange={(p) => { setPriority(p); setPicked(null); }} />
@@ -101,57 +91,58 @@ function International({ scenario, risk }: { scenario: Scenario; risk: Record<Ch
       <div className="card">
         <MapCanvas view="world" lines={lines} points={points} ariaLabel="International supply routes to Chennai" />
         <div className="legend">
-          <span><i style={{ background: '#334155' }} />Today: Shanghai</span>
+          <span><i style={{ background: '#334155' }} />Today: {today.lane.origin}</span>
           <span><i style={{ background: '#0f766e' }} />Selected: {sel.lane.origin}</span>
           <span><i style={{ background: '#94a3b8' }} />Other options</span>
           {CHOKEPOINTS.some((c) => scenario.closed[c.id]) && <span><i className="dot" style={{ background: '#b91c1c' }} />Closed in your scenario</span>}
         </div>
       </div>
 
-      <div className="grid-2" style={{ gridTemplateColumns: '1fr 1.25fr' }}>
+      <div className="grid-2" style={{ gridTemplateColumns: '1fr 1.3fr' }}>
         <div className="card">
-          <div className="section-title">Time vs cost</div>
+          <div className="section-title">Time vs landed cost</div>
           <div style={{ height: 300 }}>
             <ResponsiveContainer>
-              <ScatterChart margin={{ top: 10, right: 64, bottom: 18, left: 8 }}>
+              <ScatterChart margin={{ top: 10, right: 70, bottom: 18, left: 8 }}>
                 <CartesianGrid stroke="#eef0f3" />
-                <XAxis type="number" dataKey="days" name="Days" unit=" d" tick={{ fontSize: 12, fill: '#5a6472' }} label={{ value: 'Door-to-door days', position: 'insideBottom', offset: -10, fontSize: 12, fill: '#8a93a0' }} />
-                <YAxis type="number" dataKey="cost" name="Cost" domain={['auto', 'auto']} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#5a6472' }} width={60} />
+                <XAxis type="number" dataKey="days" name="Days" unit=" d" tick={{ fontSize: 12, fill: '#5a6472' }} label={{ value: 'Worst-case door-to-door days', position: 'insideBottom', offset: -10, fontSize: 12, fill: '#8a93a0' }} />
+                <YAxis type="number" dataKey="cost" name="Cost" domain={['auto', 'auto']} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#5a6472' }} width={70} />
                 <ZAxis range={[90, 90]} />
                 <Tooltip formatter={(v: number, n: string) => (n === 'Cost' ? inr(v) : `${v} days`)} cursor={false} />
                 <Scatter data={scatter} isAnimationActive={false} onClick={(d: { id: string }) => setPicked(d.id)} shape={(raw: unknown) => {
-                  const props = raw as { cx: number; cy: number; payload: { id: string } };
-                  return <circle cx={props.cx} cy={props.cy} r={props.payload.id === sel.lane.id ? 8 : 6} fill={props.payload.id === sel.lane.id ? '#0f766e' : props.payload.id === 'cn-sea' ? '#334155' : '#94a3b8'} style={{ cursor: 'pointer' }} />;
+                  const p = raw as { cx: number; cy: number; payload: { id: string } };
+                  return <circle cx={p.cx} cy={p.cy} r={p.payload.id === sel.lane.id ? 8 : 6} fill={p.payload.id === sel.lane.id ? '#0f766e' : p.payload.id === today.lane.id ? '#334155' : '#94a3b8'} style={{ cursor: 'pointer' }} />;
                 }}>
-                  <LabelList dataKey="name" position="right" style={{ fontSize: 11, fill: '#5a6472' }} />
+                  <LabelList dataKey="name" content={(raw: unknown) => {
+                    const p = raw as { x: number; y: number; width: number; height: number; value: string };
+                    return <text x={p.x + p.width + 4} y={p.y + p.height / 2 + 4} fontSize={11} fill="#5a6472">{p.value}</text>;
+                  }} />
                 </Scatter>
               </ScatterChart>
             </ResponsiveContainer>
           </div>
-          <p className="tiny">Lower and further left is better. Click a dot to show its route.</p>
+          <p className="tiny">Lower and further left is better. Click a dot to see its roadmap.</p>
         </div>
 
         <div className="card">
           <div className="section-title">All options</div>
           <div className="table-wrap">
             <table>
-              <thead>
-                <tr><th>From</th><th className="num">Days</th><th className="num">Per harness</th><th className="num">vs today</th><th>Status</th></tr>
-              </thead>
+              <thead><tr><th>From</th><th className="num">Days</th><th className="num">Landed / {u}</th><th className="num">On time</th><th>Status</th></tr></thead>
               <tbody>
                 {[today, ...ranked, ...all.filter((r) => r.status === 'blocked')].map((r) => (
                   <tr key={r.lane.id} className={`rowsel ${r === sel ? 'on' : ''}`} onClick={() => setPicked(r.lane.id)}>
                     <td>
-                      <div style={{ fontWeight: 500 }}>{r.lane.origin}{r.lane.id === 'cn-sea' && <span className="tiny"> · today</span>}</div>
-                      <div className="tiny">{r.lane.country}{r.lane.agreement ? ` · ${r.lane.agreement}` : ''}</div>
+                      <div style={{ fontWeight: 500 }}>{r.lane.origin}{r === today && <span className="tiny"> · today</span>}</div>
+                      <div className="tiny">{r.lane.country}{r.lane.agreement ? ` · ${r.lane.agreement}` : ''}{r.lpi ? ` · LPI ${r.lpi}` : ''}</div>
                     </td>
-                    <td className="num">{r.status === 'blocked' ? '—' : r.days}</td>
-                    <td className="num">{r.status === 'blocked' ? '—' : inr(r.costPerHarness)}</td>
-                    <td className={`num ${vs(r) > 0.5 ? 'up' : vs(r) < -0.5 ? 'down' : ''}`}>{r.lane.id === 'cn-sea' || r.status === 'blocked' ? '' : `${vs(r) > 0 ? '+' : ''}${vs(r).toFixed(1)}%`}</td>
+                    <td className="num">{r.status === 'blocked' ? '—' : <>{r.days}<div className="tiny">up to {r.p90}</div></>}</td>
+                    <td className="num">{r.status === 'blocked' ? '—' : <>{inr(r.costPerUnit)}{r !== today && <div className={`tiny ${vs(r) > 0.5 ? 'up' : vs(r) < -0.5 ? 'down' : ''}`}>{vs(r) > 0 ? '+' : ''}{vs(r).toFixed(1)}%</div>}</>}</td>
+                    <td className="num">{r.status === 'blocked' ? '—' : pct(r.reliability)}</td>
                     <td>
                       {r.status === 'blocked' ? <span className="chip danger">Blocked</span>
                         : r.status === 'rerouted' ? <span className="chip potential" title={r.note}>Rerouted</span>
-                          : r.chokepoints.length ? <span className="chip plain" title={r.chokepoints.join(', ')}>via {r.chokepoints.length} strait{r.chokepoints.length > 1 ? 's' : ''}</span>
+                          : r.chokepoints.length ? <span className="chip plain">via {r.chokepoints.length} strait{r.chokepoints.length > 1 ? 's' : ''}</span>
                             : <span className="chip ready">Direct</span>}
                     </td>
                   </tr>
@@ -159,9 +150,27 @@ function International({ scenario, risk }: { scenario: Scenario; risk: Record<Ch
               </tbody>
             </table>
           </div>
+          <p className="tiny" style={{ marginTop: 8 }}>LPI = World Bank Logistics Performance Index of the origin country <Src kind="public" />. It sets each route&apos;s port and schedule reliability.</p>
         </div>
       </div>
-      <p className="tiny">Sea speed 700 km a day plus port, customs and road time. Supplier prices, freight rates and trade-agreement duty cuts are simulated.</p>
+
+      {sel.status !== 'blocked' && (
+        <div className="card">
+          <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+            <div>
+              <div className="eyebrow">Route roadmap</div>
+              <h2 className="lead" style={{ fontSize: 21, marginTop: 4 }}>{sel.lane.origin}, {sel.lane.country} → your plant</h2>
+              <p className="small muted" style={{ marginTop: 4 }}>
+                {sel.legs.length} legs · {sel.days} days on average, {sel.p90} in a bad month · {inr(sel.costPerUnit)} per {u} landed · {pct(sel.reliability)} chance of arriving on plan · {sel.co2Kg.toFixed(1)} kg CO₂ per {u}
+                {sel !== today && <> · cost differences shown against today&apos;s {today.lane.origin} route</>}
+              </p>
+            </div>
+          </div>
+          <div style={{ margin: '14px 0 18px' }}><LandedCostBar legs={sel.legs} /></div>
+          <Roadmap legs={sel.legs} unit={u} compare={sel !== today ? compare : undefined} />
+          <p className="tiny">Port charges, freight rates, duty and supplier quality are indicative or simulated (tags on each leg). Documents and the sequence of steps follow real Indian import practice.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -171,46 +180,34 @@ function International({ scenario, risk }: { scenario: Scenario; risk: Record<Ch
 const MODE_COLOR: Record<Mode, string> = { road: '#475569', rail: '#7c3aed', coastal: '#0891b2' };
 const MODE_LABEL: Record<Mode, string> = { road: 'Road', rail: 'Rail', coastal: 'Coastal ship' };
 
-function Domestic({ chain }: { chain: Chain }) {
+function Domestic() {
+  const { chain } = useBuyer();
+  const { state } = useStore();
+  const { openSupplier } = useUi();
   const [priority, setPriority] = useState<Priority>('balanced');
-  const plantId = buyer.plantDistrictId;
-  const plant = district(plantId);
+  const [openPart, setOpenPart] = useState<string | null>(null);
+  const plant = district(buyer.plantDistrictId);
+  const u = buyer.unitLabel;
 
-  // Group the chain's suppliers by district: tonnes per month and which parts
-  const byDistrict = new Map<string, { tonnes: number; parts: string[] }>();
-  bom.forEach((line) => {
+  const parts = bom.map((line) => {
     const o = chain.picks[line.id];
-    if (!o) return;
+    if (!o) return { line, routes: [] };
     const cap = o.sellers.reduce((t, x) => t + x.monthlyCapacity, 0);
-    o.sellers.forEach((s) => {
-      if (s.districtId === plantId) return;
-      const share = o.sellers.length === 1 ? 1 : s.monthlyCapacity / cap;
-      const e = byDistrict.get(s.districtId) ?? { tonnes: 0, parts: [] };
-      e.tonnes += (line.weightKg * share * buyer.monthlyUnits) / 1000;
-      if (!e.parts.includes(line.name)) e.parts.push(line.name);
-      byDistrict.set(s.districtId, e);
-    });
+    return { line, routes: o.sellers.map((s) => partRoute(line, s, o.sellers.length === 1 ? 1 : s.monthlyCapacity / cap, priority)) };
   });
-
-  const lanes = [...byDistrict.entries()].map(([id, e]) => {
-    const opts = domesticLanes(district(id));
-    const best = rank(opts, (l) => l.costPerT, (l) => l.days, () => 0, priority)[0];
-    return { id, ...e, opts, best };
-  });
-  const monthly = (l: DomesticLane, t: number) => l.costPerT * t;
-  const chosenCost = lanes.reduce((t, l) => t + monthly(l.best, l.tonnes), 0);
-  const roadCost = lanes.reduce((t, l) => t + monthly(l.opts[0], l.tonnes), 0);
-  const chosenCo2 = lanes.reduce((t, l) => t + l.best.co2PerT * l.tonnes, 0);
-  const roadCo2 = lanes.reduce((t, l) => t + l.opts[0].co2PerT * l.tonnes, 0);
+  const allRoutes = parts.flatMap((p) => p.routes);
+  const freightMonth = allRoutes.reduce((t, r) => t + r.legs.filter((l) => l.mode !== 'make' && l.mode !== 'check').reduce((s, l) => s + l.cost, 0) * r.share * buyer.monthlyUnits, 0);
+  const co2Month = allRoutes.reduce((t, r) => t + r.co2 * r.share * buyer.monthlyUnits, 0);
   const inland = importInlandLane();
 
   const lines: MapLine[] = [
     { id: 'imp', coords: inland.path, color: '#94a3b8', width: 2, dash: '5 4' },
-    ...lanes.flatMap((l) => l.opts.filter((o) => o !== l.best).map((o) => ({ id: `${l.id}-${o.mode}`, coords: o.path, color: MODE_COLOR[o.mode], width: 1, opacity: 0.25 }))),
-    ...lanes.map((l) => ({ id: `${l.id}-best`, coords: l.best.path, color: MODE_COLOR[l.best.mode], width: 2.6, dash: l.best.mode === 'coastal' ? '2 4' : undefined })),
+    ...allRoutes.flatMap((r) => r.options.filter((o) => o !== r.lane).map((o) => ({ id: `${r.seller.id}-${o.mode}`, coords: o.path, color: MODE_COLOR[o.mode], width: 1, opacity: 0.25 }))),
+    ...allRoutes.filter((r) => r.lane).map((r) => ({ id: `${r.seller.id}-best`, coords: r.lane!.path, color: MODE_COLOR[r.lane!.mode], width: 2.6, dash: r.lane!.mode === 'coastal' ? '2 4' : undefined })),
   ];
+  const seen = new Set<string>();
   const points: MapPoint[] = [
-    ...lanes.map((l) => ({ id: l.id, at: [district(l.id).lon, district(l.id).lat] as [number, number], color: MODE_COLOR[l.best.mode], hollow: true, label: district(l.id).name, side: (['vapi', 'rajkot'].includes(l.id) ? 'left' : 'right') as MapPoint['side'] })),
+    ...allRoutes.filter((r) => r.lane && !seen.has(r.seller.districtId) && seen.add(r.seller.districtId)).map((r) => ({ id: r.seller.districtId, at: [district(r.seller.districtId).lon, district(r.seller.districtId).lat] as [number, number], color: MODE_COLOR[r.lane!.mode], hollow: true, label: district(r.seller.districtId).name, side: (['vapi', 'rajkot', 'sanand', 'satara', 'dharwad'].includes(r.seller.districtId) ? 'left' : 'right') as MapPoint['side'] })),
     { id: 'chennai', at: CHENNAI_PORT, color: '#94a3b8', r: 3.5, label: 'Chennai port', side: 'right' },
     { id: 'plant', at: [plant.lon, plant.lat], color: '#0f766e', r: 6, ring: true, label: `Plant, ${plant.name}`, side: 'left', bold: true },
   ];
@@ -219,11 +216,9 @@ function Domestic({ chain }: { chain: Chain }) {
     <div className="stack">
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 className="lead">Moving parts inside India for the {chain.name.toLowerCase()} chain</h1>
+          <h1 className="lead">Indian routes for the {chain.name.toLowerCase()} chain</h1>
           <p className="muted" style={{ marginTop: 6 }}>
-            {lanes.length} supplier districts ship to your plant. The best mix costs {inr(chosenCost)} a month
-            {roadCost - chosenCost > 1 ? `, ${inr(roadCost - chosenCost)} less than all-road` : ''} and emits {Math.round(chosenCo2).toLocaleString('en-IN')} kg CO₂
-            {roadCo2 - chosenCo2 > 1 ? ` (${Math.round(((roadCo2 - chosenCo2) / roadCo2) * 100)}% less than road)` : ''}.
+            Inbound freight about {inr(freightMonth)} a month and {Math.round(co2Month).toLocaleString('en-IN')} kg CO₂. Open a part to see its full roadmap: inputs, supplier, every transport leg and inspection.
           </p>
         </div>
         <PriorityPills value={priority} onChange={setPriority} />
@@ -236,36 +231,65 @@ function Domestic({ chain }: { chain: Chain }) {
             <span><i style={{ background: MODE_COLOR.road }} />Road</span>
             <span><i style={{ background: MODE_COLOR.rail }} />Rail</span>
             <span><i style={{ background: MODE_COLOR.coastal }} />Coastal ship</span>
-            <span><i style={{ background: '#94a3b8' }} />Today: imports from Chennai port</span>
+            <span><i style={{ background: '#94a3b8' }} />Today: imports via Chennai port</span>
           </div>
-          <p className="tiny" style={{ marginTop: 8 }}>India boundary: DataMeet (CC BY 4.0). Routes are illustrative.</p>
+          <p className="tiny" style={{ marginTop: 8 }}>India boundary: DataMeet (CC BY 4.0). Routes are drawn straight for clarity.</p>
         </div>
 
         <div className="card">
-          <div className="section-title">Mode options per lane</div>
-          <div className="stack" style={{ gap: 14 }}>
-            {lanes.map((l) => (
-              <div key={l.id} style={{ borderTop: '1px solid var(--line)', paddingTop: 12 }}>
-                <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                  <b style={{ fontWeight: 600 }}>{district(l.id).name} → {plant.name}</b>
-                  <span className="tiny">{l.tonnes.toFixed(1)} t/month · {l.parts.join(', ')}</span>
-                </div>
-                <div className="toggle-row" style={{ marginTop: 8 }}>
-                  {l.opts.map((o) => (
-                    <div key={o.mode} className={`pill ${o === l.best ? 'on' : ''}`} style={{ borderRadius: 10, padding: '6px 10px' }}>
-                      <b style={{ color: MODE_COLOR[o.mode] }}>{MODE_LABEL[o.mode]}</b>{' '}
-                      {o.days} d · {inr(monthly(o, l.tonnes))}/mo · {Math.round(o.co2PerT * l.tonnes)} kg CO₂
-                      {o.via && <div className="tiny">via {o.via}</div>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-            {lanes.length === 0 && <p className="muted">All suppliers in this chain are in {plant.name}; no long-haul lanes needed.</p>}
-          </div>
+          <div className="section-title">Each part, start to finish</div>
+          <table>
+            <thead><tr><th>Part</th><th>Supplier</th><th className="num">Days</th><th className="num">Per {u}</th></tr></thead>
+            <tbody>
+              {parts.map((p) => p.routes.length === 0 ? (
+                <tr key={p.line.id}><td>{p.line.name}</td><td colSpan={3} className="small muted">Still imported in this chain</td></tr>
+              ) : p.routes.map((r, i) => (
+                <tr key={`${p.line.id}-${r.seller.id}`} className={`rowsel ${openPart === `${p.line.id}-${r.seller.id}` ? 'on' : ''}`} onClick={() => setOpenPart(`${p.line.id}-${r.seller.id}`)}>
+                  <td>{i === 0 ? p.line.name : ''}</td>
+                  <td>
+                    <div style={{ fontWeight: 500 }}>{r.seller.name}{isRural(r.seller) && <> <span className="chip rural">{r.seller.type}</span></>}</div>
+                    <div className="tiny">{district(r.seller.districtId).name} · {r.lane ? MODE_LABEL[r.lane.mode] : 'Local'} · trust {trustScore(r.seller, state).score}{p.routes.length > 1 ? ` · ${Math.round(r.share * 100)}% of volume` : ''}</div>
+                  </td>
+                  <td className="num">{r.days}<div className="tiny">up to {r.p90}</div></td>
+                  <td className="num">{inr(r.cost)}</td>
+                </tr>
+              )))}
+            </tbody>
+          </table>
         </div>
       </div>
-      <p className="tiny">Road {'₹'}3.0, rail {'₹'}1.6 and coastal {'₹'}0.9 per tonne-km plus terminal charges. Rail is offered above 600 km when an inland container depot is close; coastal when a western port is close.</p>
+
+      {(() => {
+        const entries = parts.flatMap((p) => p.routes.map((r) => ({ key: `${p.line.id}-${r.seller.id}`, line: p.line, r })));
+        const found = entries.find((e) => e.key === openPart) ?? entries[0];
+        if (!found) return null;
+        const { line, r: sel } = found;
+        return (
+          <div className="card">
+            <div className="eyebrow">Route roadmap</div>
+            <h2 className="lead" style={{ fontSize: 21, marginTop: 4 }}>{line.name}: {sel.seller.name} → your plant</h2>
+            <p className="small muted" style={{ marginTop: 4 }}>
+              {sel.days} days on average, {sel.p90} in a bad month · {inr(sel.cost)} per {u} delivered · {pct(sel.reliability)} chance of arriving on plan · {sel.co2.toFixed(1)} kg CO₂ per {u}
+            </p>
+            {line.tiers.length > 0 && (
+              <>
+                <div className="small" style={{ fontWeight: 600, margin: '14px 0 6px' }}>Upstream inputs the supplier buys <Src kind="estimated" /></div>
+                <div className="upstream" style={{ marginLeft: 0 }}>
+                  {line.tiers.map((t) => <span key={t.name} className={`chip ${t.indianSupply === 'strong' ? 'ready' : t.indianSupply === 'partial' ? 'potential' : 'danger'}`}>{t.name}: {t.indianRegions}</span>)}
+                </div>
+              </>
+            )}
+            <div style={{ margin: '14px 0 18px' }}><LandedCostBar legs={sel.legs} /></div>
+            <Roadmap legs={sel.legs.map((l) => (l.id === 'make' ? { ...l, onWho: () => openSupplier(sel.seller.id) } : l))} unit={u} />
+            {sel.options.length > 1 && (
+              <div className="toggle-row" style={{ marginTop: 6 }}>
+                <span className="small muted">Other modes:</span>
+                {sel.options.filter((o) => o !== sel.lane).map((o) => <span key={o.mode} className="chip plain">{MODE_LABEL[o.mode]}: {o.days} d, {inr(o.costPerT * line.weightKg / 1000)} per {u}, {Math.round(o.co2PerT * line.weightKg / 1000 * 10) / 10} kg CO₂</span>)}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

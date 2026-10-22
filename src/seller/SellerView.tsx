@@ -1,50 +1,29 @@
-import { useState } from 'react';
-import { bom, buyer, demandSignals, sellers } from '../data';
-import { district, isRural, optionsFor, roadKm } from '../engine';
-import { processHi, regionHi, strings, typeHi } from './i18n';
+import { bom, buyer, demandSignals, processInfo, sellers } from '../data';
+import { district, isRural, roadKm, sellerGaps } from '../engine';
+import { useStore } from '../store';
+import { trustScore } from '../trust';
+import { useUi } from '../ui';
+import { regionHi, strings, typeHi } from './i18n';
 import type { Lang } from './i18n';
-import type { Seller } from '../types';
-import Tabs from '../components/Tabs';
-import Diversification from './Diversification';
+import { visibleTo } from './visibility';
 
-export default function SellerView() {
-  const [sellerId, setSellerId] = useState('s13');
-  const [lang, setLang] = useState<Lang>('en');
-  const [tab, setTab] = useState<'overview' | 'grow'>('overview');
+export default function SellerView({ lang }: { lang: Lang }) {
+  const { state } = useStore();
+  const { actingSeller, openSupplier, go } = useUi();
   const t = strings[lang];
-  const seller = sellers.find((s) => s.id === sellerId)!;
-  return (
-    <div className="stack">
-      <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <label className="row small muted" style={{ flexWrap: 'wrap', gap: 8, minWidth: 0, maxWidth: '100%' }}>
-          <span style={{ whiteSpace: 'nowrap' }}>{t.viewingAs}</span>
-          <select value={sellerId} onChange={(e) => setSellerId(e.target.value)}>
-            {sellers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.type})</option>)}
-          </select>
-        </label>
-        <div className="segmented" aria-label="Language">
-          <button className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>English</button>
-          <button className={lang === 'hi' ? 'on' : ''} onClick={() => setLang('hi')}>हिंदी</button>
-        </div>
-      </div>
-      <div>
-        <Tabs tabs={[{ id: 'overview', label: t.tabOverview }, { id: 'grow', label: t.tabGrow }]} value={tab} onChange={setTab} />
-        {tab === 'overview' ? <Overview seller={seller} lang={lang} /> : <Diversification seller={seller} lang={lang} />}
-      </div>
-    </div>
-  );
-}
-
-function Overview({ seller, lang }: { seller: Seller; lang: Lang }) {
-  const t = strings[lang];
+  const seller = sellers.find((s) => s.id === actingSeller);
+  if (!seller) return <div className="empty">Pick a company in the sidebar.</div>;
   const place = district(seller.districtId);
-  const line = bom.find((l) => l.process === seller.process)!;
-  const opts = optionsFor(line);
-  const solo = opts.find((o) => o.sellers.length === 1 && o.sellers[0].id === seller.id)!;
-  const gaps = solo.gaps[0].gaps;
-  const teams = opts.filter((o) => o.sellers.length === 2 && o.sellers.some((s) => s.id === seller.id));
+  const trust = trustScore(seller, state);
+  const reqs = state.requirements.filter((r) => r.sector === state.sector && r.status === 'open' && visibleTo(r, seller));
+  const focus = reqs[0];
+  const line = focus ? bom.find((l) => l.id === focus.lineId) : bom.find((l) => l.process === seller.process);
+  const need = focus?.monthlyVolume ?? buyer.monthlyUnits;
+  const gaps = line ? sellerGaps(seller, line, need) : [];
   const signal = demandSignals.find((d) => d.process === seller.process);
-  const proc = lang === 'hi' ? processHi[seller.process] : seller.process;
+  const proc = lang === 'hi' ? processInfo(seller.process).nameHi : seller.process;
+  const partners = sellers.filter((s) => s.id !== seller.id && s.process === seller.process && s.monthlyCapacity + seller.monthlyCapacity >= need && seller.monthlyCapacity < need)
+    .sort((a, b) => roadKm(district(a.districtId), place) - roadKm(district(b.districtId), place)).slice(0, 3);
   const totalCost = gaps.reduce((s, g) => s + g.costLakh, 0);
   const months = gaps.reduce((m, g) => Math.max(m, g.months), 0);
   const fmtLakh = (n: number) => `₹${n} ${t.lakh}`;
@@ -52,64 +31,49 @@ function Overview({ seller, lang }: { seller: Seller; lang: Lang }) {
   return (
     <div className="stack">
       <div className="card">
-        <div className="row" style={{ flexWrap: 'wrap' }}>
+        <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
           <span className={`chip ${isRural(seller) ? 'rural' : 'plain'}`}>{lang === 'hi' ? typeHi[seller.type] : seller.type}</span>
-          <span className={`chip ${seller.verification === 'verified' ? 'ready' : 'potential'}`}>
-            {seller.verification === 'verified' ? t.verified : t.declared}
-          </span>
+          <span className={`trust-badge trust-${trust.band}`}>Trust {trust.score} · {trust.band}</span>
+          <span className={`chip ${seller.verification === 'verified' ? 'ready' : 'potential'}`}>{seller.verification === 'verified' ? t.verified : t.declared}</span>
         </div>
         <h1 className="lead" style={{ marginTop: 10 }}>{seller.name}</h1>
-        <p className="muted" style={{ marginTop: 4 }}>
-          {place.name}, {place.state} · {proc} · {seller.monthlyCapacity.toLocaleString('en-IN')} {t.capacity} · {seller.workers} {t.workers}
-        </p>
-        <div className="row" style={{ marginTop: 12, flexWrap: 'wrap', gap: 6 }}>
-          {seller.certs.length ? seller.certs.map((c) => <span key={c} className="chip plain">{c}</span>) : <span className="tiny">{t.noCerts}</span>}
+        <p className="muted" style={{ marginTop: 4 }}>{place.name}, {place.state} · {proc} · {seller.monthlyCapacity.toLocaleString('en-IN')} {t.capacity} · {seller.workers} {t.workers}</p>
+        <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: 'wrap' }}>
+          <button className="btn small" onClick={() => openSupplier(seller.id)}>See how buyers see you</button>
+          <button className="btn small ghost" onClick={() => go('supplier', 'profile')}>Improve your profile</button>
         </div>
       </div>
 
       <div className="grid-2">
         <div className="stack">
-          {signal && (
-            <div className="card">
-              <div className="section-title">{t.demandTitle}</div>
-              <p style={{ fontSize: 17 }}>
-                {t.demandLine(signal.buyers, signal.monthlyUnits.toLocaleString('en-IN'), signal.from, lang === 'hi' ? regionHi[signal.region] : signal.region)}
-              </p>
-              <p className="tiny" style={{ marginTop: 8 }}>{t.demandNote}</p>
-            </div>
-          )}
+          <div className="card">
+            <div className="section-title">{t.demandTitle}</div>
+            <p style={{ fontSize: 17 }}><b>{reqs.length}</b> open requirement{reqs.length === 1 ? '' : 's'} for {proc.toLowerCase()} on Sangam right now.</p>
+            {signal && <p className="small muted" style={{ marginTop: 6 }}>{t.demandLine(signal.buyers, signal.monthlyUnits.toLocaleString('en-IN'), signal.from, lang === 'hi' ? regionHi[signal.region] ?? signal.region : signal.region)}</p>}
+            <p className="tiny" style={{ marginTop: 8 }}>{t.demandNote}</p>
+            <button className="btn small primary" style={{ marginTop: 10 }} onClick={() => go('supplier', 'opps')}>See opportunities</button>
+          </div>
 
           <div className="card">
             <div className="section-title">{t.teamTitle}</div>
-            {teams.length === 0 ? (
-              <p className="muted">{seller.monthlyCapacity >= buyer.monthlyUnits ? t.noTeam : '—'}</p>
-            ) : (
+            {seller.monthlyCapacity >= need ? <p className="muted">{t.noTeam}</p> : partners.length === 0 ? <p className="muted small">No single partner closes the gap; try a consortium of three.</p> : (
               <ul className="why">
-                {teams.map((o) => {
-                  const p = o.sellers.find((s) => s.id !== seller.id)!;
-                  const cap = o.sellers.reduce((s, x) => s + x.monthlyCapacity, 0);
-                  return (
-                    <li key={p.id}>
-                      {t.teamLine(p.name, district(p.districtId).name, cap.toLocaleString('en-IN'))}{' '}
-                      <span className="tiny">({roadKm(place, district(p.districtId))} km)</span>
-                    </li>
-                  );
-                })}
+                {partners.map((p) => (
+                  <li key={p.id}>
+                    {t.teamLine(p.name, district(p.districtId).name, (p.monthlyCapacity + seller.monthlyCapacity).toLocaleString('en-IN'))}{' '}
+                    <span className="tiny">({roadKm(place, district(p.districtId))} km · trust {trustScore(p, state).score})</span>
+                  </li>
+                ))}
               </ul>
             )}
-            {teams.length > 0 && gaps.some((g) => g.kind === 'capacity') && (
-              <p className="tiny" style={{ marginTop: 10 }}>{t.teamSkips}</p>
-            )}
+            <button className="btn small" style={{ marginTop: 10 }} onClick={() => go('supplier', 'consortia')}>Form a consortium</button>
           </div>
         </div>
 
         <div className="card">
           <div className="section-title">{t.readinessTitle}</div>
-          <p className="small muted" style={{ marginBottom: 12 }}>
-            {t.requirement}: {proc}, {buyer.monthlyUnits.toLocaleString('en-IN')} {t.capacity}
-            {line.requiredCerts.length > 0 && `, ${line.requiredCerts.join(', ')}`}
-          </p>
-          {gaps.length === 0 ? (
+          {line && <p className="small muted" style={{ marginBottom: 12 }}>{t.requirement}: {focus?.title ?? line.name}, {need.toLocaleString('en-IN')} {t.capacity}{line.requiredCerts.length > 0 && `, ${line.requiredCerts.join(', ')}`}</p>}
+          {!line ? <p className="muted small">No buyer needs this process yet.</p> : gaps.length === 0 ? (
             <p style={{ color: 'var(--ready)', fontWeight: 600 }}>{t.readyNow}</p>
           ) : (
             <>
@@ -122,14 +86,12 @@ function Overview({ seller, lang }: { seller: Seller; lang: Lang }) {
                       <div style={{ fontWeight: 500 }}>{lang === 'hi' ? g.labelHi : g.label}</div>
                       <div className="tiny">{t.help}: {g.schemes.join(' · ')}</div>
                     </div>
-                    <div className="small" style={{ textAlign: 'right' }}>
-                      {fmtLakh(g.costLakh)}
-                      <div className="tiny">{g.months} {t.months}</div>
-                    </div>
+                    <div className="small" style={{ textAlign: 'right' }}>{fmtLakh(g.costLakh)}<div className="tiny">{g.months} {t.months}</div></div>
                   </li>
                 ))}
               </ul>
-              <p className="small" style={{ marginTop: 12, fontWeight: 500 }}>{t.total(fmtLakh(totalCost), months)}</p>
+              <p className="small" style={{ marginTop: 12, fontWeight: 500 }}>{t.total(fmtLakh(Math.round(totalCost * 10) / 10), months)}</p>
+              {partners.length > 0 && gaps.some((g) => g.kind === 'capacity') && <p className="tiny" style={{ marginTop: 6 }}>{t.teamSkips}</p>}
               <p className="tiny" style={{ marginTop: 6 }}>{t.disclaimer}</p>
             </>
           )}
