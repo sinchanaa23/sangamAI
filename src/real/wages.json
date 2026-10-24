@@ -4,7 +4,7 @@
     "Living wage per worker-day = monthly figure divided by 26 working days.",
     "GLWC figures are the 2025 Estimate updates (Living Wage Update reports, November 2025); each entry links to its source page.",
     "For a district with no benchmark of its own, the scorecard uses the nearest GLWC benchmark of the same kind (rural/urban) and tags the grade estimated.",
-    "State minimum wages are copied from notifications and credible trackers with their dates; a value left null is not verified - never guess one. Tamil Nadu, Kerala, Andhra Pradesh and Uttar Pradesh are null because sources conflicted.",
+    "State minimum wages are copied from notifications and credible trackers with their dates; a value left null is not verified - never guess one. Tamil Nadu, Kerala, Andhra Pradesh and Uttar Pradesh are null because sources conflicted; each row's note says what was found on 24 Oct 2026 and which notification is needed. Official notification pages were not reachable (login or PDF only), so none of these four was filled from a secondary guess.",
     "For multi-zone states the lowest zone rate is stored (the floor below which a wage is definitely illegal anywhere in the state); city zones are higher.",
     "Minimum-wage entries checked 24 Oct 2026 against the India Briefing guide (updated 26 June 2026) and cross-checks; verify each figure against the state labour department notification before quoting it to judges."
   ],
@@ -108,9 +108,9 @@
       "note": "Agreed by two sources (≈ ₹710/day). Delhi revises half-yearly; check for an October 2026 revision before the demo."
     },
     { "state": "Tamil Nadu", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
-      "note": "Sources conflicted (₹450 / ₹537-545 / ₹783 per day, no accessible official G.O. figure) - left empty rather than guessed." },
+      "note": "Left empty: the 18 Feb 2026 revision (Commissioner of Labour, Chennai, No. Z3/3459/2026, effective 1 Apr 2026) is behind a login and secondary sites disagree (₹450/day, ₹10,594/month for Zone A scheduled employments, ₹14,044 for shops). Needs the notification PDF itself; rates differ by employment and zone." },
     { "state": "Andhra Pradesh", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
-      "note": "Employment- and zone-wise rates only; no single verified unskilled figure - left empty." },
+      "note": "Left empty: rates differ by employment and zone. Secondary sites give Zone II unskilled basic ₹3,370 plus VDA ₹9,171.20 (Oct 2026, notified 28 Sep 2026 by the Commissioner of Labour, Vijayawada) for shops and establishments, but their totals do not add up and other employments differ. Needs the Gazette notification PDF." },
     {
       "state": "Madhya Pradesh", "notifiedInr": 12425, "unit": "month", "effectiveDate": "2026-04-01",
       "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
@@ -122,7 +122,7 @@
       "note": "Official VDA schedule eff 1 Jan 2026 shows ≈ ₹398-406/day for unskilled; refine from the notification."
     },
     { "state": "Uttar Pradesh", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
-      "note": "Two credible sources disagreed (₹11,314 vs ₹13,690/month, different categories) - left empty." },
+      "note": "Left empty, but the two figures are probably both right for different orders: ₹11,313.65/month for the 74 scheduled employments (Feb 2026 notification, 1 Apr to 30 Sep 2026) and ₹12,356 / ₹13,006 / ₹13,690 for district categories III / II / I (order of 17 Apr 2026, effective 1 Apr 2026, reported by SCC Online). If both stand, the statewide floor is the lower one. Needs the Labour Department notifications to confirm which employments each covers." },
     {
       "state": "Karnataka", "notifiedInr": 19319.36, "unit": "month", "effectiveDate": "2026-05-22",
       "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
@@ -164,7 +164,7 @@
       "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
     },
     { "state": "Kerala", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
-      "note": "Employment- and district-wise rates only; no single verified unskilled figure - left empty." },
+      "note": "Left empty: rates differ by employment, grade and district. The Economics and Statistics notice DES/1129/2025-P3(1) of 21 Feb 2026 only publishes the CPI used for VDA; the wage schedule is a separate Labour Department notification. Secondary sites disagree on the lowest grade (₹12,874/month, or ₹8,280 basic plus VDA). Needs the Labour Commissioner's schedule." },
     {
       "state": "Tripura", "notifiedInr": 8010.34, "unit": "month", "effectiveDate": "2025-10-01",
       "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
