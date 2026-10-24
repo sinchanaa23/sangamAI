@@ -1,0 +1,63 @@
+/* Negotiation room (F3). Kept here so buyer styles stay in the buyer folder. */
+.nr-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.nr-side { position: sticky; top: 80px; }
+
+.nr-steps { display: flex; gap: 8px; margin-top: 16px; }
+.nr-step { flex: 1; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 13px; color: var(--ink-3); background: var(--card); }
+.nr-step .num { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 600; background: var(--import-soft); color: var(--ink-2); flex: none; }
+.nr-step.done { color: var(--ink-2); }
+.nr-step.done .num { background: var(--accent-soft); color: var(--accent); }
+.nr-step.on { border-color: var(--accent); color: var(--ink); font-weight: 600; }
+.nr-step.on .num { background: var(--accent); color: #fff; }
+
+.nr-timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.nr-msg { display: grid; gap: 6px; max-width: 88%; animation: nr-in 0.35s ease-out; }
+.nr-msg.buyer { justify-self: start; }
+.nr-msg.supplier { justify-self: end; }
+.nr-msg.supplier .nr-who { flex-direction: row-reverse; text-align: right; }
+.nr-msg.auditor { justify-self: stretch; max-width: none; }
+.nr-who { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.nr-avatar { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #fff; flex: none; }
+.nr-avatar.buyer { background: var(--accent); }
+.nr-avatar.supplier { background: var(--rural); }
+.nr-avatar.auditor { background: var(--new); }
+.nr-bubble { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 14px; display: grid; gap: 10px; }
+.nr-msg.buyer .nr-bubble { background: var(--accent-soft); border-color: #cde8e4; border-top-left-radius: 4px; }
+.nr-msg.supplier .nr-bubble { background: var(--rural-soft); border-color: #f6dccb; border-top-right-radius: 4px; }
+.nr-msg.auditor .nr-bubble { background: var(--new-soft); border-color: #e2d6fb; }
+
+.nr-offer { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; }
+.nr-offer.rejected { border-color: #f3c4c4; background: #fffafa; }
+.nr-offer.rejected .nr-price { text-decoration: line-through; color: var(--ink-3); }
+.nr-offer.accepted { border-color: #b7e0c3; box-shadow: 0 0 0 3px var(--ready-soft); }
+.nr-price { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.nr-labour { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; font-size: 11.5px; color: var(--ink-3); }
+.nr-labour b { display: block; font-size: 14px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.nr-labour b.nr-bad { color: var(--danger); }
+.nr-reason { font-size: 13px; color: var(--danger); background: var(--danger-soft); border-radius: 8px; padding: 8px 10px; }
+
+.nr-end { text-align: center; font-weight: 600; padding: 12px; border-radius: 10px; animation: nr-in 0.35s ease-out; }
+.nr-end.deal { background: var(--ready-soft); color: var(--ready); }
+.nr-end.no-deal { background: var(--import-soft); color: var(--ink-2); }
+
+.nr-typing { display: flex; gap: 4px; padding: 6px 2px; }
+.nr-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); animation: nr-blink 1.2s infinite ease-in-out; }
+.nr-typing span:nth-child(2) { animation-delay: 0.2s; }
+.nr-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+.nr-meter-label { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--ink-2); margin: 14px 0 6px; }
+.nr-wage { position: relative; overflow: visible; }
+.nr-wage i { position: absolute; left: 80%; top: -3px; bottom: -3px; width: 2px; background: var(--ink); border-radius: 1px; }
+
+@keyframes nr-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes nr-blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .nr-msg, .nr-end { animation: none; } .nr-typing span { animation: none; } }
+
+@media (max-width: 860px) {
+  .nr-grid { grid-template-columns: minmax(0, 1fr); }
+  .nr-side { position: static; }
+  .nr-msg { max-width: 100%; }
+  .nr-labour { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .nr-step { font-size: 0; gap: 0; justify-content: center; }
+  .nr-step .num { font-size: 11px; }
+}
