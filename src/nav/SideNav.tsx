@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { NavGroup } from './catalog';
+import { tr, useUiLang, GROUP_TITLES, NAV_LABELS } from '../i18n'; // P3: chrome translations
 
 interface Props {
   groups: NavGroup[];
@@ -29,6 +30,7 @@ function useTopbarHeight() {
 }
 
 export default function SideNav({ groups, activeGroup, page, onHub, onPage }: Props) {
+  const { lang } = useUiLang(); // P3
   const [open, setOpen] = useState<{ id: string; top: number; left: number } | null>(null);
   const timer = useRef<number>();
   useTopbarHeight();
@@ -67,7 +69,7 @@ export default function SideNav({ groups, activeGroup, page, onHub, onPage }: Pr
               aria-current={activeGroup === g.id ? 'true' : undefined}
               onClick={() => { setOpen(null); if (single) onPage(g.items[0]!.id); else onHub(g.id); }}
             >
-              <span>{g.title}</span>
+              <span>{tr(lang, GROUP_TITLES, g.title)}</span>
               {!!count && <span className="count">{count}</span>}
               <span className="chev" aria-hidden="true">›</span>
             </button>
@@ -77,7 +79,7 @@ export default function SideNav({ groups, activeGroup, page, onHub, onPage }: Pr
                 {g.items.map((it) => (
                   <li key={it.id}>
                     <button className={`flyout-item${page === it.id ? ' on' : ''}`} onClick={() => { setOpen(null); onPage(it.id); }}>
-                      <span>{it.label}</span>
+                      <span>{tr(lang, NAV_LABELS, it.id)}</span>
                       {!!it.count && <span className="count">{it.count}</span>}
                     </button>
                   </li>

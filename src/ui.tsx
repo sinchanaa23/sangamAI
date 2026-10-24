@@ -5,7 +5,6 @@ export type Workspace = 'buyer' | 'supplier' | 'ecosystem';
 export interface Ui {
   openSupplier: (id: string) => void;
   go: (workspace: Workspace, page: string) => void;
-  askSangam: (question?: string) => void;
   /** supplier the supplier workspace is acting as */
   actingSeller: string;
   setActingSeller: (id: string) => void;

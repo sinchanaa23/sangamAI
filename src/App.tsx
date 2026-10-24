@@ -55,13 +55,13 @@ import GrievancePage from './ecosystem/GrievancePage';
 import DataSourcesPage from './ecosystem/DataSourcesPage';
 import { useLedger } from './ecosystem/ledger';
 import SupplierDrawer from './components/SupplierDrawer';
-import AskSangam from './components/AskSangam';
 import RiverBackdrop from './components/RiverBackdrop';
 import NavRiver from './components/NavRiver';
 import SmoothScroll from './components/SmoothScroll';
 import ScrollProgress from './components/ScrollProgress';
 import useScrollReveal from './components/ScrollReveal';
 import type { Lang } from './seller/i18n';
+import { UiLangProvider, useUiLang, tr, UI_LANGS, WORKSPACE_LABELS } from './i18n';
 
 function Logo() {
   // Two streams meeting: the "sangam" (confluence)
@@ -82,10 +82,10 @@ function Shell() {
   const access = useAccess();
   const signedIn = !!access.role;
   const [notice, setNotice] = useState('');
+  const { lang: uiLang, setLang: setUiLang } = useUiLang();
   const [workspace, setWorkspace] = useState<Workspace>('buyer');
   const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: '@understand', supplier: '@today', ecosystem: '@deal' });
   const [drawer, setDrawer] = useState<string | null>(null);
-  const [ask, setAsk] = useState<{ open: boolean; q?: string }>({ open: false });
   const [acting, setActing] = useState('s13');
   const [lang, setLang] = useState<Lang>('en');
   const [home, setHome] = useState(true);
@@ -155,7 +155,7 @@ function Shell() {
   };
 
   return (
-    <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
+    <UiContext.Provider value={{ openSupplier: setDrawer, go, actingSeller, setActingSeller: setActing }}>
       <RiverBackdrop where={showHome ? 'home' : workspace} />
       <SmoothScroll pageKey={pageKey} />
       <ScrollProgress pageKey={`${pageKey}:${dataVersion}`} />
@@ -172,11 +172,15 @@ function Shell() {
         {signedIn && (
           <div className="segmented" role="tablist" aria-label="Workspace">
             {access.workspaces.map((w) => (
-              <button key={w} className={!showHome && workspace === w ? 'on' : ''} onClick={() => { setNotice(''); setHome(false); setWorkspace(w); }}>{{ buyer: 'Buyer', supplier: 'Supplier', ecosystem: 'Ecosystem' }[w]}</button>
+              <button key={w} className={!showHome && workspace === w ? 'on' : ''} onClick={() => { setNotice(''); setHome(false); setWorkspace(w); }}>{tr(uiLang, WORKSPACE_LABELS, w)}</button>
             ))}
           </div>
         )}
-        <button className="btn small" onClick={() => setAsk({ open: true })}>Ask Sangam</button>
+        <div className="segmented" role="group" aria-label="Language">
+          {UI_LANGS.map((l) => (
+            <button key={l.code} className={uiLang === l.code ? 'pill on' : 'pill'} onClick={() => setUiLang(l.code)}>{l.native}</button>
+          ))}
+        </div>
         {signedIn ? (
           <div className="account-bar">
             <span className="who" title={access.name}>{access.name}</span>
@@ -231,19 +235,20 @@ function Shell() {
       </div>
 
       {drawer && <SupplierDrawer id={drawer} onClose={() => setDrawer(null)} />}
-      {ask.open && <AskSangam initial={ask.q} onClose={() => setAsk({ open: false })} context={{ workspace, page }} />}
     </UiContext.Provider>
   );
 }
 
 export default function App() {
   return (
-    <StoreProvider>
+    <UiLangProvider>
       <AccessProvider>
-        <BuyerProvider>
-          <Shell />
-        </BuyerProvider>
+        <StoreProvider>
+          <BuyerProvider>
+            <Shell />
+          </BuyerProvider>
+        </StoreProvider>
       </AccessProvider>
-    </StoreProvider>
+    </UiLangProvider>
   );
 }

@@ -90,13 +90,14 @@ export default function SustainabilityPage() {
   return (
     <div className="stack" ref={rootRef} style={{ position: 'relative' }}>
       <DotGrid color="#346538" dim={0.12} spacing={28} />
-      <div>
-        <TextReveal as="h1" className="lead" text="Sustainability" />
-        <p className="muted" style={{ marginTop: 6 }}>
-          A 0-100 score across five pillars - energy, materials, water, local sourcing and
-          certificates - with levels Bronze to Platinum. This is Sangam's own level, not a ZED certificate.
-        </p>
-      </div>
+      <div className="stack" style={{ position: 'relative', zIndex: 1 }}>
+        <div>
+          <TextReveal as="h1" className="lead" text="Sustainability" />
+          <p className="muted" style={{ marginTop: 6 }}>
+            A 0-100 score across five pillars - energy, materials, water, local sourcing and
+            certificates - with levels Bronze to Platinum. This is Sangam's own level, not a ZED certificate.
+          </p>
+        </div>
 
       <div className="card stack" style={{ gap: 10 }}>
         <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -256,5 +257,6 @@ export default function SustainabilityPage() {
         </p>
       </div>
     </div>
+  </div>
   );
 }
