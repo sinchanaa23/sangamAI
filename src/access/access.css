@@ -27,3 +27,11 @@
 
 /* The "Sign in" link in the header scrolls to the panel; keep it clear of the sticky header */
 #sign-in { scroll-margin-top: 96px; }
+
+/* The header holds the logo, sector, workspaces, language and account. When they do not fit, the header wraps onto a second row
+   instead of pushing the whole page wider than the window (which made every page drift sideways as you scrolled). */
+header.topbar { flex-wrap: wrap; row-gap: 6px; }
+@media (max-width: 1180px) {
+  header.topbar .account-bar .hide-sm { display: none; }
+  header.topbar .sector-pick { max-width: 160px; }
+}
