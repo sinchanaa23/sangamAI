@@ -87,8 +87,8 @@ export default function SlideTabs<T extends string>({
           top: 0,
           bottom: 0,
           width: 0,
-          background: 'var(--accent-soft, rgba(20,184,166,.14))',
-          border: '1px solid rgba(45,212,191,.35)',
+          background: 'var(--accent-soft, #efeeea)',
+          border: '1px solid var(--line, #eaeaea)',
           borderRadius: 999,
           pointerEvents: 'none',
         }}
@@ -113,8 +113,8 @@ export default function SlideTabs<T extends string>({
               cursor: 'pointer',
               font: 'inherit',
               color: active
-                ? 'var(--ink, #e8eef2)'
-                : 'var(--ink-2, #9fb0bd)',
+                ? 'var(--ink-strong, #111)'
+                : 'var(--ink-2, #5f5e5a)',
               padding: '6px 16px',
               borderRadius: 999,
               whiteSpace: 'nowrap',

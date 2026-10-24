@@ -50,8 +50,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       quotes: [...s.quotes, ...seed.quotes],
       interests: [...s.interests, ...seed.interests],
       reviews: [...s.reviews, ...seed.reviews],
+      projects: [...s.projects, ...seed.projects], // P3: seed demo development projects (additive line, flagged in the PR)
     }));
   }, [state.sector, state.seeded, dataVersion]);
+
+  // P3: sessions seeded before development projects existed get a one-time top-up
+  // for the active sector (idempotent by project id, runs at most once per sector).
+  // Additive block, flagged in the PR.
+  const toppedUp = useRef<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!state.seeded[state.sector] || toppedUp.current[state.sector]) return;
+    if (state.projects.some((p) => p.sector === state.sector)) return;
+    const seed = seedSector();
+    const missing = seed.projects.filter((p) => p.sector === state.sector);
+    if (!missing.length) { toppedUp.current[state.sector] = true; return; }
+    toppedUp.current[state.sector] = true;
+    setState((s) => (s.projects.some((p) => p.sector === s.sector) ? s : { ...s, projects: [...s.projects, ...missing] }));
+  }, [state.sector, state.seeded, state.projects, dataVersion]);
 
   const first = useRef(true);
   useEffect(() => {

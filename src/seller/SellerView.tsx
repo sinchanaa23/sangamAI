@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { bom, buyer, demandSignals, processInfo, sellers } from '../data';
 import { district, isRural, roadKm, sellerGaps } from '../engine';
 import { useStore } from '../store';
@@ -12,10 +13,13 @@ import CountUp from '../components/motion/CountUp';
 import TiltCard from '../components/motion/TiltCard';
 import Aurora from '../components/motion/Aurora';
 import '../components/motion/motion.css';
-import { useSupplierTheme } from '../components/motion/theme';
+import useScrollReveal from '../components/ScrollReveal';
+import Confluence from '../components/Confluence';
+import WaveDivider from '../components/WaveDivider';
 
 export default function SellerView({ lang }: { lang: Lang }) {
-  useSupplierTheme();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef, 'overview');
   const { state } = useStore();
   const { actingSeller, openSupplier, go } = useUi();
   const t = strings[lang];
@@ -37,27 +41,33 @@ export default function SellerView({ lang }: { lang: Lang }) {
   const fmtLakh = (n: number) => `₹${n} ${t.lakh}`;
 
   return (
-    <div className="stack">
+    <div className="stack" ref={rootRef}>
       <div style={{ position: 'relative' }}>
-        <Aurora opacity={0.3} />
+        <Aurora colors={['#a4552c', '#1f6c9f', '#346538']} opacity={0.18} />
         <TiltCard>
-          <SpotlightCard className="card fw-glass">
-        <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
+          <SpotlightCard className="card">
+        {/* the sangam mark: buyers, producers and fair work meeting in one deal, drawn once on load */}
+        <div aria-hidden="true" style={{ position: 'absolute', right: 10, bottom: 2, width: 180, opacity: 0.5, pointerEvents: 'none', zIndex: 0 }}>
+          <Confluence mode="intro" />
+        </div>
+        <div className="row" style={{ flexWrap: 'wrap', gap: 6, position: 'relative', zIndex: 1 }}>
           <span className={`chip ${isRural(seller) ? 'rural' : 'plain'}`}>{lang === 'hi' ? typeHi[seller.type] : seller.type}</span>
           <span className={`trust-badge trust-${trust.band}`}>Trust {trust.score} · {trust.band}</span>
           <span className={`chip ${seller.verification === 'verified' ? 'ready' : 'potential'}`}>{seller.verification === 'verified' ? t.verified : t.declared}</span>
         </div>
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 10, position: 'relative', zIndex: 1 }}>
           <TextReveal as="h1" className="lead" text={seller.name} />
         </div>
-        <p className="muted" style={{ marginTop: 4 }}>{place.name}, {place.state} · {proc} · {seller.monthlyCapacity.toLocaleString('en-IN')} {t.capacity} · {seller.workers} {t.workers}</p>
-        <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: 'wrap' }}>
+        <p className="muted" style={{ marginTop: 4, position: 'relative', zIndex: 1 }}>{place.name}, {place.state} · {proc} · {seller.monthlyCapacity.toLocaleString('en-IN')} {t.capacity} · {seller.workers} {t.workers}</p>
+        <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
           <button className="btn small" onClick={() => openSupplier(seller.id)}>See how buyers see you</button>
           <button className="btn small ghost" onClick={() => go('supplier', 'profile')}>Improve your profile</button>
         </div>
           </SpotlightCard>
         </TiltCard>
       </div>
+
+      <WaveDivider />
 
       <div className="grid-2">
         <div className="stack">

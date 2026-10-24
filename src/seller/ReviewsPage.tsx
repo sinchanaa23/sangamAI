@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { sellers } from '../data';
 import { district } from '../engine';
 import { useStore } from '../store';
@@ -7,12 +7,13 @@ import { useUi } from '../ui';
 import ReviewForm from '../components/ReviewForm';
 import Stars from '../components/Stars';
 import Src from '../components/Src';
-import { useSupplierTheme } from '../components/motion/theme';
+import useScrollReveal from '../components/ScrollReveal';
 
 const STATUS = { pending: { label: 'Waiting for verification', cls: 'potential' }, verified: { label: 'Verified', cls: 'ready' }, rejected: { label: 'Rejected', cls: 'danger' } } as const;
 
 export default function ReviewsPage() {
-  useSupplierTheme();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef, 'reviews');
   const { state } = useStore();
   const { actingSeller, openSupplier } = useUi();
   const [partner, setPartner] = useState<string | null>(null);
@@ -24,7 +25,7 @@ export default function ReviewsPage() {
   const others = partners.length ? partners : sellers.filter((s) => s.id !== seller.id && s.process === seller.process).slice(0, 4).map((s) => s.id);
 
   return (
-    <div className="stack">
+    <div className="stack" ref={rootRef}>
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 className="lead">Reviews</h1>
