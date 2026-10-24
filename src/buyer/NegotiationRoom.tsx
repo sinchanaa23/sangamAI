@@ -11,6 +11,7 @@ import { livingWageFor } from '../fairwork';
 import { DEMO_RFQ } from './negotiation/demoFixture';
 import { openRoom, useRoomSession } from './negotiation/live';
 import { useFeed } from './negotiation/useFeed';
+import { recordNegotiation } from '../ecosystem/negotiation';
 import type { FairWorkScore, Money, NegotiationEvent, Offer } from '../contracts';
 import './negotiation/room.css';
 
@@ -123,6 +124,8 @@ export default function NegotiationRoom() {
   const floor = terms ? livingWageFor(terms.labour.district) : null;
 
   useEffect(() => { listEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [shown.length]);
+  // Added by P4: a finished deal signs its credentials and reaches the SDG 8 dashboard (once per deal)
+  useEffect(() => { if (end) void recordNegotiation(shown, { source: replaying ? 'simulated' : 'live', part: rfq.part }); }, [end]);
 
   const budget = rfq.budget.amount;
   const status = feed.error ? 'Lost the connection to the server' : end ? 'Finished' : feed.playing ? 'Agents are talking' : 'Paused';
@@ -206,7 +209,7 @@ export default function NegotiationRoom() {
             <div className="card">
               <div className="section-title">Next</div>
               <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
-                <button className="btn small" onClick={() => go('ecosystem', 'verify')}>See the signed credential</button>
+                <button className="btn small" onClick={() => go('ecosystem', 'passport')}>See the signed credential</button>
                 <button className="btn small ghost" onClick={() => go('buyer', 'requirements')}>Back to requirements</button>
               </div>
             </div>

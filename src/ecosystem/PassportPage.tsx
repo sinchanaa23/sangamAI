@@ -14,7 +14,11 @@ const workerId = () => `W-${Math.random().toString(36).slice(2, 6).toUpperCase()
 export default function PassportPage() {
   const { state } = useStore();
   const ledger = useLedger();
-  const [sellerId, setSellerId] = useState(sellers[0]?.id ?? '');
+  // Opens on the supplier most recently signed for, so "See the signed credential" lands on it
+  const [sellerId, setSellerId] = useState(() => {
+    const last = ledger.credentials.find((c) => sellers.some((x) => x.id === c.subject.supplierId));
+    return (last?.subject.supplierId as string | undefined) ?? sellers[0]?.id ?? '';
+  });
   const s = sellers.find((x) => x.id === sellerId) ?? sellers[0];
   const [form, setForm] = useState({ workerId: workerId(), skill: s?.process ?? '', level: 'Skilled', trainingHours: 40 });
   const [busy, setBusy] = useState(false);
