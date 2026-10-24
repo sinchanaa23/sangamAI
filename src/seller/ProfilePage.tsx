@@ -1,13 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { bom, buyer, certGaps, districts, processes, sellers, unitLabel } from '../data';
 import { now, uid } from '../model';
 import type { DocItem, OnboardedSeller } from '../model';
+import { scoreProfile } from '../fairwork';
+import type { ScoredWork } from '../fairwork';
+import FairWorkBadge from '../components/FairWorkBadge';
+import { loadWorkforce } from './workforce';
 import { useStore } from '../store';
 import { checksFor } from '../trust';
 import { useUi } from '../ui';
 import type { CertDetail, OrgType } from '../types';
 
 const TYPES: OrgType[] = ['MSME', 'SHG federation', 'FPO', 'Cooperative'];
+
+/** The Fair Work grade card: whatever workforce profile exists for this supplier (server, device or demo seed). */
+function WorkforceGradeCard({ sellerId, sellerName }: { sellerId: string; sellerName: string }) {
+  const { go } = useUi();
+  const [score, setScore] = useState<ScoredWork | null>(null);
+  useEffect(() => {
+    let alive = true;
+    loadWorkforce(sellerId, sellerName).then(({ profile }) => {
+      if (alive && profile) setScore(scoreProfile(profile));
+    });
+    return () => { alive = false; };
+  }, [sellerId, sellerName]);
+  if (!score) return null;
+  return (
+    <div className="card row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+      <FairWorkBadge score={score} />
+      <span className="small muted">The Fair Work grade buyers see on every quote, from the workforce profile.</span>
+      <button className="btn small" onClick={() => go('supplier', 'workforce')}>Workforce and fair work</button>
+    </div>
+  );
+}
 
 const toBase64 = (f: File) => new Promise<string>((res, rej) => {
   const r = new FileReader();
@@ -27,6 +52,7 @@ export default function ProfilePage() {
     return (
       <div className="stack">
         <h1 className="lead">Profile and documents</h1>
+        <WorkforceGradeCard sellerId={demo.id} sellerName={demo.name} />
         <div className="card stack" style={{ gap: 10 }}>
           <p><b>{demo.name}</b> is a demo company with a simulated profile.</p>
           <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
@@ -108,6 +134,7 @@ function ProfileForm({ existing, onSaved, stateSector, update }: { existing?: On
         <h1 className="lead">{existing ? `Profile: ${existing.name}` : 'Register your company'}</h1>
         <p className="muted" style={{ marginTop: 6 }}>Buyers see what you enter, marked "self-declared" until the Sangam team checks it. Verified details raise your trust score and your place in matches.</p>
       </div>
+      {existing && <WorkforceGradeCard sellerId={existing.id} sellerName={existing.name} />}
       {checks && (
         <div className="note">Verification: identity {checks.identity}, capacity {checks.capacity}, certificates {Object.values(checks.certs).filter((c) => c === 'verified').length} of {Object.keys(checks.certs).length} verified.</div>
       )}
