@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-export const TABLES = ['rfqs', 'offers', 'negotiations', 'scorecards', 'credentials', 'deals', 'workforce', 'sustainability', 'grievances'] as const;
+export const TABLES = ['rfqs', 'offers', 'negotiations', 'scorecards', 'credentials', 'deals', 'workforce', 'sustainability', 'grievances', 'users', 'sessions', 'otps', 'verifications'] as const;
 export type Table = (typeof TABLES)[number];
 
 export interface Doc { id: string }
@@ -29,6 +29,8 @@ export function openDb(path = process.env.SANGAM_DB ?? 'server/data/sangam.db') 
   const list = <T extends Doc>(table: Table): T[] =>
     (db.prepare(`SELECT json FROM ${table} ORDER BY rowid`).all() as { json: string }[]).map((r) => JSON.parse(r.json) as T);
 
+  const del = (table: Table, id: string) => { db.prepare(`DELETE FROM ${table} WHERE id = ?`).run(id); };
+
   const addEvent = (negotiationId: string, event: unknown) => {
     const row = db.prepare('SELECT COALESCE(MAX(seq), -1) + 1 AS seq FROM events WHERE negotiation_id = ?').get(negotiationId) as { seq: number };
     db.prepare('INSERT INTO events (negotiation_id, seq, json) VALUES (?, ?, ?)').run(negotiationId, row.seq, JSON.stringify(event));
@@ -37,7 +39,7 @@ export function openDb(path = process.env.SANGAM_DB ?? 'server/data/sangam.db') 
   const events = <T>(negotiationId: string): T[] =>
     (db.prepare('SELECT json FROM events WHERE negotiation_id = ? ORDER BY seq').all(negotiationId) as { json: string }[]).map((r) => JSON.parse(r.json) as T);
 
-  return { put, get, list, addEvent, events, close: () => db.close() };
+  return { put, get, list, del, addEvent, events, close: () => db.close() };
 }
 
 export type Db = ReturnType<typeof openDb>;

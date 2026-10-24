@@ -14,8 +14,14 @@ import { dealRecords } from './deals';
 import { grievanceRoutes, setGrievanceStore } from './grievances';
 import { impactRoutes, setDealSource } from './impact';
 import { architectRoutes } from './architect';
+import { currentUser, guard, mockSender, mountAuth } from './auth';
+import type { OtpSender } from './auth';
+import type { Ask } from './llm';
 import { createNegotiations, fixture } from './negotiations';
 import { NegotiationInput, RfqInput, SustainabilityInput, WorkforceInput } from './schemas';
+import { selectProvider } from './verify/provider';
+import type { VerifyProvider } from './verify/provider';
+import { mountVerification, recheckStale, recordCertificate } from './verify/routes';
 
 const body = (c: Context) => c.req.json().catch(() => ({}));
 const reply = (c: Context, r: Reply) => c.json(r.body as object, r.status as 200);
@@ -23,11 +29,35 @@ const bad = (c: Context, e: { issues: { path: PropertyKey[]; message: string }[]
   c.json({ error: e.issues.map((i) => `${i.path.join('.') || 'body'}: ${i.message}`).join('; ') }, 400);
 const rfqId = () => `rfq-${crypto.randomUUID().slice(0, 8)}`;
 
-export function createApp(db: Db = openDb(), opts: Parameters<typeof createNegotiations>[1] = {}) {
+/** Everything a test or a deployment can swap: the model, how codes are sent, which registry checks businesses, who counts as an ecosystem account. */
+export interface AppOptions {
+  ask?: Ask;
+  otpSender?: OtpSender;
+  verifier?: VerifyProvider;
+  /** phone numbers or emails allowed to sign in as the ecosystem role; ECOSYSTEM_ALLOWLIST (comma separated) when not given */
+  ecosystemAllowlist?: string[];
+  /** require an ecosystem session for POST /api/credentials/sign (AUTH_PROTECT_SIGNING=1); off by default so P4's pages keep working */
+  protectSigning?: boolean;
+  now?: () => number;
+}
+
+export function createApp(db: Db = openDb(), opts: AppOptions = {}) {
   const app = new Hono();
   const negotiations = createNegotiations(db, opts);
 
   app.get(ROUTES.health, (c) => c.json({ ok: true }));
+
+  // Signup, login and business verification (server/auth.ts, server/verify/)
+  const verifier = opts.verifier ?? selectProvider();
+  mountAuth(app, db, {
+    otpSender: opts.otpSender ?? mockSender, now: opts.now, onSignIn: (u) => recheckStale(db, verifier, u, opts.now?.() ?? Date.now()),
+    ecosystemAllowlist: opts.ecosystemAllowlist ?? (process.env.ECOSYSTEM_ALLOWLIST ?? '').split(',').map((x) => x.trim()).filter(Boolean),
+  });
+  mountVerification(app, db, verifier, opts.now);
+  // The demo-only signing endpoint stays open unless protection is switched on
+  if (opts.protectSigning ?? process.env.AUTH_PROTECT_SIGNING === '1') {
+    app.use('/api/credentials/sign', async (c, next) => { const g = guard(c, db, ['ecosystem']); if (g instanceof Response) return g; await next(); });
+  }
 
   // P4's credential, grievance and impact routes (framework-free Request/Response handlers), kept in the shared store
   setCredentialStore({
@@ -40,7 +70,14 @@ export function createApp(db: Db = openDb(), opts: Parameters<typeof createNegot
   for (const r of [...credentialRoutes, ...impactRoutes, ...grievanceRoutes, ...architectRoutes(opts.ask)]) app.on(r.method, r.path, (c) => r.handler(c.req.raw, c.req.param()));
 
   app.post('/api/ask', async (c) => reply(c, await handleAsk((await body(c)) as AskBody)));
-  app.post('/api/extract-certificate', async (c) => reply(c, await handleExtract((await body(c)) as ExtractBody)));
+  app.post('/api/extract-certificate', async (c) => {
+    const r = await handleExtract((await body(c)) as ExtractBody);
+    // A supplier whose certificate passes the code-run checks moves toward tier 2 (it stays "declared" until a person verifies it)
+    const session = currentUser(c, db, opts.now?.() ?? Date.now());
+    const verdict = (r.body as { checks?: { verdict?: string } })?.checks?.verdict;
+    if (r.status === 200 && session?.user.role === 'supplier' && verdict === 'ok') recordCertificate(db, session.user, 'Certificate read and checked: number, issuer, expiry and holder all passed.');
+    return reply(c, r);
+  });
 
   // Requests for quotation
   app.post(ROUTES.rfq, async (c) => {
