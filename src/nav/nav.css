@@ -1,12 +1,12 @@
 /* Section navigation: short sidebar, hover list, section landing pages, in-section navigation. Design tokens only. */
 .sidebar .navgroup { margin-bottom: 2px; }
-.sidebar button.navgroup-btn { display: flex; align-items: center; gap: 8px; font-size: 15px; padding: 9px 10px; }
+.sidebar button.item.navgroup-btn { display: flex; align-items: center; gap: 8px; font-size: 15px; padding: 9px 10px; }
 .sidebar button.navgroup-btn > span:first-child { flex: 1; text-align: left; }
 .sidebar .navgroup-btn .chev { color: var(--ink-3); font-size: 16px; line-height: 1; }
 .sidebar .navgroup-btn.on .chev { color: inherit; }
 
 /* The hover list. Fixed so the sidebar's scrolling does not clip it; it starts at the button's right edge with no gap. */
-.flyout { position: fixed; z-index: 60; list-style: none; margin: 0; padding: 6px; min-width: 230px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); }
+.flyout { position: fixed; z-index: 30; overscroll-behavior: contain; list-style: none; margin: 0; padding: 6px; min-width: 230px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); }
 .flyout::before { content: ''; position: absolute; left: -8px; top: 0; bottom: 0; width: 8px; }
 .flyout-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 8px; color: var(--ink-2); font-weight: 500; font-size: 14px; }
 .flyout-item:hover, .flyout-item:focus-visible { background: var(--accent-soft); color: var(--ink-strong); }
@@ -33,10 +33,23 @@
 .subnav-pill.on .count { color: var(--ink-2); }
 
 @media (max-width: 860px) {
-  .sidebar button.navgroup-btn { width: auto; white-space: nowrap; }
+  .sidebar button.item.navgroup-btn { width: auto; white-space: nowrap; }
   .sidebar .navgroup-btn .chev { display: none; }
   .sidebar .navgroup { display: contents; }
   .hub-grid { grid-template-columns: minmax(0, 1fr); }
   .subnav { gap: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .hub-card { transition: none; } .hub-card:hover { transform: none; } }
+
+/* Layers, bottom to top: backdrop 0, page 1, scroll progress 5, header 10, hover list 30, overlay 40, drawer 41, skip link 100 */
+.flyout .count { font-size: 11px; font-family: var(--mono); background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; color: var(--ink-3); }
+.flyout-item .count, .hub-title .count, .subnav .count, .sidebar .count { font-variant-numeric: tabular-nums; }
+
+/* The sidebar sticks just under the header, whatever height the header has (it wraps on narrower screens) */
+@media (min-width: 861px) {
+  .shell .sidebar { top: var(--topbar-h, 57px); height: calc(100vh - var(--topbar-h, 57px)); }
+}
+
+/* No double-tap zoom delay on controls; drawers do not scroll the page behind them */
+button, a, summary, select, .hub-card { touch-action: manipulation; }
+.drawer { overscroll-behavior: contain; }

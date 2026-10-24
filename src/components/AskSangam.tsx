@@ -28,7 +28,7 @@ export default function AskSangam({ initial, onClose, context }: { initial?: str
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ behavior: 'smooth' }), [msgs, busy]);
+  useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs, busy]);
 
   const buildContext = () => {
     const ws = context.workspace;
