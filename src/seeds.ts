@@ -3,6 +3,7 @@ import { active, bom, buyer, sellers } from './data';
 import { isImported, leadDaysFrom } from './engine';
 import { rng } from './sectors/helpers';
 import type { Interest, Quote, Requirement, Review } from './model';
+import type { WorkforceProfile, WorkforceSkill } from './fairwork';
 
 const day = (offset: number) => new Date(Date.now() + offset * 864e5).toISOString();
 const month = (m: number) => {
@@ -67,4 +68,63 @@ export function seedSector() {
     }
   });
   return { requirements, quotes, interests, reviews };
+}
+
+// ---------- Fair-work seed workforces (features F4 and F5) ----------
+// Demo workforces for the EV story (wiring harnesses from rural clusters), one
+// for each grade the scorecard can give so the demo shows the whole ladder.
+// Keyed by seller name because seller ids repeat across sector templates.
+// Every figure here is simulated demo data; the workforce page tags it as such.
+
+const wf = (supplierId: string, district: string, skills: [string, number, number][], over: Partial<WorkforceProfile>): WorkforceProfile => ({
+  supplierId,
+  district,
+  skills: skills.map(([skill, headcount, wagePerWorkerDay]) => ({ skill, headcount, wagePerWorkerDay } as WorkforceSkill)),
+  hoursPerDay: 8,
+  overtimeHoursPerWeek: 4,
+  safetyRecord: 'complete',
+  trainingHoursPerYear: 24,
+  womenEmployed: Math.round(skills.reduce((n, [, h]) => n + h, 0) * 0.4),
+  childOrForcedLabourFlag: false,
+  openGrievances: 0,
+  updatedAt: '2026-10-24T09:00:00Z',
+  ...over,
+});
+
+const SEED_WORKFORCES: Record<string, WorkforceProfile> = {
+  // A - the hero: rural women's collective paying above the rural living wage (Nilgiris benchmark ₹574/day)
+  'krishnagiri mahila harness collective': wf('s13', 'Krishnagiri',
+    [['Harness assembly', 160, 590], ['Testing', 20, 620]], { womenEmployed: 166, trainingHoursPerYear: 30 }),
+  // B - rural cooperative near the living wage (Ratlam benchmark ₹585/day)
+  'satara gramin assembly co-op': wf('s14', 'Satara',
+    [['Harness assembly', 180, 560], ['Kitting', 30, 580]], { womenEmployed: 96, trainingHoursPerYear: 18, hoursPerDay: 8.5, overtimeHoursPerWeek: 6 }),
+  // B - urban cluster at 92% of the Tiruppur urban benchmark (₹761/day)
+  'hosur tool and die cluster': wf('s6', 'Hosur',
+    [['Connector making', 90, 700]], { womenEmployed: 18, trainingHoursPerYear: 40, hoursPerDay: 9, overtimeHoursPerWeek: 8 }),
+  // C - SHG network above the minimum but under 90% of the living wage
+  'madurai shg kitting network': wf('s15', 'Madurai',
+    [['Kitting', 120, 480]], { womenEmployed: 108, trainingHoursPerYear: 12, overtimeHoursPerWeek: 2 }),
+  // C - urban harness maker at 81% of the benchmark
+  'chakan harness systems': wf('s12', 'Chakan, Pune',
+    [['Harness assembly', 240, 610], ['Testing', 60, 650]], { womenEmployed: 90, trainingHoursPerYear: 36, hoursPerDay: 9.5, overtimeHoursPerWeek: 10 }),
+  // C - established MSME
+  'silvassa conductors': wf('s1', 'Silvassa',
+    [['Wire drawing', 100, 700], ['Maintenance', 40, 760]], { womenEmployed: 28, trainingHoursPerYear: 24, hoursPerDay: 9 }),
+  // D - partial safety record lowers an otherwise C wage one step
+  'coimbatore cable works': wf('s2', 'Coimbatore',
+    [['Wire drawing', 70, 430]], { womenEmployed: 21, safetyRecord: 'partial', trainingHoursPerYear: 8, overtimeHoursPerWeek: 4 }),
+  // D - above the living wage but below the Karnataka minimum: the legal floor wins
+  'dharwad women\u2019s moulding co-op': wf('s11', 'Dharwad',
+    [['Injection moulding', 65, 700]], { womenEmployed: 58, trainingHoursPerYear: 20, hoursPerDay: 8.5, overtimeHoursPerWeek: 3 }),
+  // E - flag set: the auditor blocks every deal
+  'rajkot brass terminals': wf('s18', 'Rajkot',
+    [['Connector making', 85, 500]], { womenEmployed: 12, safetyRecord: 'partial', trainingHoursPerYear: 4, hoursPerDay: 10, overtimeHoursPerWeek: 12, childOrForcedLabourFlag: true, openGrievances: 1 }),
+};
+
+const normName = (s: string) => s.replace(/[\u2018\u2019]/g, "'").trim().toLowerCase();
+
+/** The seed workforce for a demo seller (matched by name), or null. supplierId is filled for the caller. */
+export function seedWorkforceFor(sellerName: string, supplierId = ''): WorkforceProfile | null {
+  const p = SEED_WORKFORCES[normName(sellerName)];
+  return p ? { ...p, supplierId: supplierId || p.supplierId } : null;
 }
