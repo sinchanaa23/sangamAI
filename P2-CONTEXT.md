@@ -15,6 +15,15 @@ Read `AGENTS.md` first, then this file. Owner of: `src/buyer/**`, `src/component
 - `server/architect.ts`: `POST /api/architect`, `task: 'idea'` (map a free-text idea onto the catalogue, sketch stages, questions) or `task: 'review'` (review the computed plan's facts). Uses P1's `ask()` with zod schemas; 503 without `LLM_API_KEY`; a made-up catalogue id is dropped.
 - Touches outside P2's folders, one line each, flagged for owners: `server/app.ts` (P1) adds `...architectRoutes(opts.ask)` to the route loop; `src/App.tsx` (P4) adds the Supplier → Grow item and route.
 
+## Sign-in roles and the Ecosystem hub (branch `feat/ecosystem-hub`)
+- Two logins, buyer and supplier, on P1's one-time-code sign-in (`src/auth/`, `server/auth.ts`). A buyer sees Buyer + Ecosystem, a supplier Supplier + Ecosystem; the allowlisted Sangam team account (signs in at `#/account`) sees all three plus a team-only group (Verification desk, District dashboard). Signed-out visitors see only the landing page and the sign-in panel.
+- `src/access/`: `Access.tsx` (`useAccess()`, wraps `useAuth`), `roles.ts` (`workspacesFor`, `resolvePage`: old links like `go('buyer','negotiate')` still land on the moved Ecosystem pages), `SignInPanel.tsx`.
+- One-click "Try as a buyer / supplier" signs in a demo account using the mock code sender's `devCode` (simulated). If the server is down or busy it falls back to an **offline demo** kept in this tab (sessionStorage), labelled "Offline demo", never really signed in.
+- Ecosystem pages: Agent negotiation, Reviews, AI Supply Chain Architect, Skill clusters (P3 replaces `'ecosystem:clusters'` in `src/App.tsx` with the curated invest / boost view), SDG 8 impact, Skill Passports, Check a credential, Report a problem, Data sources.
+- Two-way reviews: buyers rate suppliers through the store (`src/components/ReviewForm.tsx`, checked on the Verification desk, feeds the trust score); suppliers rate buyers through `server/reviews.ts` (`/api/reviews/buyers`, author from the session, pending until the team verifies, table `buyerReviews`) and `src/reviews/`. Two demo reviews are tagged simulated.
+- Edits in others' files, one place each: `src/App.tsx`, `src/shared/HomePage.tsx` (P4), `src/main.tsx` (P1), `server/app.ts` and `server/db.ts` (P1: the mount and a table name).
+- Not tried: team-only tools (need `ECOSYSTEM_ALLOWLIST`), a real SMS or email sender, a real Udyam / GSTIN registry.
+
 ## Verified
 - `npm run build` and `npm test` (65 tests, 10 new in `tests/architect.test.ts`) pass.
 - In the browser: plan, graph, inspector, scenario switch, region choice, explore tab, idea matching and the AI-off message all work. AI with a real key not yet tried.
@@ -26,3 +35,4 @@ Read `AGENTS.md` first, then this file. Owner of: `src/buyer/**`, `src/component
 
 ## Session log
 - 2026-10-24: buyer features F3, F7, F11; AI Supply Chain Architect on `feat/architect`; this file.
+- 2026-10-25: buyer / supplier sign-in with role-based workspaces, Ecosystem hub, two-way reviews (`feat/ecosystem-hub`).

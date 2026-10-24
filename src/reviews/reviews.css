@@ -1,0 +1,2 @@
+.rv-item { border-top: 1px solid var(--line); padding-top: 10px; }
+.rv-item:first-child { border-top: 0; padding-top: 0; }
