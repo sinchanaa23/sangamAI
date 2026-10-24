@@ -4,8 +4,9 @@ import { buyer } from '../../data';
 import type { Requirement } from '../../model';
 import { useUi } from '../../ui';
 import { useGlobalBuyer } from '../global/settings';
-import { openRoom, startNegotiation } from './live';
-import type { RfqInput } from './live';
+import { startNegotiation } from '../../api';
+import type { RfqInput } from '../../api';
+import { openRoom } from './live';
 
 export function rfqFor(req: Requirement, buyerCountry: string): RfqInput {
   return {

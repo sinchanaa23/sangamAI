@@ -10,8 +10,10 @@ import GradeBadge from './negotiation/GradeBadge';
 import { DEMO_RFQ, LIVING_WAGE_PER_DAY } from './negotiation/demoFixture';
 import { openRoom, useRoomSession } from './negotiation/live';
 import { useFeed } from './negotiation/useFeed';
-import type { FairWorkScore, Money, NegotiationEvent, Offer, Side } from './negotiation/types';
+import type { FairWorkScore, Money, NegotiationEvent, Offer } from '../contracts';
 import './negotiation/room.css';
+
+type Side = 'buyer' | 'supplier' | 'auditor';
 
 const MAX_ROUNDS = 4;
 const STEPS = ['search', 'select', 'init', 'confirm'] as const;

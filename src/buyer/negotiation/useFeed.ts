@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DEMO_EVENTS } from './demoFixture';
-import { streamNegotiation } from './live';
-import type { NegotiationEvent } from './types';
+import { streamNegotiation } from '../../api';
+import type { NegotiationEvent } from '../../contracts';
 import { useReplay } from './useReplay';
 
 export type FeedSource = 'live' | 'server-replay' | 'offline';

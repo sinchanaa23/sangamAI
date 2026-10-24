@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { NegotiationEvent } from './types';
+import type { NegotiationEvent } from '../../contracts';
 
 /** Plays a recorded list of negotiation events one at a time, like the live stream would. */
 export function useReplay(events: NegotiationEvent[], stepMs = 1600) {

@@ -1,6 +1,6 @@
 // TEMPORARY fallback for src/components/FairWorkBadge.tsx (owned by P3).
 // Swap the import in NegotiationRoom.tsx once P3 merges the real badge.
-import type { FairWorkScore } from './types';
+import type { FairWorkScore } from '../../contracts';
 
 const COLOUR: Record<FairWorkScore['grade'], { bg: string; fg: string; label: string }> = {
   A: { bg: 'var(--ready-soft)', fg: 'var(--ready)', label: 'At or above living wage' },
