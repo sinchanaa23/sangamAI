@@ -7,19 +7,19 @@ import { partRoute } from '../../src/chainRoute';
 import { EMPTY } from '../../src/model';
 import { trustScore } from '../../src/trust';
 import type { FairWorkScore, Offer, Rfq, WorkforceProfile } from '../../src/contracts';
+import { livingWageFor, scoreFairWork } from '../../src/fairwork';
 import type { Db, Doc } from '../db';
 
-// TEMPORARY until P3's src/fairwork.ts and src/real/wages.json land; then wageFloorPerDay() and scoreOffer() delegate to them.
-// ₹14,926 a month (GLWC, rural Nilgiris, the nearest rural benchmark) over 26 working days. Tagged estimated for any other district.
-const LIVING_WAGE_PER_DAY = Math.round(14926 / 26);
-const BENCHMARK_SOURCE = 'GLWC rural Nilgiris, Tamil Nadu (nearest rural benchmark; estimated). State minimum wage not loaded yet.';
+// Wage benchmarks and grading come from P3's src/fairwork.ts (GLWC living wages, state minimum wages, one table of grading rules).
+// If a district has no benchmark at all the floor falls back to the nearest rural figure so a missing row can never switch protection off.
+const FALLBACK_FLOOR_PER_DAY = Math.round(14926 / 26); // GLWC rural Nilgiris, estimated
 /** Share of the price that is wages, by process. A modelling assumption (estimated), not a measured figure. */
 const LABOUR_SHARE = { assembly: 0.6, other: 0.3 };
 /** Rupees per unit of currency: a fixed table, same values as the buyer's global mode (estimated, 2026-10-24). */
 export const FX_INR: Record<'INR' | 'USD' | 'EUR', number> = { INR: 1, USD: 94.5, EUR: 108 };
-const LEGAL_HOURS_PER_DAY = 9; // Factories Act 1948
 
-export const wageFloorPerDay = (_districtId: string) => LIVING_WAGE_PER_DAY;
+/** The living-wage floor per worker-day for a district (id or name). */
+export const wageFloorPerDay = (district: string) => livingWageFor(district)?.perDayInr ?? FALLBACK_FLOOR_PER_DAY;
 
 export interface DealContext {
   rfq: Rfq;
@@ -167,28 +167,13 @@ export const termsOf = (c: DealContext, o: Offer): Terms => ({
   productionDays: Math.max(1, o.leadTimeDays - c.transitDays),
 });
 
-/** Grade a confirmed offer. TEMPORARY stand-in for P3's scoreFairWork(), following the draft grading table. */
+/** Grade a confirmed offer with P3's scorecard. A supplier that has saved no workforce profile counts as having no safety record. */
 export function scoreOffer(c: DealContext, o: Offer): FairWorkScore {
-  const ratio = o.labour.wagePerWorkerDay / c.wageFloor;
-  const wf = c.workforce;
-  const grades = ['A', 'B', 'C', 'D', 'E'] as const;
-  let g = ratio >= 1 ? 0 : ratio >= 0.9 ? 1 : 2;
-  if (wf?.childOrForcedLabourFlag) g = 4;
-  else if (o.labour.hoursPerDay > LEGAL_HOURS_PER_DAY) g = 3;
-  else {
-    if (wf?.safetyRecord !== 'complete') g += 1; // a missing or self-declared safety record lowers the grade a step
-    if ((wf?.openGrievances ?? 0) > 0) g += 1;
-  }
-  return {
-    supplierId: c.seller.id, grade: grades[Math.min(g, 4)]!,
-    wageVsMinimum: 0, // state minimum wage not loaded yet
-    wageVsLivingWage: Math.round(ratio * 100) / 100,
-    overtimeHours: wf?.overtimeHoursPerWeek ?? 0,
-    safety: wf?.safetyRecord === 'complete' ? 1 : wf?.safetyRecord === 'partial' ? 0.5 : 0,
-    womenShare: o.labour.womenShare,
-    childLabourFlag: wf?.childOrForcedLabourFlag ?? false,
-    benchmarkSource: BENCHMARK_SOURCE,
+  const profile: WorkforceProfile = c.workforce ?? {
+    supplierId: c.seller.id, district: c.districtName, skills: [], hoursPerDay: o.labour.hoursPerDay, overtimeHoursPerWeek: 0,
+    safetyRecord: 'none', trainingHoursPerYear: 0, womenEmployed: 0, childOrForcedLabourFlag: false, openGrievances: 0, updatedAt: new Date().toISOString(),
   };
+  return scoreFairWork(o.labour, profile);
 }
 
 /**

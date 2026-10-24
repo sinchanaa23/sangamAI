@@ -61,8 +61,17 @@ describe('orchestrator', () => {
     expect(last.text).toContain('Held for the Sangam team');
   });
 
+  it('words a flag as held for review, never as blocked', async () => {
+    const bluntAuditor: Ask = async (o) => (o.system.includes('Auditor') ? ({ decision: 'flag', text: 'The contract is blocked because a certificate is missing.' } as never) : scripted(o));
+    const events = await run(bluntAuditor);
+    const text = (events.filter((e) => e.type === 'confirm' && e.from === 'auditor').at(-1) as { text: string }).text;
+    expect(text).toContain('held for review');
+    expect(text).not.toMatch(/blocked/i);
+  });
+
   it('passes a verified supplier that holds every required certificate', async () => {
-    const events = await run(scripted, rfq(), ['s12']);
+    // Chakan is an urban district with a higher living-wage floor, so it needs a bigger budget than the rural story
+    const events = await run(scripted, rfq({ budget: { amount: 14_000_000, currency: 'INR' } }), ['s12']);
     expect(events.find((e) => e.type === 'audit')).toMatchObject({ decision: 'pass' });
   });
 
