@@ -11,7 +11,7 @@ import type { GlobalBuyer } from './settings';
 export interface DueDiligencePack {
   generatedAt: string;
   note: string;
-  buyer: { country: string; currency: string; ratesAsOf: string; rates: Record<string, number>; ratesSource: 'estimated' };
+  buyer: { country: string; currency: string; ratesAsOf: string; rates: Record<string, number>; ratesSource: 'public' };
   requirement: { id: string; part: string; monthlyVolume: number; spec: string };
   quote: { bidder: string; unitPriceInr: number; unitPrice: string; landedPerUnit: string | null; leadDays: number; moq: number };
   suppliers: {
@@ -48,7 +48,7 @@ export async function buildPack(q: Quote, req: Requirement, state: StoreState, g
   return {
     generatedAt: new Date().toISOString(),
     note: 'Prepared by Sangam. Figures carry their source; exchange rates are a fixed table, not live.',
-    buyer: { country: countryOf(g.country).name, currency: g.currency, ratesAsOf: RATES_AS_OF, rates: g.rates, ratesSource: 'estimated' },
+    buyer: { country: countryOf(g.country).name, currency: g.currency, ratesAsOf: RATES_AS_OF, rates: g.rates, ratesSource: 'public' },
     requirement: { id: req.id, part: req.title, monthlyVolume: req.monthlyVolume, spec: req.spec },
     quote: { bidder: bidderName(q.bidder, state), unitPriceInr: q.unitPrice, unitPrice: fmt(q.unitPrice, g), landedPerUnit: route ? fmt(q.unitPrice + route.costPerUnit, g) : null, leadDays: q.leadDays, moq: q.moq },
     suppliers,
@@ -96,7 +96,7 @@ ${p.suppliers.map((s) => `<h2>Supplier: ${esc(s.name)}</h2><table>${rows([
 <h2>Signed credentials</h2><p>${p.credentials.length ? `${p.credentials.length} credential(s) attached in the JSON file.` : 'None issued yet. Credentials are signed when the Auditor passes a deal.'}</p>
 ${p.route ? `<h2>Export route: ${esc(p.route.from)} to ${esc(p.route.to)}</h2><p class="muted">About ${p.route.days} days, ${p.route.distanceKm.toLocaleString('en-IN')} km. Costs are indicative <span class="tag">Estimate</span></p>
 <table><tr><th>Leg</th><td><b>Days · cost per unit · documents</b></td></tr>${p.route.legs.map((l) => `<tr><th>${esc(l.title)}<br><small>${esc(l.place)}</small></th><td>${l.days} · ${esc(l.costPerUnit)}${l.documents.length ? ` · ${esc(l.documents.join(', '))}` : ''}${l.risks.length ? `<br><small>Risks: ${esc(l.risks.join('; '))}</small>` : ''}</td></tr>`).join('')}</table>` : ''}
-<h2>Exchange rates</h2><p>${Object.entries(p.buyer.rates).filter(([c]) => c !== 'INR').map(([c, r]) => `1 ${esc(c)} = ₹${r}`).join(' · ')}, fixed table as of ${esc(p.buyer.ratesAsOf)} <span class="tag">Estimate</span></p>
+<h2>Exchange rates</h2><p>${Object.entries(p.buyer.rates).filter(([c]) => c !== 'INR').map(([c, r]) => `1 ${esc(c)} = ₹${r}`).join(' · ')}, ECB reference rates as of ${esc(p.buyer.ratesAsOf)} <span class="tag">Public data</span></p>
 <p class="muted"><small>${esc(p.note)}</small></p>
 </body></html>`;
 }

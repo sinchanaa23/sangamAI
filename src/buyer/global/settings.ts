@@ -1,7 +1,8 @@
 // F7: global buyer mode. Where the buyer is, what currency they think in, and the fixed
 // exchange-rate table used to convert. Kept per browser (it is the buyer's own preference).
 import { useSyncExternalStore } from 'react';
-import { LANES, USD_INR } from '../../routes';
+import { fxRate } from '../../realdata';
+import { LANES } from '../../routes';
 import type { IntlLane } from '../../routes';
 
 export type Currency = 'INR' | 'USD' | 'EUR';
@@ -27,9 +28,10 @@ export const COUNTRIES: BuyerCountry[] = [
   { code: 'TH', name: 'Thailand', currency: 'USD', laneId: 'th-sea' },
 ];
 
-/** Rupees per unit of each currency. A fixed table, not a live feed; edit it on the requirements page. */
-export const DEFAULT_RATES: Record<Currency, number> = { INR: 1, USD: USD_INR, EUR: 108 };
-export const RATES_AS_OF = '2026-10-24';
+/** Rupees per unit of each currency: the ECB reference rates in src/real/fx.json (`npm run data:refresh fx`). The one table for the whole app. */
+export const DEFAULT_RATES: Record<Currency, number> = { INR: 1, USD: fxRate('USD').inrPer, EUR: fxRate('EUR').inrPer };
+export const RATES_AS_OF = fxRate('USD').date;
+export const RATES_SOURCE = fxRate('USD').source;
 
 export interface GlobalBuyer {
   country: string;
@@ -45,7 +47,8 @@ const DEFAULT: GlobalBuyer = { country: 'IN', currency: 'INR', rates: DEFAULT_RA
 function load(): GlobalBuyer {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...DEFAULT, ...JSON.parse(raw) } : DEFAULT;
+    // Rates are never read back from the browser: an old saved table must not disagree with the rest of the app
+    return raw ? { ...DEFAULT, ...JSON.parse(raw), rates: DEFAULT_RATES } : DEFAULT;
   } catch { return DEFAULT; }
 }
 
@@ -53,7 +56,7 @@ let current = load();
 const listeners = new Set<() => void>();
 
 export function setGlobalBuyer(patch: Partial<GlobalBuyer>) {
-  current = { ...current, ...patch };
+  current = { ...current, ...patch, rates: DEFAULT_RATES };
   try { localStorage.setItem(KEY, JSON.stringify(current)); } catch { /* private window: keep in memory */ }
   listeners.forEach((l) => l());
 }

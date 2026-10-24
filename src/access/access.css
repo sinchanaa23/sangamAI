@@ -1,0 +1,29 @@
+/* Sign-in panel, signed-out layout and the header account controls. Uses the app's design tokens only. */
+.signin { display: grid; gap: 12px; max-width: 640px; margin: 0 auto; }
+.signin-demo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.signin-or { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 12px; }
+.signin-or::before, .signin-or::after { content: ''; height: 1px; background: var(--line); flex: 1; }
+.home-signin { padding: 28px 0 8px; }
+
+/* Signed out: no workspace menu, so the page uses the full width */
+.shell.solo { grid-template-columns: minmax(0, 1fr); }
+.shell.solo .sidebar { display: none; }
+
+.account-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.account-bar .who { font-size: 13px; font-weight: 600; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-bar .tag-offline { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--potential-soft); color: var(--potential); }
+
+@media (max-width: 860px) {
+  .account-bar .who { max-width: 120px; }
+}
+
+/* Header: one line, nothing wraps mid-label. The account area is compact; the full badge is on the Account page. */
+.topbar .btn, .topbar a.btn { white-space: nowrap; }
+.account-bar { flex-wrap: nowrap; white-space: nowrap; gap: 8px; }
+.account-bar .who { max-width: 150px; }
+.account-bar .pill { font-size: 11px; padding: 2px 8px; }
+.account-bar .src { display: none; }
+@media (max-width: 1320px) { .topbar .brand-tag { display: none; } }
+
+/* The "Sign in" link in the header scrolls to the panel; keep it clear of the sticky header */
+#sign-in { scroll-margin-top: 96px; }
