@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-export const TABLES = ['rfqs', 'offers', 'negotiations', 'scorecards', 'credentials', 'deals', 'workforce', 'grievances'] as const;
+export const TABLES = ['rfqs', 'offers', 'negotiations', 'scorecards', 'credentials', 'deals', 'workforce', 'sustainability', 'grievances'] as const;
 export type Table = (typeof TABLES)[number];
 
 export interface Doc { id: string }

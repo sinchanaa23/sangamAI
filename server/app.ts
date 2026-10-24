@@ -4,7 +4,7 @@ import type { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { ROUTES } from '../src/contracts';
 import type { Grievance } from '../src/ecosystem/ledger';
-import type { FairWorkScore, NegotiationSummary, Rfq, WorkforceProfile } from '../src/contracts';
+import type { FairWorkScore, NegotiationSummary, Rfq, SustainabilityProfile, WorkforceProfile } from '../src/contracts';
 import { handleAsk, handleExtract } from './ai';
 import type { AskBody, ExtractBody, Reply } from './ai';
 import { openDb } from './db';
@@ -15,7 +15,7 @@ import { grievanceRoutes, setGrievanceStore } from './grievances';
 import { impactRoutes, setDealSource } from './impact';
 import { architectRoutes } from './architect';
 import { createNegotiations, fixture } from './negotiations';
-import { NegotiationInput, RfqInput, WorkforceInput } from './schemas';
+import { NegotiationInput, RfqInput, SustainabilityInput, WorkforceInput } from './schemas';
 
 const body = (c: Context) => c.req.json().catch(() => ({}));
 const reply = (c: Context, r: Reply) => c.json(r.body as object, r.status as 200);
@@ -103,6 +103,19 @@ export function createApp(db: Db = openDb(), opts: Parameters<typeof createNegot
   app.get(ROUTES.workforce, (c) => {
     const w = db.get<WorkforceProfile & Doc>('workforce', c.req.param('id'));
     return w ? c.json(w) : c.json({ error: 'No workforce profile yet' }, 404);
+  });
+
+  // Sustainability checklist saved by the supplier page
+  app.put(ROUTES.sustainability, async (c) => {
+    const p = SustainabilityInput.safeParse(await body(c));
+    if (!p.success) return bad(c, p.error);
+    const id = c.req.param('id');
+    const profile: SustainabilityProfile & Doc = { ...p.data, id, supplierId: id, updatedAt: new Date().toISOString() };
+    return c.json(db.put('sustainability', profile));
+  });
+  app.get(ROUTES.sustainability, (c) => {
+    const s = db.get<SustainabilityProfile & Doc>('sustainability', c.req.param('id'));
+    return s ? c.json(s) : c.json({ error: 'No sustainability checklist yet' }, 404);
   });
 
   app.onError((e, c) => c.json({ error: e.message }, 500));

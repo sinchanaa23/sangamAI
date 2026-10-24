@@ -34,3 +34,9 @@ export const WorkforceInput = z.object({
   childOrForcedLabourFlag: z.boolean().default(false),
   openGrievances: z.number().int().nonnegative().default(0),
 });
+
+// Sustainability checklist answers, keyed by checklist item id (src/sustainability.ts CHECKLIST). Only the tick
+// and its evidence state are accepted; scoring ignores item ids it does not know.
+export const SustainabilityInput = z.object({
+  answers: z.record(z.string(), z.object({ value: z.enum(['yes', 'partly', 'no', 'na']), evidence: z.enum(['declared', 'document', 'verified']) })),
+});

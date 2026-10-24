@@ -22,6 +22,8 @@ import NegotiationRoom from './buyer/NegotiationRoom';
 import HomePage from './shared/HomePage';
 import SellerView from './seller/SellerView';
 import WorkforcePage from './seller/WorkforcePage';
+import SustainabilityPage from './seller/SustainabilityPage';
+import RankingPage from './buyer/RankingPage';
 import OpportunitiesPage from './seller/OpportunitiesPage';
 import ConsortiaPage from './seller/ConsortiaPage';
 import ProfilePage from './seller/ProfilePage';
@@ -84,14 +86,14 @@ function Shell() {
   const nav: Record<Workspace, NavGroup[]> = {
     buyer: [
       { title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
-      { title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
+      { title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'ranking', label: 'Find suppliers' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
       { title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'negotiate', label: 'Agent negotiation' }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
       { title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
     ],
     supplier: [
       { title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
       { title: 'Grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
-      { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'profile', label: 'Profile and documents' }, { id: 'reviews', label: 'Reviews' }] },
+      { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }, { id: 'reviews', label: 'Reviews' }] },
     ],
     ecosystem: [
       { title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }] },
@@ -104,13 +106,13 @@ function Shell() {
   useScrollReveal(mainRef, `${pageKey}:${dataVersion}`);
 
   const content: Record<string, ReactNode> = {
-    'buyer:today': <SupplyChainPage />, 'buyer:sim': <SimulatorPage />, 'buyer:routes': <RoutesPage />, 'buyer:india': <StepChains />,
+    'buyer:today': <SupplyChainPage />, 'buyer:sim': <SimulatorPage />, 'buyer:routes': <RoutesPage />, 'buyer:india': <StepChains />, 'buyer:ranking': <RankingPage />,
     'buyer:network': <NetworkPage />, 'buyer:location': <LocationPlanner />, 'buyer:requirements': <RequirementsPage />,
     'buyer:switch': <SwitchoverPage />, 'buyer:devel': <DevelopmentPage role="buyer" />, 'buyer:setup': <SetupPage />, 'buyer:integrations': <IntegrationsPage />,
     'buyer:negotiate': <NegotiationRoom />,
     'supplier:overview': <SellerView lang={lang} />, 'supplier:opps': <OpportunitiesPage />, 'supplier:consortia': <ConsortiaPage />,
     'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
-    'supplier:architect': <ArchitectPage />, 'supplier:workforce': <WorkforcePage />, 'supplier:profile': <ProfilePage />, 'supplier:reviews': <ReviewsPage />,
+    'supplier:architect': <ArchitectPage />, 'supplier:workforce': <WorkforcePage />, 'supplier:sustainability': <SustainabilityPage />, 'supplier:profile': <ProfilePage />, 'supplier:reviews': <ReviewsPage />,
     'ecosystem:verify': <VerificationDesk />, 'ecosystem:passport': <PassportPage />, 'ecosystem:check': <VerifyPage />,
     'ecosystem:impact': <ImpactPage />, 'ecosystem:districts': <DistrictDashboard />, 'ecosystem:report': <GrievancePage />, 'ecosystem:sources': <DataSourcesPage />,
   };

@@ -1,0 +1,63 @@
+{
+  "source": "Official scheme and regulation pages behind the sustainability checklist items",
+  "notes": [
+    "Each URL was checked on 2026-10-24 with a HEAD (then GET) request from the build environment; status 'verified' means the page answered HTTP 200 that day.",
+    "Official pages that block automated requests or did not connect stay 'unverified' - the framework itself is real and named in the checklist, but the link needs a manual check before quoting it to judges. No URL was added without an attempt.",
+    "Consent to Operate and hazardous-waste authorisation are issued by each State Pollution Control Board under the Water Act 1974 / Air Act 1981 and the Hazardous Waste Rules 2016; there is no single national portal, so the CPCB umbrella site is cited for them."
+  ],
+  "refs": [
+    {
+      "id": "msme-zed",
+      "name": "MSME ZED Certification (Zero Defect Zero Effect)",
+      "url": "https://zed.msme.gov.in/",
+      "what": "Ministry of MSME certification scheme rated Bronze, Silver, Gold (and higher) on environmental and quality practice; subsidised for MSMEs.",
+      "checkDate": "2026-10-24",
+      "status": "verified"
+    },
+    {
+      "id": "iso-14001",
+      "name": "ISO 14001 environmental management systems",
+      "url": "https://www.iso.org/standard/60857.html",
+      "what": "The ISO 14001:2015 standard page: requirements for an environmental management system.",
+      "checkDate": "2026-10-24",
+      "status": "unverified",
+      "note": "iso.org returned HTTP 403 to automated requests (bot blocking); the page is the official ISO 14001:2015 entry, check manually in a browser."
+    },
+    {
+      "id": "spcb-consent-to-operate",
+      "name": "Consent to Operate (State Pollution Control Boards / CPCB)",
+      "url": "https://cpcb.nic.in/",
+      "what": "CPCB umbrella site; each State Pollution Control Board issues Consent to Establish and Consent to Operate under the Water Act 1974 and Air Act 1981.",
+      "checkDate": "2026-10-24",
+      "status": "unverified",
+      "note": "cpcb.nic.in did not connect from the build environment (connection failed, likely network-level blocking of the host); verify manually."
+    },
+    {
+      "id": "epr-plastic-packaging",
+      "name": "EPR for plastic packaging (CPCB portal)",
+      "url": "https://eprplastic.cpcb.gov.in/",
+      "what": "Extended Producer Responsibility registration portal for plastic packaging under the Plastic Waste Management Rules 2016 (as amended 2021-22).",
+      "checkDate": "2026-10-24",
+      "status": "unverified",
+      "note": "eprplastic.cpcb.gov.in did not connect from the build environment (connection failed); verify manually."
+    },
+    {
+      "id": "hazardous-waste-authorisation",
+      "name": "Hazardous-waste authorisation (Hazardous and Other Wastes Rules 2016)",
+      "url": "https://cpcb.nic.in/hazardous-waste-rules/",
+      "what": "CPCB page for the Hazardous and Other Wastes (Management and Transboundary Movement) Rules 2016, under which SPCBs grant authorisation to handlers.",
+      "checkDate": "2026-10-24",
+      "status": "unverified",
+      "note": "cpcb.nic.in did not connect from the build environment (connection failed); verify manually."
+    },
+    {
+      "id": "sidbi-energy-efficiency",
+      "name": "SIDBI energy-efficiency finance for MSMEs",
+      "url": "https://www.sidbi.in/",
+      "what": "SIDBI (Small Industries Development Bank of India) main site; it runs concessional loan lines for MSME energy-efficiency and cleaner-production upgrades.",
+      "checkDate": "2026-10-24",
+      "status": "verified",
+      "note": "Root URL redirects to https://www.sidbi.in/en/ and returned HTTP 200; the specific scheme page was not pinned down, so the bank's site is cited."
+    }
+  ]
+}
