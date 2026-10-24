@@ -3,7 +3,7 @@ import { district } from '../engine';
 import { trade } from '../realdata';
 import type { TierInput } from '../types';
 
-const SUPPLY = { strong: '#15803d', partial: '#b45309', weak: '#b91c1c' } as const;
+const SUPPLY = { strong: '#346538', partial: '#956400', weak: '#9f2f2d' } as const;
 const W = 780, ROW = 54, BOX = 44;
 const COL = { raw: 10, inter: 210, part: 410, plant: 640 };
 const BW = 186;
@@ -32,17 +32,17 @@ export default function TierDiagram() {
 
   const box = (x: number, cy: number, t: TierInput, key: string) => (
     <g key={key}>
-      <rect x={x} y={cy - BOX / 2} width={BW} height={BOX} rx={7} fill="#fff" stroke="#d7dce2" />
+      <rect x={x} y={cy - BOX / 2} width={BW} height={BOX} rx={7} fill="#fff" stroke="#dcdad4" />
       <rect x={x} y={cy - BOX / 2} width={4} height={BOX} rx={2} fill={SUPPLY[t.indianSupply]} />
-      <text x={x + 11} y={cy - 4} fontSize={11.5} fontWeight={600} fill="#18202b">{clip(t.name, 27)}</text>
-      <text x={x + 11} y={cy + 12} fontSize={10.5} fill="#5a6472">{tradeLine(t)}</text>
+      <text x={x + 11} y={cy - 4} fontSize={11.5} fontWeight={600} fill="#111111">{clip(t.name, 27)}</text>
+      <text x={x + 11} y={cy + 12} fontSize={10.5} fill="#6b6a66">{tradeLine(t)}</text>
     </g>
   );
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Multi-tier supply chain" style={{ display: 'block' }}>
       {(['RAW MATERIALS', 'INTERMEDIATES', 'PARTS (TIER 1)', 'YOUR PLANT'] as const).map((h, i) => (
-        <text key={h} x={[COL.raw, COL.inter, COL.part, COL.plant][i]} y={18} fontSize={11} fontWeight={700} fill="#8a93a0">{h}</text>
+        <text key={h} x={[COL.raw, COL.inter, COL.part, COL.plant][i]} y={18} fontSize={11} fontWeight={700} fill="#9a9892">{h}</text>
       ))}
       {placed.map((g) => {
         const partY = g.top + (g.rows * ROW) / 2;
@@ -53,18 +53,18 @@ export default function TierDiagram() {
           <g key={g.line.id}>
             {g.raw.map((t, i) => <path key={`er${i}`} d={g.inter.length ? curve(COL.raw + BW, rawY(i), COL.inter, interY(Math.min(i, g.inter.length - 1))) : curve(COL.raw + BW, rawY(i), COL.part, partY)} fill="none" stroke={SUPPLY[t.indianSupply]} strokeOpacity={0.4} strokeWidth={1.5} />)}
             {g.inter.map((t, i) => <path key={`ei${i}`} d={curve(COL.inter + BW, interY(i), COL.part, partY)} fill="none" stroke={SUPPLY[t.indianSupply]} strokeOpacity={0.4} strokeWidth={1.5} />)}
-            <path d={curve(COL.part + 200, partY, COL.plant, plantY)} fill="none" stroke={imported ? '#94a3b8' : '#15803d'} strokeOpacity={0.5} strokeWidth={1.5} strokeDasharray={imported ? '5 4' : undefined} />
+            <path d={curve(COL.part + 200, partY, COL.plant, plantY)} fill="none" stroke={imported ? '#b4b2ac' : '#346538'} strokeOpacity={0.5} strokeWidth={1.5} strokeDasharray={imported ? '5 4' : undefined} />
             {g.raw.map((t, i) => box(COL.raw, rawY(i), t, `r${i}`))}
             {g.inter.map((t, i) => box(COL.inter, interY(i), t, `i${i}`))}
-            <rect x={COL.part} y={partY - BOX / 2} width={200} height={BOX} rx={7} fill={imported ? '#f1f5f9' : '#e8f6ec'} stroke={imported ? '#94a3b8' : '#15803d'} />
-            <text x={COL.part + 10} y={partY - 4} fontSize={11.5} fontWeight={700} fill="#18202b">{clip(g.line.name, 28)}</text>
-            <text x={COL.part + 10} y={partY + 12} fontSize={10.5} fill={imported ? '#64748b' : '#15803d'}>{imported ? `Imported from ${g.line.importedFrom}` : 'Made in India'} · {g.line.sharePct.toFixed(0)}%</text>
+            <rect x={COL.part} y={partY - BOX / 2} width={200} height={BOX} rx={7} fill={imported ? '#f1f0ec' : '#edf3ec'} stroke={imported ? '#b4b2ac' : '#346538'} />
+            <text x={COL.part + 10} y={partY - 4} fontSize={11.5} fontWeight={700} fill="#111111">{clip(g.line.name, 28)}</text>
+            <text x={COL.part + 10} y={partY + 12} fontSize={10.5} fill={imported ? '#787774' : '#346538'}>{imported ? `Imported from ${g.line.importedFrom}` : 'Made in India'} · {g.line.sharePct.toFixed(0)}%</text>
           </g>
         );
       })}
-      <rect x={COL.plant} y={plantY - 36} width={130} height={72} rx={10} fill="#e6f4f2" stroke="#0f766e" strokeWidth={1.5} />
-      <text x={COL.plant + 65} y={plantY - 8} textAnchor="middle" fontSize={12} fontWeight={700} fill="#18202b">{clip(buyer.name, 18)}</text>
-      <text x={COL.plant + 65} y={plantY + 10} textAnchor="middle" fontSize={11} fill="#5a6472">{district(buyer.plantDistrictId).name}</text>
+      <rect x={COL.plant} y={plantY - 36} width={130} height={72} rx={10} fill="#edf3ec" stroke="#3d5a45" strokeWidth={1.5} />
+      <text x={COL.plant + 65} y={plantY - 8} textAnchor="middle" fontSize={12} fontWeight={700} fill="#111111">{clip(buyer.name, 18)}</text>
+      <text x={COL.plant + 65} y={plantY + 10} textAnchor="middle" fontSize={11} fill="#6b6a66">{district(buyer.plantDistrictId).name}</text>
     </svg>
   );
 }

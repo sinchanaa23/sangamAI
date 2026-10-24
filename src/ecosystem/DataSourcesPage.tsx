@@ -74,7 +74,7 @@ export default function DataSourcesPage() {
       <div className="card">
         <div className="section-title">Simulated for the prototype <Src kind="simulated" /></div>
         <ul className="why small">{SIMULATED.map((x) => <li key={x}>{x}</li>)}</ul>
-        <p className="small" style={{ marginTop: 10 }}>To go live, these would come from companies themselves (onboarding, quotes, orders), checked by the Sangam team (<Src kind="declared" /> → <Src kind="verified" />), and from SAP Ariba, IBP and Business Network records.</p>
+        <p className="small" style={{ marginTop: 10 }}>To go live, these would come from companies themselves (onboarding, quotes, orders), checked by the Sangam team (<Src kind="declared" /> → <Src kind="verified" />), from the agents' signed deals, and from open procurement on ONDC.</p>
       </div>
     </div>
   );

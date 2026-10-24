@@ -12,7 +12,7 @@ interface Props {
 
 const W = 440, H = 360, CX = W / 2, CY = H / 2 - 6, RING = 128;
 
-export const roiColor = (roi10: number) => (roi10 >= 5 ? '#15803d' : roi10 >= 3.5 ? '#0f766e' : '#b45309');
+export const roiColor = (roi10: number) => (roi10 >= 5 ? '#346538' : roi10 >= 3.5 ? '#3d5a45' : '#956400');
 
 function wrap(text: string, max = 20): string[] {
   const words = text.split(' ');
@@ -45,17 +45,17 @@ export default function CapabilityWheel({ center, centerSub, results, selected, 
             <circle cx={x} cy={y} r={rad} fill="#fff" stroke={roiColor(r.roi10)} strokeWidth={on ? 3 : 2} />
             <text x={x} y={y + 4} textAnchor="middle" fontSize={11.5} fontWeight={700} fill={roiColor(r.roi10)}>{r.fit}%</text>
             {lines.map((l, j) => (
-              <text key={j} x={x} y={ty + j * 13} textAnchor="middle" fontSize={11.5} fontWeight={on ? 600 : 500} fill="#18202b">{l}</text>
+              <text key={j} x={x} y={ty + j * 13} textAnchor="middle" fontSize={11.5} fontWeight={on ? 600 : 500} fill="#111111">{l}</text>
             ))}
           </g>
         );
       })}
-      <circle cx={CX} cy={CY} r={54} fill="#e6f4f2" stroke="#0f766e" strokeWidth={2} />
+      <circle cx={CX} cy={CY} r={54} fill="#edf3ec" stroke="#3d5a45" strokeWidth={2} />
       {center.map((c, i) => (
-        <text key={i} x={CX} y={CY - 6 + i * 14 - (center.length - 1) * 7} textAnchor="middle" fontSize={12.5} fontWeight={700} fill="#18202b">{c}</text>
+        <text key={i} x={CX} y={CY - 6 + i * 14 - (center.length - 1) * 7} textAnchor="middle" fontSize={12.5} fontWeight={700} fill="#111111">{c}</text>
       ))}
-      <text x={CX} y={CY + 16 + (center.length - 1) * 7} textAnchor="middle" fontSize={10.5} fill="#5a6472">{centerSub}</text>
-      <text x={W - 8} y={H - 6} textAnchor="end" fontSize={10.5} fill="#8a93a0">% = {fitLabel}</text>
+      <text x={CX} y={CY + 16 + (center.length - 1) * 7} textAnchor="middle" fontSize={10.5} fill="#6b6a66">{centerSub}</text>
+      <text x={W - 8} y={H - 6} textAnchor="end" fontSize={10.5} fill="#9a9892">% = {fitLabel}</text>
     </svg>
   );
 }

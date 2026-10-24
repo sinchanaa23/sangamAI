@@ -61,17 +61,17 @@ function International() {
   const u = buyer.unitLabel;
 
   const lines: MapLine[] = [
-    ...all.filter((r) => r !== sel && r !== today).flatMap((r) => r.paths.map((p, i) => ({ id: `${r.lane.id}${i}`, coords: p, color: '#94a3b8', width: 1.2, opacity: 0.55, dash: r.lane.mode === 'air' ? '3 4' : undefined }))),
-    ...today.paths.map((p, i) => ({ id: `today${i}`, coords: p, color: '#334155', width: 2, dash: today === sel ? undefined : '6 4' })),
-    ...(sel !== today ? sel.paths.map((p, i) => ({ id: `sel${i}`, coords: p, color: '#0f766e', width: 3, dash: sel.lane.mode === 'air' ? '3 4' : undefined })) : []),
+    ...all.filter((r) => r !== sel && r !== today).flatMap((r) => r.paths.map((p, i) => ({ id: `${r.lane.id}${i}`, coords: p, color: '#b4b2ac', width: 1.2, opacity: 0.55, dash: r.lane.mode === 'air' ? '3 4' : undefined }))),
+    ...today.paths.map((p, i) => ({ id: `today${i}`, coords: p, color: '#2f3437', width: 2, dash: today === sel ? undefined : '6 4' })),
+    ...(sel !== today ? sel.paths.map((p, i) => ({ id: `sel${i}`, coords: p, color: '#3d5a45', width: 3, dash: sel.lane.mode === 'air' ? '3 4' : undefined })) : []),
   ];
   const points: MapPoint[] = [
     ...all.filter((r) => r.lane.mode === 'sea').map((r) => ({
-      id: r.lane.id, at: r.lane.originPoint, color: r === sel ? '#0f766e' : r === today ? '#334155' : '#64748b', r: r === sel ? 5 : 3.5,
+      id: r.lane.id, at: r.lane.originPoint, color: r === sel ? '#3d5a45' : r === today ? '#2f3437' : '#787774', r: r === sel ? 5 : 3.5,
       label: r.lane.country.replace(' (EU)', ''), bold: r === sel, side: (r.lane.id === 'eu-sea' || r.lane.id === 'ae-sea' ? 'top' : ['th-sea', 'kr-sea', 'cn-sea'].includes(r.lane.id) ? 'left' : 'right') as MapPoint['side'],
     })),
-    { id: 'chennai', at: CHENNAI_PORT, color: '#0f766e', label: 'Chennai', side: 'bottom', bold: true },
-    ...CHOKEPOINTS.filter((c) => scenario.closed[c.id]).map((c) => ({ id: c.id, at: [c.lon, c.lat] as [number, number], color: '#b91c1c', r: 5, ring: true })),
+    { id: 'chennai', at: CHENNAI_PORT, color: '#3d5a45', label: 'Chennai', side: 'bottom', bold: true },
+    ...CHOKEPOINTS.filter((c) => scenario.closed[c.id]).map((c) => ({ id: c.id, at: [c.lon, c.lat] as [number, number], color: '#9f2f2d', r: 5, ring: true })),
   ];
   const scatter = all.filter((r) => r.status !== 'blocked').map((r) => ({ id: r.lane.id, name: r.lane.mode === 'air' ? `${r.lane.country} (air)` : r.lane.country.replace(' (EU)', ''), days: r.p90, cost: Math.round(r.costPerUnit) }));
   const compare = Object.fromEntries(today.legs.map((l) => [l.id, l]));
@@ -91,10 +91,10 @@ function International() {
       <div className="card">
         <MapCanvas view="world" lines={lines} points={points} ariaLabel="International supply routes to Chennai" />
         <div className="legend">
-          <span><i style={{ background: '#334155' }} />Today: {today.lane.origin}</span>
-          <span><i style={{ background: '#0f766e' }} />Selected: {sel.lane.origin}</span>
-          <span><i style={{ background: '#94a3b8' }} />Other options</span>
-          {CHOKEPOINTS.some((c) => scenario.closed[c.id]) && <span><i className="dot" style={{ background: '#b91c1c' }} />Closed in your scenario</span>}
+          <span><i style={{ background: '#2f3437' }} />Today: {today.lane.origin}</span>
+          <span><i style={{ background: '#3d5a45' }} />Selected: {sel.lane.origin}</span>
+          <span><i style={{ background: '#b4b2ac' }} />Other options</span>
+          {CHOKEPOINTS.some((c) => scenario.closed[c.id]) && <span><i className="dot" style={{ background: '#9f2f2d' }} />Closed in your scenario</span>}
         </div>
       </div>
 
@@ -104,18 +104,18 @@ function International() {
           <div style={{ height: 300 }}>
             <ResponsiveContainer>
               <ScatterChart margin={{ top: 10, right: 70, bottom: 18, left: 8 }}>
-                <CartesianGrid stroke="#eef0f3" />
-                <XAxis type="number" dataKey="days" name="Days" unit=" d" tick={{ fontSize: 12, fill: '#5a6472' }} label={{ value: 'Worst-case door-to-door days', position: 'insideBottom', offset: -10, fontSize: 12, fill: '#8a93a0' }} />
-                <YAxis type="number" dataKey="cost" name="Cost" domain={['auto', 'auto']} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#5a6472' }} width={70} />
+                <CartesianGrid stroke="#efeeea" />
+                <XAxis type="number" dataKey="days" name="Days" unit=" d" tick={{ fontSize: 12, fill: '#6b6a66' }} label={{ value: 'Worst-case door-to-door days', position: 'insideBottom', offset: -10, fontSize: 12, fill: '#9a9892' }} />
+                <YAxis type="number" dataKey="cost" name="Cost" domain={['auto', 'auto']} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#6b6a66' }} width={70} />
                 <ZAxis range={[90, 90]} />
                 <Tooltip formatter={(v: number, n: string) => (n === 'Cost' ? inr(v) : `${v} days`)} cursor={false} />
                 <Scatter data={scatter} isAnimationActive={false} onClick={(d: { id: string }) => setPicked(d.id)} shape={(raw: unknown) => {
                   const p = raw as { cx: number; cy: number; payload: { id: string } };
-                  return <circle cx={p.cx} cy={p.cy} r={p.payload.id === sel.lane.id ? 8 : 6} fill={p.payload.id === sel.lane.id ? '#0f766e' : p.payload.id === today.lane.id ? '#334155' : '#94a3b8'} style={{ cursor: 'pointer' }} />;
+                  return <circle cx={p.cx} cy={p.cy} r={p.payload.id === sel.lane.id ? 8 : 6} fill={p.payload.id === sel.lane.id ? '#3d5a45' : p.payload.id === today.lane.id ? '#2f3437' : '#b4b2ac'} style={{ cursor: 'pointer' }} />;
                 }}>
                   <LabelList dataKey="name" content={(raw: unknown) => {
                     const p = raw as { x: number; y: number; width: number; height: number; value: string };
-                    return <text x={p.x + p.width + 4} y={p.y + p.height / 2 + 4} fontSize={11} fill="#5a6472">{p.value}</text>;
+                    return <text x={p.x + p.width + 4} y={p.y + p.height / 2 + 4} fontSize={11} fill="#6b6a66">{p.value}</text>;
                   }} />
                 </Scatter>
               </ScatterChart>
@@ -177,7 +177,7 @@ function International() {
 
 // ---------------- Domestic ----------------
 
-const MODE_COLOR: Record<Mode, string> = { road: '#475569', rail: '#7c3aed', coastal: '#0891b2' };
+const MODE_COLOR: Record<Mode, string> = { road: '#5f5e5a', rail: '#5b6f8f', coastal: '#2f7f86' };
 const MODE_LABEL: Record<Mode, string> = { road: 'Road', rail: 'Rail', coastal: 'Coastal ship' };
 
 function Domestic() {
@@ -201,15 +201,15 @@ function Domestic() {
   const inland = importInlandLane();
 
   const lines: MapLine[] = [
-    { id: 'imp', coords: inland.path, color: '#94a3b8', width: 2, dash: '5 4' },
+    { id: 'imp', coords: inland.path, color: '#b4b2ac', width: 2, dash: '5 4' },
     ...allRoutes.flatMap((r) => r.options.filter((o) => o !== r.lane).map((o) => ({ id: `${r.seller.id}-${o.mode}`, coords: o.path, color: MODE_COLOR[o.mode], width: 1, opacity: 0.25 }))),
     ...allRoutes.filter((r) => r.lane).map((r) => ({ id: `${r.seller.id}-best`, coords: r.lane!.path, color: MODE_COLOR[r.lane!.mode], width: 2.6, dash: r.lane!.mode === 'coastal' ? '2 4' : undefined })),
   ];
   const seen = new Set<string>();
   const points: MapPoint[] = [
     ...allRoutes.filter((r) => r.lane && !seen.has(r.seller.districtId) && seen.add(r.seller.districtId)).map((r) => ({ id: r.seller.districtId, at: [district(r.seller.districtId).lon, district(r.seller.districtId).lat] as [number, number], color: MODE_COLOR[r.lane!.mode], hollow: true, label: district(r.seller.districtId).name, side: (['vapi', 'rajkot', 'sanand', 'satara', 'dharwad'].includes(r.seller.districtId) ? 'left' : 'right') as MapPoint['side'] })),
-    { id: 'chennai', at: CHENNAI_PORT, color: '#94a3b8', r: 3.5, label: 'Chennai port', side: 'right' },
-    { id: 'plant', at: [plant.lon, plant.lat], color: '#0f766e', r: 6, ring: true, label: `Plant, ${plant.name}`, side: 'left', bold: true },
+    { id: 'chennai', at: CHENNAI_PORT, color: '#b4b2ac', r: 3.5, label: 'Chennai port', side: 'right' },
+    { id: 'plant', at: [plant.lon, plant.lat], color: '#3d5a45', r: 6, ring: true, label: `Plant, ${plant.name}`, side: 'left', bold: true },
   ];
 
   return (
@@ -231,7 +231,7 @@ function Domestic() {
             <span><i style={{ background: MODE_COLOR.road }} />Road</span>
             <span><i style={{ background: MODE_COLOR.rail }} />Rail</span>
             <span><i style={{ background: MODE_COLOR.coastal }} />Coastal ship</span>
-            <span><i style={{ background: '#94a3b8' }} />Today: imports via Chennai port</span>
+            <span><i style={{ background: '#b4b2ac' }} />Today: imports via Chennai port</span>
           </div>
           <p className="tiny" style={{ marginTop: 8 }}>India boundary: DataMeet (CC BY 4.0). Routes are drawn straight for clarity.</p>
         </div>

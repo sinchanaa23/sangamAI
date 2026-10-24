@@ -2,7 +2,7 @@ import { buyer } from '../data';
 import { district, inr } from '../engine';
 import type { Architecture, NodeStatus } from '../network';
 
-export const STATUS_COLOR: Record<NodeStatus, string> = { available: '#15803d', upgrade: '#b45309', new: '#7c3aed' };
+export const STATUS_COLOR: Record<NodeStatus, string> = { available: '#346538', upgrade: '#956400', new: '#5b6f8f' };
 export const STATUS_LABEL: Record<NodeStatus, string> = { available: 'Available now', upgrade: 'Needs upgrade', new: 'New setup' };
 
 const W = 760, ROW = 58, BOX_H = 46, TOP = 36;
@@ -25,9 +25,9 @@ export default function NetworkDiagram({ arch }: { arch: Architecture }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={`${arch.name} network diagram`} style={{ display: 'block' }}>
-      <text x={PX} y={20} fontSize={11.5} fontWeight={600} fill="#8a93a0">PART · COST VS IMPORT</text>
-      <text x={NX} y={20} fontSize={11.5} fontWeight={600} fill="#8a93a0">WHERE IT IS MADE</text>
-      <text x={TX} y={20} fontSize={11.5} fontWeight={600} fill="#8a93a0">PLANT</text>
+      <text x={PX} y={20} fontSize={11.5} fontWeight={600} fill="#9a9892">PART · COST VS IMPORT</text>
+      <text x={NX} y={20} fontSize={11.5} fontWeight={600} fill="#9a9892">WHERE IT IS MADE</text>
+      <text x={TX} y={20} fontSize={11.5} fontWeight={600} fill="#9a9892">PLANT</text>
 
       {/* edges */}
       {nodes.map((n, i) => {
@@ -45,9 +45,9 @@ export default function NetworkDiagram({ arch }: { arch: Architecture }) {
         const cheaper = l.deltaPct < 0;
         return (
           <g key={l.line.id}>
-            <rect x={PX} y={partY[i] - BOX_H / 2} width={PW} height={BOX_H} rx={8} fill="#fff" stroke="#d7dce2" />
-            <text x={PX + 12} y={partY[i] - 4} fontSize={12.5} fontWeight={600} fill="#18202b">{clip(l.line.name, 27)}</text>
-            <text x={PX + 12} y={partY[i] + 13} fontSize={11.5} fill={cheaper ? '#15803d' : '#b91c1c'}>
+            <rect x={PX} y={partY[i] - BOX_H / 2} width={PW} height={BOX_H} rx={8} fill="#fff" stroke="#dcdad4" />
+            <text x={PX + 12} y={partY[i] - 4} fontSize={12.5} fontWeight={600} fill="#111111">{clip(l.line.name, 27)}</text>
+            <text x={PX + 12} y={partY[i] + 13} fontSize={11.5} fill={cheaper ? '#346538' : '#9f2f2d'}>
               {inr(l.cost)} · {Math.abs(l.deltaPct).toFixed(0)}% {cheaper ? 'less' : 'more'}
             </text>
           </g>
@@ -59,8 +59,8 @@ export default function NetworkDiagram({ arch }: { arch: Architecture }) {
         <g key={`n${i}`}>
           <rect x={NX} y={ny(i) - BOX_H / 2} width={NW} height={BOX_H} rx={8} fill="#fff" stroke={STATUS_COLOR[n.status]} strokeWidth={1.3} />
           <rect x={NX} y={ny(i) - BOX_H / 2} width={5} height={BOX_H} rx={2} fill={STATUS_COLOR[n.status]} />
-          <text x={NX + 14} y={ny(i) - 4} fontSize={12} fontWeight={600} fill="#18202b">{clip(n.name, 38)}</text>
-          <text x={NX + 14} y={ny(i) + 13} fontSize={11} fill="#5a6472">
+          <text x={NX + 14} y={ny(i) - 4} fontSize={12} fontWeight={600} fill="#111111">{clip(n.name, 38)}</text>
+          <text x={NX + 14} y={ny(i) + 13} fontSize={11} fill="#6b6a66">
             {district(n.districtId).name} · {Math.round(n.share * 100)}% ·{' '}
             <tspan fill={STATUS_COLOR[n.status]} fontWeight={600}>{STATUS_LABEL[n.status]}{n.capexCr > 0 ? (n.capexCr < 1 ? ` ₹${Math.round(n.capexCr * 100)} lakh` : ` ₹${n.capexCr.toFixed(1)} Cr`) : ''}</tspan>
           </text>
@@ -68,10 +68,10 @@ export default function NetworkDiagram({ arch }: { arch: Architecture }) {
       ))}
 
       {/* plant */}
-      <rect x={TX} y={plantY - 40} width={TW} height={80} rx={10} fill="#e6f4f2" stroke="#0f766e" strokeWidth={1.5} />
-      <text x={TX + TW / 2} y={plantY - 14} textAnchor="middle" fontSize={12.5} fontWeight={600} fill="#18202b">Your plant</text>
-      <text x={TX + TW / 2} y={plantY + 3} textAnchor="middle" fontSize={11.5} fill="#5a6472">{district(buyer.plantDistrictId).name}</text>
-      <text x={TX + TW / 2} y={plantY + 22} textAnchor="middle" fontSize={12} fontWeight={600} fill="#0f766e">{inr(arch.unitCost)}</text>
+      <rect x={TX} y={plantY - 40} width={TW} height={80} rx={10} fill="#edf3ec" stroke="#3d5a45" strokeWidth={1.5} />
+      <text x={TX + TW / 2} y={plantY - 14} textAnchor="middle" fontSize={12.5} fontWeight={600} fill="#111111">Your plant</text>
+      <text x={TX + TW / 2} y={plantY + 3} textAnchor="middle" fontSize={11.5} fill="#6b6a66">{district(buyer.plantDistrictId).name}</text>
+      <text x={TX + TW / 2} y={plantY + 22} textAnchor="middle" fontSize={12} fontWeight={600} fill="#3d5a45">{inr(arch.unitCost)}</text>
     </svg>
   );
 }

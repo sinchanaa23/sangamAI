@@ -6,11 +6,17 @@ import { useStore } from '../store';
 import { useUi } from '../ui';
 import Stars from '../components/Stars';
 import Src from '../components/Src';
+import { CATEGORY_LABEL, decideFlag, resolveGrievance, useLedger } from './ledger';
+
+const sellerName = (id: string) => sellers.find((s) => s.id === id)?.name ?? id;
 
 export default function VerificationDesk() {
   const { state, update } = useStore();
   const { openSupplier } = useUi();
+  const ledger = useLedger();
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const flags = ledger.flags.filter((f) => f.status === 'open');
+  const grievances = ledger.grievances.filter((g) => g.status === 'open');
   const onboarded = state.onboarded.filter((o) => o.sector === state.sector);
   const reviews = state.reviews.filter((r) => r.status === 'pending' && sellers.some((s) => s.id === r.sellerId));
   const milestones = state.projects.filter((p) => p.sector === state.sector).flatMap((p) => p.milestones.filter((m) => m.status === 'submitted').map((m) => ({ p, m })));
@@ -32,6 +38,45 @@ export default function VerificationDesk() {
       <div>
         <h1 className="lead">Verification desk</h1>
         <p className="muted" style={{ marginTop: 6 }}>The Sangam team checks claims before they count. Verified facts raise trust scores; nothing self-declared is shown to buyers as verified.</p>
+      </div>
+
+      <div className="card">
+        <div className="section-title">Auditor flags ({flags.length})</div>
+        <p className="tiny">The Auditor Agent passes clean deals on its own. Anything it is unsure about, and every report of child or forced labour, waits here for a person. Approving signs a fair-work audit credential.</p>
+        {flags.length === 0 && <p className="small muted">Nothing waiting.</p>}
+        {flags.map((f) => (
+          <div key={f.id} style={{ borderTop: '1px solid var(--line)', padding: '12px 0' }} className="stack">
+            <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+              <span><button className="linkish" style={{ fontWeight: 600 }} onClick={() => openSupplier(f.sellerId)}>{sellerName(f.sellerId)}</button> <span className="chip potential">{f.raisedBy}</span></span>
+              <span className="tiny">{new Date(f.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+            </div>
+            <p className="small">{f.reason}</p>
+            <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+              <input placeholder="What you checked" value={notes[f.id] ?? ''} onChange={(e) => setNotes({ ...notes, [f.id]: e.target.value })} style={{ flex: 1, minWidth: 200, font: 'inherit', fontSize: 13, padding: '6px 10px', border: '1px solid var(--line)', borderRadius: 8 }} />
+              <button className="btn small primary" onClick={() => void decideFlag(f.id, 'approved', notes[f.id] || 'Checked on site; no breach found.')}>Approve and sign</button>
+              <button className="btn small danger" onClick={() => void decideFlag(f.id, 'blocked', notes[f.id] || 'Breach confirmed.')}>Block the deal</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card">
+        <div className="section-title">Worker grievances ({grievances.length} open)</div>
+        <p className="tiny">Anonymous reports from workers. While one is open, the supplier's Fair Work grade drops one step.</p>
+        {grievances.length === 0 && <p className="small muted">No open reports.</p>}
+        {grievances.map((g) => (
+          <div key={g.id} style={{ borderTop: '1px solid var(--line)', padding: '12px 0' }} className="stack">
+            <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+              <span><b>{CATEGORY_LABEL[g.category]}</b> at <button className="linkish" onClick={() => openSupplier(g.sellerId)}>{sellerName(g.sellerId)}</button></span>
+              <span className="tiny">Ref {g.id.toUpperCase()} · {new Date(g.at).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
+            </div>
+            {g.text && <p className="small">{g.text}</p>}
+            <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+              <input placeholder="How it was resolved" value={notes[g.id] ?? ''} onChange={(e) => setNotes({ ...notes, [g.id]: e.target.value })} style={{ flex: 1, minWidth: 200, font: 'inherit', fontSize: 13, padding: '6px 10px', border: '1px solid var(--line)', borderRadius: 8 }} />
+              <button className="btn small" disabled={!notes[g.id]} onClick={() => resolveGrievance(g.id, notes[g.id])}>Mark resolved</button>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="card">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { sellers } from './data';
 import { SECTOR_LIST } from './sectors';
@@ -17,8 +17,11 @@ import RequirementsPage from './buyer/RequirementsPage';
 import SwitchoverPage from './buyer/SwitchoverPage';
 import DevelopmentPage from './shared/DevelopmentPage';
 import SetupPage from './buyer/SetupPage';
-import SapPage from './buyer/SapPage';
+import IntegrationsPage from './buyer/IntegrationsPage';
+import NegotiationRoom from './buyer/NegotiationRoom';
+import HomePage from './shared/HomePage';
 import SellerView from './seller/SellerView';
+import WorkforcePage from './seller/WorkforcePage';
 import OpportunitiesPage from './seller/OpportunitiesPage';
 import ConsortiaPage from './seller/ConsortiaPage';
 import ProfilePage from './seller/ProfilePage';
@@ -26,18 +29,27 @@ import ReviewsPage from './seller/ReviewsPage';
 import Diversification from './seller/Diversification';
 import VerificationDesk from './ecosystem/VerificationDesk';
 import DistrictDashboard from './ecosystem/DistrictDashboard';
-import MetricsPage from './ecosystem/MetricsPage';
+import ImpactPage from './ecosystem/ImpactPage';
+import PassportPage from './ecosystem/PassportPage';
+import VerifyPage from './ecosystem/VerifyPage';
+import GrievancePage from './ecosystem/GrievancePage';
 import DataSourcesPage from './ecosystem/DataSourcesPage';
+import { useLedger } from './ecosystem/ledger';
 import SupplierDrawer from './components/SupplierDrawer';
 import AskSangam from './components/AskSangam';
+import RiverBackdrop from './components/RiverBackdrop';
+import NavRiver from './components/NavRiver';
+import SmoothScroll from './components/SmoothScroll';
+import ScrollProgress from './components/ScrollProgress';
+import useScrollReveal from './components/ScrollReveal';
 import type { Lang } from './seller/i18n';
 
 function Logo() {
   // Two streams meeting: the "sangam" (confluence)
   return (
     <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M4 4c0 10 12 10 12 18v6" fill="none" stroke="#0f766e" strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M28 4c0 10-12 10-12 18" fill="none" stroke="#c2410c" strokeWidth="3.2" strokeLinecap="round" />
+      <path d="M4 4c0 10 12 10 12 18v6" fill="none" stroke="#111111" strokeWidth="3.2" strokeLinecap="round" />
+      <path d="M28 4c0 10-12 10-12 18" fill="none" stroke="#a4552c" strokeWidth="3.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -53,62 +65,77 @@ function Shell() {
   const [ask, setAsk] = useState<{ open: boolean; q?: string }>({ open: false });
   const [acting, setActing] = useState('s13');
   const [lang, setLang] = useState<Lang>('en');
+  const [home, setHome] = useState(true);
+  const ledger = useLedger();
   const page = pages[workspace];
-  const go = (w: Workspace, p: string) => { setWorkspace(w); setPages((x) => ({ ...x, [w]: p })); window.scrollTo(0, 0); };
+  const pageKey = `${home ? 'home' : workspace}:${page}`;
+  const mainRef = useRef<HTMLElement>(null);
+  const go = (w: Workspace, p: string) => { setHome(false); setWorkspace(w); setPages((x) => ({ ...x, [w]: p })); window.scrollTo(0, 0); };
   const actingSeller = sellers.some((s) => s.id === acting) ? acting : sellers[0]?.id ?? '';
 
   const sector = state.sector;
   const reqs = state.requirements.filter((r) => r.sector === sector);
   const pendingChecks = state.reviews.filter((r) => r.status === 'pending').length
     + state.onboarded.filter((o) => (state.verifications[o.id]?.identity ?? 'pending') === 'pending').length
-    + state.projects.flatMap((p) => p.milestones).filter((m) => m.status === 'submitted').length;
+    + state.projects.flatMap((p) => p.milestones).filter((m) => m.status === 'submitted').length
+    + ledger.flags.filter((f) => f.status === 'open').length + ledger.grievances.filter((g) => g.status === 'open').length;
 
   const nav: Record<Workspace, NavGroup[]> = {
     buyer: [
       { title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
       { title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
-      { title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
-      { title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'sap', label: 'SAP integration' }] },
+      { title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'negotiate', label: 'Agent negotiation' }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
+      { title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
     ],
     supplier: [
       { title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
       { title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
-      { title: 'Trust', items: [{ id: 'profile', label: 'Profile and documents' }, { id: 'reviews', label: 'Reviews' }] },
+      { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'profile', label: 'Profile and documents' }, { id: 'reviews', label: 'Reviews' }] },
     ],
     ecosystem: [
-      { title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }] },
-      { title: 'Clusters and states', items: [{ id: 'districts', label: 'District dashboard' }, { id: 'metrics', label: 'Platform metrics' }] },
+      { title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }] },
+      { title: 'Clusters and states', items: [{ id: 'impact', label: 'SDG 8 impact' }, { id: 'districts', label: 'District dashboard' }] },
+      { title: 'Workers', items: [{ id: 'report', label: 'Report a problem' }] },
       { title: 'About the data', items: [{ id: 'sources', label: 'Data sources' }] },
     ],
   };
 
+  useScrollReveal(mainRef, `${pageKey}:${dataVersion}`);
+
   const content: Record<string, ReactNode> = {
     'buyer:today': <SupplyChainPage />, 'buyer:sim': <SimulatorPage />, 'buyer:routes': <RoutesPage />, 'buyer:india': <StepChains />,
     'buyer:network': <NetworkPage />, 'buyer:location': <LocationPlanner />, 'buyer:requirements': <RequirementsPage />,
-    'buyer:switch': <SwitchoverPage />, 'buyer:devel': <DevelopmentPage role="buyer" />, 'buyer:setup': <SetupPage />, 'buyer:sap': <SapPage />,
+    'buyer:switch': <SwitchoverPage />, 'buyer:devel': <DevelopmentPage role="buyer" />, 'buyer:setup': <SetupPage />, 'buyer:integrations': <IntegrationsPage />,
+    'buyer:negotiate': <NegotiationRoom />,
     'supplier:overview': <SellerView lang={lang} />, 'supplier:opps': <OpportunitiesPage />, 'supplier:consortia': <ConsortiaPage />,
     'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
-    'supplier:profile': <ProfilePage />, 'supplier:reviews': <ReviewsPage />,
-    'ecosystem:verify': <VerificationDesk />, 'ecosystem:districts': <DistrictDashboard />, 'ecosystem:metrics': <MetricsPage />, 'ecosystem:sources': <DataSourcesPage />,
+    'supplier:workforce': <WorkforcePage />, 'supplier:profile': <ProfilePage />, 'supplier:reviews': <ReviewsPage />,
+    'ecosystem:verify': <VerificationDesk />, 'ecosystem:passport': <PassportPage />, 'ecosystem:check': <VerifyPage />,
+    'ecosystem:impact': <ImpactPage />, 'ecosystem:districts': <DistrictDashboard />, 'ecosystem:report': <GrievancePage />, 'ecosystem:sources': <DataSourcesPage />,
   };
 
   return (
     <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
+      <RiverBackdrop where={home ? 'home' : workspace} />
+      <SmoothScroll pageKey={pageKey} />
+      <ScrollProgress pageKey={`${pageKey}:${dataVersion}`} />
+      <a className="skip" href="#content">Skip to content</a>
       <header className="topbar">
-        <div className="brand">
+        <button className="brand" onClick={() => { setHome(true); window.scrollTo(0, 0); }} style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', font: 'inherit', color: 'inherit' }} aria-label="Sangam home">
           <Logo />
           <span className="brand-name">Sangam</span>
-          <span className="brand-tag">Where Indian demand meets Indian capability</span>
-        </div>
+          <span className="brand-tag">Atmanirbhar Bharat · Viksit Bharat</span>
+        </button>
         <select className="sector-pick" value={sector} aria-label="Sector" onChange={(e) => update((s) => ({ ...s, sector: e.target.value as SectorId }))}>
           {SECTOR_LIST.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
         <div className="segmented" role="tablist" aria-label="Workspace">
           {(['buyer', 'supplier', 'ecosystem'] as Workspace[]).map((w) => (
-            <button key={w} className={workspace === w ? 'on' : ''} onClick={() => setWorkspace(w)}>{{ buyer: 'Buyer', supplier: 'Supplier', ecosystem: 'Ecosystem' }[w]}</button>
+            <button key={w} className={!home && workspace === w ? 'on' : ''} onClick={() => { setHome(false); setWorkspace(w); }}>{{ buyer: 'Buyer', supplier: 'Supplier', ecosystem: 'Ecosystem' }[w]}</button>
           ))}
         </div>
         <button className="btn small" onClick={() => setAsk({ open: true })}>Ask Sangam</button>
+        <NavRiver pageKey={pageKey} />
       </header>
 
       <div className="shell">
@@ -129,7 +156,7 @@ function Shell() {
             <div key={g.title} className="group">
               <div className="group-title">{g.title}</div>
               {g.items.map((it) => (
-                <button key={it.id} className={`item ${page === it.id ? 'on' : ''}`} onClick={() => go(workspace, it.id)}>
+                <button key={it.id} className={`item ${!home && page === it.id ? 'on' : ''}`} onClick={() => go(workspace, it.id)}>
                   <span>{it.label}</span>
                   {!!it.count && <span className="count">{it.count}</span>}
                 </button>
@@ -140,7 +167,7 @@ function Shell() {
             <div className="tiny" style={{ margin: '0 8px' }}>Demo companies and figures are labelled <b>Simulated</b>; real data is labelled <b>Public data</b> or <b>Live</b>.</div>
           </div>
         </nav>
-        <main key={`${workspace}-${dataVersion}`}>{content[`${workspace}:${page}`]}</main>
+        <main ref={mainRef} id="content" tabIndex={-1} key={`${home ? 'home' : workspace}-${dataVersion}`}>{home ? <HomePage go={go} /> : content[`${workspace}:${page}`]}</main>
       </div>
 
       {drawer && <SupplierDrawer id={drawer} onClose={() => setDrawer(null)} />}

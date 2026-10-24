@@ -61,6 +61,132 @@
    "railStations": 41,
    "airports": 1,
    "highwaySegments": 572
+  },
+  "tumakuru": {
+   "industrialAreas": 23,
+   "railStations": 7,
+   "airports": 1,
+   "highwaySegments": 183
+  },
+  "satara": {
+   "industrialAreas": 16,
+   "railStations": 6,
+   "airports": 0,
+   "highwaySegments": 129
+  },
+  "nagpur": {
+   "industrialAreas": 65,
+   "railStations": 53,
+   "airports": 1,
+   "highwaySegments": 735
+  },
+  "sanand": {
+   "industrialAreas": 151,
+   "railStations": 29,
+   "airports": 1,
+   "highwaySegments": 321
+  },
+  "manesar": {
+   "industrialAreas": 95,
+   "railStations": 28,
+   "airports": 3,
+   "highwaySegments": 609
+  },
+  "lucknow": {
+   "industrialAreas": 59,
+   "railStations": 46,
+   "airports": 3,
+   "highwaySegments": 714
+  },
+  "ludhiana": {
+   "industrialAreas": 126,
+   "railStations": 16,
+   "airports": 2,
+   "highwaySegments": 355
+  },
+  "howrah": {
+   "industrialAreas": 523,
+   "railStations": 151,
+   "airports": 1,
+   "highwaySegments": 462
+  },
+  "visakhapatnam": {
+   "industrialAreas": 155,
+   "railStations": 9,
+   "airports": 1,
+   "highwaySegments": 165
+  },
+  "vijayawada": {
+   "industrialAreas": 57,
+   "railStations": 20,
+   "airports": 1,
+   "highwaySegments": 363
+  },
+  "kochi": {
+   "industrialAreas": 155,
+   "railStations": 42,
+   "airports": 1,
+   "highwaySegments": 424
+  },
+  "guwahati": {
+   "industrialAreas": 96,
+   "railStations": 14,
+   "airports": 2,
+   "highwaySegments": 174
+  },
+  "tiruppur": {
+   "industrialAreas": 102,
+   "railStations": 6,
+   "airports": 1,
+   "highwaySegments": 381
+  },
+  "aurangabad": {
+   "industrialAreas": 117,
+   "railStations": 5,
+   "airports": 1,
+   "highwaySegments": 509
+  },
+  "silvassa": {
+   "industrialAreas": 116,
+   "railStations": 5,
+   "airports": 1,
+   "highwaySegments": 136
+  },
+  "pithampur": {
+   "industrialAreas": 28,
+   "railStations": 14,
+   "airports": 1,
+   "highwaySegments": 178
+  },
+  "jamshedpur": {
+   "industrialAreas": 94,
+   "railStations": 14,
+   "airports": 1,
+   "highwaySegments": 208
+  },
+  "anantapur": {
+   "industrialAreas": 6,
+   "railStations": 6,
+   "airports": 1,
+   "highwaySegments": 191
+  },
+  "agartala": {
+   "industrialAreas": 84,
+   "railStations": 17,
+   "airports": 4,
+   "highwaySegments": 76
+  },
+  "rajkot": {
+   "industrialAreas": 102,
+   "railStations": 8,
+   "airports": 2,
+   "highwaySegments": 276
+  },
+  "noida": {
+   "industrialAreas": 212,
+   "railStations": 205,
+   "airports": 3,
+   "highwaySegments": 1486
   }
  }
 }
