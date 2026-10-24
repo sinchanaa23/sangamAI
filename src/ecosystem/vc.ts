@@ -2,6 +2,9 @@
 // Pure Web Crypto, so the same code signs on the Node server and checks in the browser.
 
 export type CredentialKind = 'SkillCredential' | 'AuditCredential' | 'ContractCredential';
+
+/** A key as JWK. Spelled out here because the DOM's JsonWebKey type does not exist under Node's types. */
+export interface Jwk { kty?: string; crv?: string; x?: string; y?: string; d?: string; alg?: string; ext?: boolean; key_ops?: string[] }
 export type Alg = 'Ed25519' | 'ES256';
 
 export interface Credential {
@@ -18,7 +21,7 @@ export interface IssuerKey {
   keyId: string;
   alg: Alg;
   /** public key as JWK, safe to share */
-  publicJwk: JsonWebKey;
+  publicJwk: Jwk;
   /** human label: where this key lives */
   label: string;
 }
@@ -52,12 +55,12 @@ const unb64url = (s: string) => {
 const bytes = (s: string) => new TextEncoder().encode(s);
 
 /** Make a new signing key. Ed25519 where supported, ECDSA P-256 otherwise (older browsers). */
-export async function generateIssuerKey(label: string): Promise<{ key: IssuerKey; privateJwk: JsonWebKey }> {
+export async function generateIssuerKey(label: string): Promise<{ key: IssuerKey; privateJwk: Jwk }> {
   for (const alg of ['Ed25519', 'ES256'] as Alg[]) {
     try {
-      const pair = (await subtle().generateKey(params(alg), true, ['sign', 'verify'])) as CryptoKeyPair;
-      const publicJwk = await subtle().exportKey('jwk', pair.publicKey);
-      const privateJwk = await subtle().exportKey('jwk', pair.privateKey);
+      const pair = (await subtle().generateKey(params(alg), true, ['sign', 'verify'])) as { publicKey: CryptoKey; privateKey: CryptoKey };
+      const publicJwk = (await subtle().exportKey('jwk', pair.publicKey)) as Jwk;
+      const privateJwk = (await subtle().exportKey('jwk', pair.privateKey)) as Jwk;
       const keyId = `${ISSUER}#${(publicJwk.x ?? '').slice(0, 12)}`;
       return { key: { keyId, alg, publicJwk, label }, privateJwk };
     } catch { /* try the next algorithm */ }
@@ -67,9 +70,10 @@ export async function generateIssuerKey(label: string): Promise<{ key: IssuerKey
 
 const payload = (c: Omit<Credential, 'proof'>) => bytes(canonical({ '@context': c['@context'], id: c.id, type: c.type, issuer: c.issuer, issuedAt: c.issuedAt, subject: c.subject }));
 
-export async function signCredential(type: CredentialKind, subject: Record<string, unknown>, key: IssuerKey, privateJwk: JsonWebKey): Promise<Credential> {
+export async function signCredential(type: CredentialKind, subject: Record<string, unknown>, key: IssuerKey, privateJwk: Jwk): Promise<Credential> {
   const body = { '@context': CONTEXT, id: `urn:uuid:${globalThis.crypto.randomUUID()}`, type, issuer: ISSUER, issuedAt: new Date().toISOString(), subject };
-  const priv = await subtle().importKey('jwk', privateJwk, params(key.alg), false, ['sign']);
+  // `as never`: the browser and Node name the JWK parameter type differently
+  const priv = await subtle().importKey('jwk', privateJwk as never, params(key.alg), false, ['sign']);
   const sig = await subtle().sign(signParams(key.alg), priv, payload(body));
   return { ...body, proof: { alg: key.alg, keyId: key.keyId, signature: b64url(sig) } };
 }
@@ -89,7 +93,7 @@ export async function verifyCredential(input: unknown, trusted: IssuerKey[]): Pr
     return { ok: false, reason: 'unknown-issuer', detail: 'Signed by a key Sangam does not recognise. Anyone can make a key, so this proves nothing.' };
   }
   try {
-    const pub = await subtle().importKey('jwk', key.publicJwk, params(key.alg), false, ['verify']);
+    const pub = await subtle().importKey('jwk', key.publicJwk as never, params(key.alg), false, ['verify']);
     const good = await subtle().verify(signParams(key.alg), pub, unb64url(c.proof.signature), payload(c));
     return good ? { ok: true, key } : { ok: false, reason: 'tampered', detail: 'The signature does not match the contents. Something was changed after Sangam signed it.' };
   } catch {

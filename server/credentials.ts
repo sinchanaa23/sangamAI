@@ -4,7 +4,7 @@
 //     app.on(r.method, r.path, (c) => r.handler(c.req.raw, c.req.param()));
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { generateIssuerKey, signCredential, verifyCredential } from '../src/ecosystem/vc';
-import type { Credential, CredentialKind, IssuerKey } from '../src/ecosystem/vc';
+import type { Credential, CredentialKind, IssuerKey, Jwk } from '../src/ecosystem/vc';
 
 export interface Route {
   method: 'GET' | 'POST';
@@ -17,7 +17,7 @@ export const json = (data: unknown, status = 200) => new Response(JSON.stringify
 
 /** The private key stays on this machine; *.local files are git-ignored. */
 const KEY_FILE = '.sangam-issuer.local';
-let issuer: Promise<{ key: IssuerKey; privateJwk: JsonWebKey }> | null = null;
+let issuer: Promise<{ key: IssuerKey; privateJwk: Jwk }> | null = null;
 function issuerKey() {
   return (issuer ??= (async () => {
     if (existsSync(KEY_FILE)) return JSON.parse(readFileSync(KEY_FILE, 'utf8'));

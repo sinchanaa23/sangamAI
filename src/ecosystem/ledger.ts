@@ -3,7 +3,7 @@
 // and this browser's storage otherwise, so the pages work before the server lands.
 import { useSyncExternalStore } from 'react';
 import { generateIssuerKey, signCredential, verifyCredential } from './vc';
-import type { Credential, CredentialKind, IssuerKey } from './vc';
+import type { Credential, CredentialKind, IssuerKey, Jwk } from './vc';
 import type { DealRecord } from './impact';
 
 export type GrievanceCategory = 'wages' | 'hours' | 'safety' | 'harassment' | 'child-or-forced' | 'other';
@@ -37,7 +37,7 @@ interface Ledger {
   flags: AuditFlag[];
   /** deals the agents confirmed in this browser (see negotiation.ts) */
   deals: DealRecord[];
-  browserKey?: { key: IssuerKey; privateJwk: JsonWebKey };
+  browserKey?: { key: IssuerKey; privateJwk: Jwk };
 }
 
 export const CATEGORY_LABEL: Record<GrievanceCategory, string> = {
