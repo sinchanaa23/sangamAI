@@ -12,7 +12,7 @@
 - Reference docs (`docs/` folder, untracked .docx/.pptx): the proposal ("…proposal and 24-hour build plan") is the final reference over any agent's own ideas.
 - Teammate branches on origin: `feat/agents` (P1, merged to main twice — PR #1 and PR #3 `agents/use-fairwork`, which integrated my fairwork.ts into their agents and adjusted my reason wording), `feat/buyer` (P2, not merged), `feat/ecosystem` (P4, not merged — **main still has the OLD App.tsx sidebar without the Workforce nav entry**; P4's branch has it).
 
-## Current state (after session 7, 2026-10-24 end of day)
+## Current state (after session 8, 2026-10-24 night) — sustainability feature
 
 - **PR #2 (all P3 features) is MERGED to main.** P1 built on it (PR #3).
 - **Design language "Confluence" implemented on branch `feat/supplier-design`** (from main @ f1db058): DESIGN.md + a dependency-free motion kit in `src/components/motion/` (8 files) + wiring across all five P3 pages. Verified: build ✓, tests 41/41 ✓ (P1's tests joined my 22), browser ✓ (staggered reveals, gradient grade label, CountUp with retargeting, badge pop on grade flip, click sparks, spotlight hover, Hindi Devanagari grapheme-safe, real server save through P1's API).
@@ -59,6 +59,10 @@ Browser-verified on localhost:5173 (temporary nav wiring in App.tsx, reverted be
 6. Hour blocks 21–24: rehearsals; fixes only through pull requests.
 
 ## Session log
+
+### Session 8 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash swarm, night)
+
+Executed docs/sustainability_plan.md end to end with a 4-agent swarm + main-session glue, on feat/sustainability. **Phase 1** (flash): src/sustainability.ts (19-item checklist, 5 pillars, weights sum 100/sector, Bronze-Platinum gates + legal cap mirroring fairwork precedence, nextSteps), src/real/sustainability-refs.json (URLs actually probed; 4 honestly unverified — .gov.in blocked), SustainabilityBadge, 21 tests. **Me**: seedSustainabilityFor (5 sellers: Platinum hero / Gold / 2×Silver / Bronze, keyed by name) + src/seller/sustainability.ts persistence (server→device→seed). **Phase 2** (flash): src/seller/SustainabilityPage.tsx (pill taps, live badge+CountUp, pillar meters, next steps, save flow, kit touches). **Phase 3** (flash): src/ranking.ts (fixed-scale Sangam score, 7 metrics per plan §3.1, E excluded+flagged, per-supplier renormalisation when ungraded, presets), tests/ranking.test.ts (13: monotonicity, zero-sum, fixed-scale stability), src/buyer/RankingPage.tsx (presets/sliders/filters/why-#N expand/invite top 3), SupplierDrawer sustainability card. **Me**: App.tsx nav (buyer Design → Find suppliers; supplier Trust → Sustainability). **Phase 4** (flash): server route GET/PUT /api/suppliers/:id/sustainability (schemas, db store, app.ts mirroring workforce), contracts.ts additive type+ROUTES, VerificationDesk "Sustainability evidence" queue (verify flips document→verified and persists; gates lift live). Verified: 110/110 tests, build ✓, browser: Find suppliers (weights move Bronze down / green up), checklist live tap (Silver 52 after renewables=Yes), Platinum hero page. NOTE: P4's animated landing blocks automated clicks (door pills overlap + topbar covered) — enter via its own CTA button.
 
 ### Session 7 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash subagents, end of day)
 

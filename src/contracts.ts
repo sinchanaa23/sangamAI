@@ -1,6 +1,10 @@
 // Shared types and API routes for the four parts of the build. Agreed by all four people in hours 0-2;
 // after that only the Agents lead (P1) changes this file, through a pull request the others approve.
 
+// Type-only import (erased at runtime), so the server tsconfig boundary stays intact; src/sustainability.ts
+// only depends on src/types.ts, so there is no cycle.
+import type { SustainabilityAnswers } from './sustainability';
+
 export type Money = { amount: number; currency: 'INR' | 'USD' | 'EUR' };
 
 export interface LabourPlan {
@@ -87,6 +91,14 @@ export interface NegotiationStart {
   supplierIds: string[];
 }
 
+// ---- Sustainability (P3) ----
+/** A supplier's checklist answers with their evidence state, saved from the seller Sustainability page. */
+export interface SustainabilityProfile {
+  supplierId: string;
+  answers: SustainabilityAnswers;
+  updatedAt: string;
+}
+
 export interface NegotiationSummary {
   id: string;
   rfqId: string;
@@ -105,6 +117,7 @@ export const ROUTES = {
   negotiationStream: '/api/negotiations/:id/stream',
   scorecard: '/api/scorecard/:supplierId',
   workforce: '/api/suppliers/:id/workforce',
+  sustainability: '/api/suppliers/:id/sustainability', // P3
   credentialsVerify: '/api/credentials/verify', // P4
   credential: '/api/credentials/:id', // P4
   impact: '/api/impact', // P4
