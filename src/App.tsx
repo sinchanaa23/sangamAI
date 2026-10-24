@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { sellers } from './data';
 import { SECTOR_LIST } from './sectors';
@@ -27,9 +27,15 @@ import RankingPage from './buyer/RankingPage';
 import OpportunitiesPage from './seller/OpportunitiesPage';
 import ConsortiaPage from './seller/ConsortiaPage';
 import ProfilePage from './seller/ProfilePage';
-import ReviewsPage from './seller/ReviewsPage';
 import Diversification from './seller/Diversification';
 import ArchitectPage from './architect/ArchitectPage';
+import ClustersPage from './buyer/ClustersPage';
+import ReviewsHub from './reviews/ReviewsHub';
+import { AccessProvider, useAccess } from './access/Access';
+import SignInPanel from './access/SignInPanel';
+import { homeWorkspace, resolvePage, ROLE_LABEL } from './access/roles';
+import VerificationBadge from './auth/VerificationBadge';
+import './access/access.css';
 import VerificationDesk from './ecosystem/VerificationDesk';
 import DistrictDashboard from './ecosystem/DistrictDashboard';
 import ImpactPage from './ecosystem/ImpactPage';
@@ -57,28 +63,46 @@ function Logo() {
   );
 }
 
+/** Pages only a Sangam team account may open. */
+const TEAM_ONLY = ['ecosystem:verify', 'ecosystem:districts'];
+
 interface NavItem { id: string; label: string; count?: number }
 interface NavGroup { title: string; items: NavItem[] }
 
 function Shell() {
   const { state, update, dataVersion } = useStore();
+  const access = useAccess();
+  const signedIn = !!access.role;
+  const [notice, setNotice] = useState('');
   const [workspace, setWorkspace] = useState<Workspace>('buyer');
-  const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: 'today', supplier: 'overview', ecosystem: 'verify' });
+  const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: 'today', supplier: 'overview', ecosystem: 'negotiate' });
   const [drawer, setDrawer] = useState<string | null>(null);
   const [ask, setAsk] = useState<{ open: boolean; q?: string }>({ open: false });
   const [acting, setActing] = useState('s13');
   const [lang, setLang] = useState<Lang>('en');
   const [home, setHome] = useState(true);
   const ledger = useLedger();
+  const showHome = home || !signedIn;
   const page = pages[workspace];
-  const pageKey = `${home ? 'home' : workspace}:${page}`;
+  const pageKey = `${showHome ? 'home' : workspace}:${page}`;
   const mainRef = useRef<HTMLElement>(null);
-  const go = (w: Workspace, p: string) => { setHome(false); setWorkspace(w); setPages((x) => ({ ...x, [w]: p })); window.scrollTo(0, 0); };
-  const actingSeller = sellers.some((s) => s.id === acting) ? acting : sellers[0]?.id ?? '';
+  // Pages that moved into the Ecosystem still open from old links; a page the account may not open shows a note instead
+  const go = (w0: Workspace, p0: string) => {
+    const [w, p] = resolvePage(w0, p0);
+    if (!access.workspaces.includes(w) || (!access.isTeam && TEAM_ONLY.includes(`${w}:${p}`))) {
+      setNotice(signedIn ? `Your ${ROLE_LABEL[access.role!]} account can't open that page.` : 'Sign in as a buyer or a supplier to open that.');
+      setHome(true); window.scrollTo(0, 0); return;
+    }
+    setNotice(''); setHome(false); setWorkspace(w); setPages((x) => ({ ...x, [w]: p })); window.scrollTo(0, 0);
+  };
+  // Signing in lands on the account's own workspace; signing out returns to the public landing page
+  useEffect(() => { setNotice(''); setHome(true); if (access.role) setWorkspace(homeWorkspace(access.role)); }, [access.role]);
+  const linkedSeller = access.role === 'supplier' && access.supplierId && sellers.some((s) => s.id === access.supplierId) ? access.supplierId : '';
+  const actingSeller = linkedSeller || (sellers.some((s) => s.id === acting) ? acting : sellers[0]?.id ?? '');
 
   const sector = state.sector;
   const reqs = state.requirements.filter((r) => r.sector === sector);
-  const pendingChecks = state.reviews.filter((r) => r.status === 'pending').length
+  const pendingChecks = !access.isTeam ? 0 : state.reviews.filter((r) => r.status === 'pending').length
     + state.onboarded.filter((o) => (state.verifications[o.id]?.identity ?? 'pending') === 'pending').length
     + state.projects.flatMap((p) => p.milestones).filter((m) => m.status === 'submitted').length
     + ledger.flags.filter((f) => f.status === 'open').length + ledger.grievances.filter((g) => g.status === 'open').length;
@@ -87,19 +111,20 @@ function Shell() {
     buyer: [
       { title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
       { title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'ranking', label: 'Find suppliers' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
-      { title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'negotiate', label: 'Agent negotiation' }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
+      { title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
       { title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
     ],
     supplier: [
       { title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
-      { title: 'Grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
-      { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }, { id: 'reviews', label: 'Reviews' }] },
+      { title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
+      { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }] },
     ],
     ecosystem: [
-      { title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }] },
-      { title: 'Clusters and states', items: [{ id: 'impact', label: 'SDG 8 impact' }, { id: 'districts', label: 'District dashboard' }] },
-      { title: 'Workers', items: [{ id: 'report', label: 'Report a problem' }] },
+      { title: 'Deal together', items: [{ id: 'negotiate', label: 'Agent negotiation' }, { id: 'reviews', label: 'Reviews' }] },
+      { title: 'Build and grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'clusters', label: 'Skill clusters' }] },
+      { title: 'Fair work and trust', items: [{ id: 'impact', label: 'SDG 8 impact' }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }, { id: 'report', label: 'Report a problem' }] },
       { title: 'About the data', items: [{ id: 'sources', label: 'Data sources' }] },
+      ...(access.isTeam ? [{ title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'districts', label: 'District dashboard' }] }] : []),
     ],
   };
 
@@ -109,17 +134,17 @@ function Shell() {
     'buyer:today': <SupplyChainPage />, 'buyer:sim': <SimulatorPage />, 'buyer:routes': <RoutesPage />, 'buyer:india': <StepChains />, 'buyer:ranking': <RankingPage />,
     'buyer:network': <NetworkPage />, 'buyer:location': <LocationPlanner />, 'buyer:requirements': <RequirementsPage />,
     'buyer:switch': <SwitchoverPage />, 'buyer:devel': <DevelopmentPage role="buyer" />, 'buyer:setup': <SetupPage />, 'buyer:integrations': <IntegrationsPage />,
-    'buyer:negotiate': <NegotiationRoom />,
     'supplier:overview': <SellerView lang={lang} />, 'supplier:opps': <OpportunitiesPage />, 'supplier:consortia': <ConsortiaPage />,
     'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
-    'supplier:architect': <ArchitectPage />, 'supplier:workforce': <WorkforcePage />, 'supplier:sustainability': <SustainabilityPage />, 'supplier:profile': <ProfilePage />, 'supplier:reviews': <ReviewsPage />,
+    'supplier:workforce': <WorkforcePage />, 'supplier:sustainability': <SustainabilityPage />, 'supplier:profile': <ProfilePage />,
+    'ecosystem:negotiate': <NegotiationRoom />, 'ecosystem:reviews': <ReviewsHub />, 'ecosystem:architect': <ArchitectPage />, 'ecosystem:clusters': <ClustersPage />,
     'ecosystem:verify': <VerificationDesk />, 'ecosystem:passport': <PassportPage />, 'ecosystem:check': <VerifyPage />,
     'ecosystem:impact': <ImpactPage />, 'ecosystem:districts': <DistrictDashboard />, 'ecosystem:report': <GrievancePage />, 'ecosystem:sources': <DataSourcesPage />,
   };
 
   return (
     <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
-      <RiverBackdrop where={home ? 'home' : workspace} />
+      <RiverBackdrop where={showHome ? 'home' : workspace} />
       <SmoothScroll pageKey={pageKey} />
       <ScrollProgress pageKey={`${pageKey}:${dataVersion}`} />
       <a className="skip" href="#content">Skip to content</a>
@@ -132,23 +157,34 @@ function Shell() {
         <select className="sector-pick" value={sector} aria-label="Sector" onChange={(e) => update((s) => ({ ...s, sector: e.target.value as SectorId }))}>
           {SECTOR_LIST.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
-        <div className="segmented" role="tablist" aria-label="Workspace">
-          {(['buyer', 'supplier', 'ecosystem'] as Workspace[]).map((w) => (
-            <button key={w} className={!home && workspace === w ? 'on' : ''} onClick={() => { setHome(false); setWorkspace(w); }}>{{ buyer: 'Buyer', supplier: 'Supplier', ecosystem: 'Ecosystem' }[w]}</button>
-          ))}
-        </div>
+        {signedIn && (
+          <div className="segmented" role="tablist" aria-label="Workspace">
+            {access.workspaces.map((w) => (
+              <button key={w} className={!showHome && workspace === w ? 'on' : ''} onClick={() => { setNotice(''); setHome(false); setWorkspace(w); }}>{{ buyer: 'Buyer', supplier: 'Supplier', ecosystem: 'Ecosystem' }[w]}</button>
+            ))}
+          </div>
+        )}
         <button className="btn small" onClick={() => setAsk({ open: true })}>Ask Sangam</button>
+        {signedIn ? (
+          <div className="account-bar">
+            <span className="who" title={access.name}>{access.name}</span>
+            {access.mode === 'offline' ? <span className="tag-offline" title="Not signed in: the server was not reachable, so this is a demo kept in this browser tab">Offline demo</span>
+              : access.verification && <span className="hide-sm"><VerificationBadge v={access.verification} /></span>}
+            {access.mode === 'server' && <a className="link-btn small" href="#/account">Account</a>}
+            <button className="btn small ghost" onClick={() => void access.signOut()}>Sign out</button>
+          </div>
+        ) : <a className="btn small primary" href="#sign-in">Sign in</a>}
         <NavRiver pageKey={pageKey} />
       </header>
 
-      <div className="shell">
+      <div className={`shell${signedIn ? '' : ' solo'}`}>
         <nav className="sidebar" aria-label="Pages">
           {workspace === 'supplier' && (
             <div className="group" style={{ marginBottom: 14 }}>
-              <div className="group-title">Acting as</div>
-              <select value={actingSeller} onChange={(e) => setActing(e.target.value)} style={{ width: '100%', fontSize: 13 }}>
+              {!linkedSeller && <div className="group-title">Acting as</div>}
+              {!linkedSeller && <select value={actingSeller} onChange={(e) => setActing(e.target.value)} style={{ width: '100%', fontSize: 13 }}>
                 {sellers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+              </select>}
               <div className="segmented" style={{ marginTop: 8 }}>
                 <button className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>English</button>
                 <button className={lang === 'hi' ? 'on' : ''} onClick={() => setLang('hi')}>हिंदी</button>
@@ -159,7 +195,7 @@ function Shell() {
             <div key={g.title} className="group">
               <div className="group-title">{g.title}</div>
               {g.items.map((it) => (
-                <button key={it.id} className={`item ${!home && page === it.id ? 'on' : ''}`} onClick={() => go(workspace, it.id)}>
+                <button key={it.id} className={`item ${!showHome && page === it.id ? 'on' : ''}`} onClick={() => go(workspace, it.id)}>
                   <span>{it.label}</span>
                   {!!it.count && <span className="count">{it.count}</span>}
                 </button>
@@ -170,7 +206,14 @@ function Shell() {
             <div className="tiny" style={{ margin: '0 8px' }}>Demo companies and figures are labelled <b>Simulated</b>; real data is labelled <b>Public data</b> or <b>Live</b>.</div>
           </div>
         </nav>
-        <main ref={mainRef} id="content" tabIndex={-1} key={`${home ? 'home' : workspace}-${dataVersion}`}>{home ? <HomePage go={go} /> : content[`${workspace}:${page}`]}</main>
+        <main ref={mainRef} id="content" tabIndex={-1} key={`${showHome ? 'home' : workspace}-${dataVersion}`}>
+          {showHome ? (
+            <>
+              {signedIn && notice && <div className="note warn" role="status" style={{ marginBottom: 16 }}>{notice}</div>}
+              <HomePage go={go} allowed={signedIn ? access.workspaces : undefined} signIn={signedIn ? undefined : <SignInPanel note={notice} />} />
+            </>
+          ) : content[`${workspace}:${page}`]}
+        </main>
       </div>
 
       {drawer && <SupplierDrawer id={drawer} onClose={() => setDrawer(null)} />}
@@ -182,9 +225,11 @@ function Shell() {
 export default function App() {
   return (
     <StoreProvider>
-      <BuyerProvider>
-        <Shell />
-      </BuyerProvider>
+      <AccessProvider>
+        <BuyerProvider>
+          <Shell />
+        </BuyerProvider>
+      </AccessProvider>
     </StoreProvider>
   );
 }

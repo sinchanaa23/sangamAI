@@ -1,0 +1,18 @@
+/* Sign-in panel, signed-out layout and the header account controls. Uses the app's design tokens only. */
+.signin { display: grid; gap: 12px; max-width: 640px; margin: 0 auto; }
+.signin-demo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.signin-or { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 12px; }
+.signin-or::before, .signin-or::after { content: ''; height: 1px; background: var(--line); flex: 1; }
+.home-signin { padding: 28px 0 8px; }
+
+/* Signed out: no workspace menu, so the page uses the full width */
+.shell.solo { grid-template-columns: minmax(0, 1fr); }
+.shell.solo .sidebar { display: none; }
+
+.account-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.account-bar .who { font-size: 13px; font-weight: 600; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-bar .tag-offline { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--potential-soft); color: var(--potential); }
+
+@media (max-width: 860px) {
+  .account-bar .who { max-width: 120px; }
+}
