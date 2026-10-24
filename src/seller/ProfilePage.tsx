@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { bom, buyer, certGaps, districts, processes, sellers, unitLabel } from '../data';
 import { now, uid } from '../model';
 import type { DocItem, OnboardedSeller } from '../model';
 import { scoreProfile } from '../fairwork';
 import type { ScoredWork } from '../fairwork';
-import FairWorkBadge from '../components/FairWorkBadge';
+import FairWorkBadge, { GRADE_GLOW } from '../components/FairWorkBadge';
+import SpotlightCard from '../components/motion/SpotlightCard';
+import FadeContent from '../components/motion/FadeContent';
+import CountUp from '../components/motion/CountUp';
+import ClickSpark from '../components/motion/ClickSpark';
 import { loadWorkforce } from './workforce';
 import { useStore } from '../store';
 import { checksFor } from '../trust';
 import { useUi } from '../ui';
 import type { CertDetail, OrgType } from '../types';
+import { useSupplierTheme } from '../components/motion/theme';
 
 const TYPES: OrgType[] = ['MSME', 'SHG federation', 'FPO', 'Cooperative'];
 
@@ -26,11 +32,15 @@ function WorkforceGradeCard({ sellerId, sellerName }: { sellerId: string; seller
   }, [sellerId, sellerName]);
   if (!score) return null;
   return (
-    <div className="card row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-      <FairWorkBadge score={score} />
-      <span className="small muted">The Fair Work grade buyers see on every quote, from the workforce profile.</span>
-      <button className="btn small" onClick={() => go('supplier', 'workforce')}>Workforce and fair work</button>
-    </div>
+    <FadeContent>
+      <div style={{ '--fw-glow-color': GRADE_GLOW[score.grade] } as CSSProperties}>
+      <SpotlightCard className="card fw-glass fw-glow"><div className="row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+        <FairWorkBadge score={score} />
+        <span className="small muted">The Fair Work grade buyers see on every quote, from the workforce profile.</span>
+        <button className="btn small" onClick={() => go('supplier', 'workforce')}>Workforce and fair work</button>
+      </div></SpotlightCard>
+      </div>
+    </FadeContent>
   );
 }
 
@@ -42,6 +52,7 @@ const toBase64 = (f: File) => new Promise<string>((res, rej) => {
 });
 
 export default function ProfilePage() {
+  useSupplierTheme();
   const { state, update } = useStore();
   const { actingSeller, setActingSeller, openSupplier } = useUi();
   const current = state.onboarded.find((o) => o.id === actingSeller);
@@ -136,7 +147,7 @@ function ProfileForm({ existing, onSaved, stateSector, update }: { existing?: On
       </div>
       {existing && <WorkforceGradeCard sellerId={existing.id} sellerName={existing.name} />}
       {checks && (
-        <div className="note">Verification: identity {checks.identity}, capacity {checks.capacity}, certificates {Object.values(checks.certs).filter((c) => c === 'verified').length} of {Object.keys(checks.certs).length} verified.</div>
+        <div className="note">Verification: identity {checks.identity}, capacity {checks.capacity}, certificates <CountUp value={Object.values(checks.certs).filter((c) => c === 'verified').length} /> of <CountUp value={Object.keys(checks.certs).length} /> verified.</div>
       )}
       <div className="card stack" style={{ gap: 14 }}>
         <div className="form-grid">
@@ -178,13 +189,19 @@ function ProfileForm({ existing, onSaved, stateSector, update }: { existing?: On
         )}
         <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
           <label className="btn small">Attach a document<input type="file" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) void addDoc(f, false); }} /></label>
-          <label className="btn small primary">{reading ? `Reading ${reading}…` : 'Upload a certificate and read it with AI'}<input type="file" accept="application/pdf,image/png,image/jpeg,image/webp" style={{ display: 'none' }} disabled={!!reading} onChange={(e) => { const f = e.target.files?.[0]; if (f) void addDoc(f, true); }} /></label>
+          <ClickSpark>
+            <label className="btn small primary">{reading ? `Reading ${reading}…` : 'Upload a certificate and read it with AI'}<input type="file" accept="application/pdf,image/png,image/jpeg,image/webp" style={{ display: 'none' }} disabled={!!reading} onChange={(e) => { const f = e.target.files?.[0]; if (f) void addDoc(f, true); }} /></label>
+          </ClickSpark>
         </div>
         {msg && <p className="small">{msg}</p>}
         {docs.length > 0 && <p className="tiny">On file: {docs.map((d) => `${d.name}${d.extracted ? ' (read by AI)' : ''}`).join(', ')}. The Sangam team checks documents against the issuing body before marking them verified.</p>}
       </div>
 
-      <div><button className="btn primary" disabled={!name.trim() || capacity <= 0} onClick={save}>{existing ? 'Save changes' : 'Register and request verification'}</button></div>
+      <div>
+        <ClickSpark>
+          <button className="btn primary" disabled={!name.trim() || capacity <= 0} onClick={save}>{existing ? 'Save changes' : 'Register and request verification'}</button>
+        </ClickSpark>
+      </div>
     </div>
   );
 }

@@ -6,8 +6,16 @@ import { useUi } from '../ui';
 import { regionHi, strings, typeHi } from './i18n';
 import type { Lang } from './i18n';
 import { visibleTo } from './visibility';
+import TextReveal from '../components/motion/TextReveal';
+import SpotlightCard from '../components/motion/SpotlightCard';
+import CountUp from '../components/motion/CountUp';
+import TiltCard from '../components/motion/TiltCard';
+import Aurora from '../components/motion/Aurora';
+import '../components/motion/motion.css';
+import { useSupplierTheme } from '../components/motion/theme';
 
 export default function SellerView({ lang }: { lang: Lang }) {
+  useSupplierTheme();
   const { state } = useStore();
   const { actingSeller, openSupplier, go } = useUi();
   const t = strings[lang];
@@ -30,25 +38,32 @@ export default function SellerView({ lang }: { lang: Lang }) {
 
   return (
     <div className="stack">
-      <div className="card">
+      <div style={{ position: 'relative' }}>
+        <Aurora opacity={0.3} />
+        <TiltCard>
+          <SpotlightCard className="card fw-glass">
         <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
           <span className={`chip ${isRural(seller) ? 'rural' : 'plain'}`}>{lang === 'hi' ? typeHi[seller.type] : seller.type}</span>
           <span className={`trust-badge trust-${trust.band}`}>Trust {trust.score} · {trust.band}</span>
           <span className={`chip ${seller.verification === 'verified' ? 'ready' : 'potential'}`}>{seller.verification === 'verified' ? t.verified : t.declared}</span>
         </div>
-        <h1 className="lead" style={{ marginTop: 10 }}>{seller.name}</h1>
+        <div style={{ marginTop: 10 }}>
+          <TextReveal as="h1" className="lead" text={seller.name} />
+        </div>
         <p className="muted" style={{ marginTop: 4 }}>{place.name}, {place.state} · {proc} · {seller.monthlyCapacity.toLocaleString('en-IN')} {t.capacity} · {seller.workers} {t.workers}</p>
         <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: 'wrap' }}>
           <button className="btn small" onClick={() => openSupplier(seller.id)}>See how buyers see you</button>
           <button className="btn small ghost" onClick={() => go('supplier', 'profile')}>Improve your profile</button>
         </div>
+          </SpotlightCard>
+        </TiltCard>
       </div>
 
       <div className="grid-2">
         <div className="stack">
           <div className="card">
             <div className="section-title">{t.demandTitle}</div>
-            <p style={{ fontSize: 17 }}><b>{reqs.length}</b> open requirement{reqs.length === 1 ? '' : 's'} for {proc.toLowerCase()} on Sangam right now.</p>
+            <p style={{ fontSize: 17 }}><b><CountUp value={reqs.length} /></b> open requirement{reqs.length === 1 ? '' : 's'} for {proc.toLowerCase()} on Sangam right now.</p>
             {signal && <p className="small muted" style={{ marginTop: 6 }}>{t.demandLine(signal.buyers, signal.monthlyUnits.toLocaleString('en-IN'), signal.from, lang === 'hi' ? regionHi[signal.region] ?? signal.region : signal.region)}</p>}
             <p className="tiny" style={{ marginTop: 8 }}>{t.demandNote}</p>
             <button className="btn small primary" style={{ marginTop: 10 }} onClick={() => go('supplier', 'opps')}>See opportunities</button>
@@ -79,8 +94,8 @@ export default function SellerView({ lang }: { lang: Lang }) {
             <>
               <p style={{ marginBottom: 12 }}>{t.almost(gaps.length)}</p>
               <ul className="checklist">
-                {gaps.map((g) => (
-                  <li key={g.label}>
+                {gaps.map((g, i) => (
+                  <li key={g.label} className="fw-rise" style={{ animationDelay: `${i * 45}ms` }}>
                     <span className="box" />
                     <div>
                       <div style={{ fontWeight: 500 }}>{lang === 'hi' ? g.labelHi : g.label}</div>

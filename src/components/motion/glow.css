@@ -1,0 +1,80 @@
+/* Confluence Dark — glow & glass utilities (fw- prefixed, zero collision risk).
+   Companion to theme.css (agent 1); owned by Phase 2 agent 2. */
+
+/* fw-glass — dark glass card surface. Blur the content behind it, pick up a
+   faint teal rim. Radius follows the app token (--radius, 12px fallback). */
+.fw-glass {
+  background: rgba(17, 26, 36, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(45, 212, 191, 0.18);
+  border-radius: var(--radius, 12px);
+}
+
+/* fw-glow — two-layer glow: a 1px rim plus a soft 24px halo, both driven by
+   --fw-glow-color so callers can key the glow to a grade/role colour:
+   style={{ '--fw-glow-color': 'rgba(34,197,94,0.35)' }} */
+.fw-glow {
+  box-shadow:
+    0 0 0 1px var(--fw-glow-color, rgba(45, 212, 191, 0.3)),
+    0 0 24px var(--fw-glow-color, rgba(45, 212, 191, 0.22));
+}
+
+/* fw-shiny — shine sweep clipped to the text. The gradient's base colour is
+   currentColor, so at rest (and with animations off) the text reads exactly
+   like its surroundings; only the bright band sweeps across. Speed is set
+   per-instance via --fw-shine-speed (ShinyText writes it inline). */
+.fw-shiny {
+  --fw-shine-speed: 2800ms;
+  --fw-shine-bright: rgba(255, 255, 255, 0.92);
+  color: inherit;
+  background-image: linear-gradient(
+    110deg,
+    currentColor 0%,
+    currentColor 42%,
+    var(--fw-shine-bright) 50%,
+    currentColor 58%,
+    currentColor 100%
+  );
+  background-size: 300% 100%;
+  background-position: 150% 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fw-shine-sweep var(--fw-shine-speed) linear infinite;
+}
+
+/* The band traverses right-to-left across the first 55% of the cycle, then
+   parks off-text for the remainder — a brief shine, not a constant strobe. */
+@keyframes fw-shine-sweep {
+  0% {
+    background-position: 150% 0;
+  }
+  55% {
+    background-position: -50% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+/* fw-tilt — perspective wrapper + inner body that TiltCard rotates. The
+   transition eases both the follow and the return-to-flat on leave. */
+.fw-tilt {
+  perspective: 800px;
+}
+
+.fw-tilt-inner {
+  transform-style: preserve-3d;
+  transition: transform 150ms ease-out;
+  will-change: transform;
+}
+
+/* Reduced motion: shine sweep off (text stays its plain base colour). The
+   tilt has no keyframes — TiltCard gates itself in JS. */
+@media (prefers-reduced-motion: reduce) {
+  .fw-shiny {
+    animation: none !important;
+  }
+}

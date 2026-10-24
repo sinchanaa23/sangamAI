@@ -9,15 +9,17 @@
 - P3 = Supplier lead. Features: **F4** Fair Work Scorecard, **F5** workforce and skills profile with voice, **F10** Bhashini (optional, needs keys).
 - Branch: **feat/supplier** (created from main @ 9ad6edc). Commit messages start with `supplier: `.
 - I own ONLY: `src/seller/**`, `src/fairwork.ts`, `src/voice.ts`, `src/real/wages.json`, `src/components/FairWorkBadge.tsx`, `src/seeds.ts`, `server/bhashini.ts`. Never edit anyone else's file — write a two-line note to send to its owner instead.
-- Reference docs (repo root, untracked .docx): the proposal ("…proposal and 24-hour build plan") is the final reference over any agent's own ideas.
-- Teammate branches on origin: `feat/agents` (P1), `feat/buyer` (P2), `feat/ecosystem` (P4). Nothing had merged to main as of 2026-10-24 evening.
+- Reference docs (`docs/` folder, untracked .docx/.pptx): the proposal ("…proposal and 24-hour build plan") is the final reference over any agent's own ideas.
+- Teammate branches on origin: `feat/agents` (P1, merged to main twice — PR #1 and PR #3 `agents/use-fairwork`, which integrated my fairwork.ts into their agents and adjusted my reason wording), `feat/buyer` (P2, not merged), `feat/ecosystem` (P4, not merged — **main still has the OLD App.tsx sidebar without the Workforce nav entry**; P4's branch has it).
 
-## Current state (after session 2, 2026-10-24)
+## Current state (after session 6, 2026-10-24 latest)
 
-- **All P3 hour blocks 2–21 are done**, except Bhashini (no keys — the fallback work, better voice prompts + translations, was done instead).
-- 6 commits on feat/supplier, **not pushed yet**. Next action: `git push origin feat/supplier` and open the PR to main (merge-checkpoint workflow: rebase on origin/main first if it moved).
-- Verification: `npm run build` ✓; `npx -y vitest@3 run` → **22/22 tests pass** (this becomes plain `npm test` once P1's package.json with vitest merges); browser-tested end to end (see Session log).
-- On main (P1's server not merged), the WorkforcePage saves to the device (localStorage) and falls back cleanly; once P1's server + Vite /api proxy merge, saving goes to `PUT /api/suppliers/:id/workforce` with zero changes.
+- **PR #2 (all P3 features) is MERGED to main.** P1 built on it (PR #3).
+- **Design language "Confluence" implemented on branch `feat/supplier-design`** (from main @ f1db058): DESIGN.md + a dependency-free motion kit in `src/components/motion/` (8 files) + wiring across all five P3 pages. Verified: build ✓, tests 41/41 ✓ (P1's tests joined my 22), browser ✓ (staggered reveals, gradient grade label, CountUp with retargeting, badge pop on grade flip, click sparks, spotlight hover, Hindi Devanagari grapheme-safe, real server save through P1's API).
+- Scratch `.reactbits-tmp/` deleted; ReactBits components were behavioral reference only (that repo has no license — kit is original code).
+- **Pr now: push feat/supplier-design + PR.** After P4's sidebar merges to main, the Workforce page becomes nav-reachable without the temp-wiring trick (verification used a temporary uncommitted App.tsx patch, reverted).
+- **node_modules gotcha:** after switching to a branch that carries P1's package.json (hono/tsx/vitest/concurrently), run `npm install` once or the build fails on missing server deps; then `git checkout -- package-lock.json` because install churns P1's lockfile.
+- Dev servers: `npm run dev` now starts web (5173) AND the API (8787, health at /api/health) via concurrently. Orphaned API processes on 8787 can survive a task kill — check `netstat -ano | grep 8787` if EADDRINUSE.
 
 ## File map — what each file does and why
 
@@ -31,6 +33,13 @@
 - **`src/seeds.ts`** — appended `seedWorkforceFor(sellerName, supplierId)`: demo workforces **keyed by seller NAME** (seller ids repeat across sector templates, names don't). Nine EV-story workforces, one per grade: Krishnagiri Mahila Harness Collective **A** (₹593/day vs ₹574 Nilgiris benchmark), Satara Co-op **B**, Hosur Tool and Die **B**, Madurai SHG **C**, Chakan Harness **C**, Silvassa Conductors **C**, Coimbatore Cable **D** (partial safety record downgrade), Dharwad Women's Co-op **D** (above the living wage but below Karnataka's ₹743/day minimum — the legal floor wins), Rajkot Brass **E** (flagged; the auditor-blocked example).
 - **`src/seller/ProfilePage.tsx`** — added a `WorkforceGradeCard` (badge + "the grade buyers see on every quote" + button to the Workforce page) to both the demo-company view and the registered-seller form view. Loads whatever profile exists (server → device → seed).
 
+## Design language files (session 3, branch feat/supplier-design)
+
+- **`DESIGN.md`** (repo root) — the "Confluence" design language spec: principles, motion tokens, kit API, per-page integration map, DO-NOT-ANIMATE list, adoption snippets for P2/P4, and the phase split used to build it. Read this before touching anything in `src/components/motion/`.
+- **`src/components/motion/`** — the dependency-free motion kit (original code, ReactBits patterns as behavioral reference only): `motion.css` (tokens + keyframes + reduced-motion kill), `TextReveal.tsx` (grapheme-safe via Intl.Segmenter — Devanagari/Kannada/Tamil safe), `GradientText.tsx`, `CountUp.tsx` (rAF, retargeting, IntersectionObserver), `effects.css` + `FadeContent.tsx`, `SpotlightCard.tsx`, `ClickSpark.tsx`. All `fw-` prefixed; no shared CSS touched; no npm deps added.
+- **Wiring**: all five P3 pages carry the kit (WorkforcePage: TextReveal h1, SpotlightCard grade card, GradientText grade label, CountUps, ClickSparks on Save/voice, FadeContent cards; FairWorkBadge: `fw-pop` on grade change keyed by a tick counter; SellerView: name reveal + staggered readiness checklist `li.fw-rise`; ProfilePage: grade card fade + spotlight, CountUp on N-of-M; Diversification: light touch).
+- **Subagent pattern that worked**: two parallel GLM-5.3-Flash agents on file-disjoint sets, sequential wiring agent, main session verifies. The GLM-5.3 (non-Flash) pool rejects subagent streams on this plan ("model concurrency limit exceeded" even solo) — plan in the main session, implement on Flash. Three concurrent Flash agents also fails; two is the ceiling.
+
 ## Verification evidence (session 2)
 
 Browser-verified on localhost:5173 (temporary nav wiring in App.tsx, reverted before commit — App.tsx is P4's): hero collective grades **A** with correct reasons; editing a wage 590→400 dropped the grade **A → C live** (weighted ₹424 = 74% of living wage); ticking the child-labour flag flipped it to **E — Blocked live**; profile page shows the badge card. Screenshots confirmed layout; one fix applied (the flag checkbox was detached from its label under the `field` class — now an inline row).
@@ -42,13 +51,30 @@ Browser-verified on localhost:5173 (temporary nav wiring in App.tsx, reverted be
 
 ## Open items / next steps
 
-1. Push feat/supplier + open PR (needs: `git push origin feat/supplier`, then `gh pr create --base main --head feat/supplier`).
-2. After P1's contracts.ts + api.ts merge to main: rebase, switch fairwork.ts types to imports from contracts, switch workforce.ts to api.ts helpers.
-3. **Verify Tamil Nadu's minimum wage from an official G.O. before the demo** (three conflicting figures found: ₹450 / ₹537–545 / ₹783 per day) — the demo's story districts are all in TN. Also worth checking Delhi's half-yearly revision (Oct 2026).
-4. `server/bhashini.ts` only if Bhashini keys arrive (Hono router proxying speech-to-text, silent browser fallback); otherwise voice polish only.
-5. Hour blocks 21–24: rehearsals; fixes only through pull requests.
+1. Push `feat/supplier-design` + open the PR (squash-merge after one approval).
+2. After P4's feat/ecosystem merges to main (their sidebar routes the Workforce page), rebase and drop the temp-wiring verification trick.
+3. P2/P4 can adopt the kit via the snippets in DESIGN.md Section 6 (negotiation room, HomePage hero, ImpactPage stats).
+4. **Verify Tamil Nadu's minimum wage from an official G.O. before the demo** (three conflicting figures found: ₹450 / ₹537–545 / ₹783 per day) — the demo's story districts are all in TN. Also worth checking Delhi's half-yearly revision (Oct 2026).
+5. `server/bhashini.ts` only if Bhashini keys arrive (Hono router proxying speech-to-text, silent browser fallback); otherwise voice polish only.
+6. Hour blocks 21–24: rehearsals; fixes only through pull requests.
 
 ## Session log
+
+### Session 6 — 2026-10-24 (ZCode / GLM-5.3-Flash, latest)
+
+User: "implement this style for the supplier tab, leave the other untouched; resolve the PR merge conflicts" + mid-turn "keep the Lenis+GSAP implementation and make similar for supplier". Merged origin/main in (river redesign + routers): 2 real conflicts (FairWorkBadge hand-merge with CSS-var colors; Diversification took mine), auto-merges cleaned (main.tsx to main's version, smooth.ts deleted in favour of their SmoothScroll). Scoped dark: theme.css → body.fw-dark, useSupplierTheme() hook in all 7 seller pages, buttons.css scoped. Verified: 55/55 tests, build ✓, supplier tab fully dark incl. shell (computed #111a24 topbar), buyer/ecosystem untouched light (computed #fff topbar), badge uses main's warm colors in light contexts via var() fallbacks.
+
+### Session 5 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash subagents, late night)
+
+User direction: "use GSAP and Lenis, waves background, good button styles, tab scrolls". This BROKE the no-new-deps rule BY USER AUTHORIZATION: gsap@3.15 + lenis@1.3 installed (P1's package.json — flagged in the PR comment). Same pipeline: DESIGN.md F-sections written in-session; two parallel Flash agents (smooth.ts+Reveal+buttons.css | Waves+Magnetic+SlideTabs, all original code — the ReactBits references are WebGL); one wiring agent (Waves behind the grade card replacing Aurora there, Magnetic>ClickSpark>ShinyText button stacks, safety pills→SlideTabs, FadeContent→Reveal on workforce+diversification). main.tsx gained the Lenis init (2 lines, flagged). Verification: build ✓, 51/51 ✓, html.lenis active, safety tabs drive the grade exactly as before, waves/tabs/glow confirmed by screenshot.
+
+### Session 4 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash subagents, night)
+
+User direction: "darker colours, use the cool ReactBits animations, too sober". Wrote the Confluence Dark delta (DESIGN.md D1–D5) in-session; two parallel Flash agents built it (theme.css+bg.css+Aurora+DotGrid | glow.css+ShinyText+TiltCard+motion.css blur-in; the ReactBits references turned out to be WebGL shaders, so implementations are original CSS/canvas), one wiring agent applied it (grade-keyed glass/glow card, aurora, dot grid, shiny buttons, gradient numbers, tilt identity card, brightened badge + glow, dark chart colors). main.tsx got ONE shared-file line importing theme.css (app-wide dark; flagged). Verified 51/51 tests, full dark visual pass with screenshots. Note: teammates' files with hardcoded light colors (P4's ImpactPage chart grid #eef0f3) will need one dark pass on their side — in the PR notes.
+
+### Session 3 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash subagents, evening)
+
+Design-language pass. Fan-out: 2 Flash survey agents (page inventory + teammates' styles) ran parallel; a 3rd Flash agent fetched 10 ReactBits component sources (died at the concurrency limit but its work was recovered from disk); the GLM-5.3-max planner agent could not run (pool rejects subagent streams — twice), so DESIGN.md was written in the main session. Two parallel Flash agents built the motion kit (file-disjoint halves), one Flash agent wired the five P3 pages. Verification: build ✓, tests 41/41 ✓ (P1's merged), full browser pass — staggered TextReveal (per-grapheme spans, Hindi perfect), GradientText grade label, CountUp retargeting, badge fw-pop on grade flip (A→C live), ClickSpark + real server save through P1's API ("Saved to Sangam"), SellerView stagger + spotlight. Cleanups: App.tsx temp nav patch reverted, .reactbits-tmp deleted, package-lock churn reverted. PR #2 had been merged earlier in the day; this branch builds on the integrated main.
 
 ### Session 2 — 2026-10-24 (ZCode / GLM-5.3-Flash, afternoon)
 

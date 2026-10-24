@@ -1,0 +1,51 @@
+/* Confluence Dark — same token names as styles.css, dark values.
+   Scoped to body.fw-dark, which the supplier workspace's pages add via
+   useSupplierTheme() (src/components/motion/theme.ts): the Supplier tab renders
+   dark, the Buyer and Ecosystem workspaces keep main's light river redesign
+   untouched. Loaded from theme.ts (no shared-file import needed). */
+body.fw-dark {
+  /* Surfaces + line */
+  --bg: #0a1118;
+  --card: #111a24;
+  --line: #223140;
+
+  /* Text */
+  --ink: #e8eef2;
+  --ink-2: #9fb0bd;
+  --ink-3: #748899;
+
+  /* Role accents, brightened for dark; softs become translucent tints.
+     Semantics unchanged: teal buyer, orange supplier/rural, purple auditor,
+     green verified, red blocked (DESIGN.md principle 3). */
+  --accent: #14b8a6;
+  --accent-soft: rgba(20, 184, 166, 0.14);
+  --rural: #f97316;
+  --rural-soft: rgba(249, 115, 22, 0.14);
+  --ready: #4ade80;
+  --ready-soft: rgba(74, 222, 128, 0.14);
+  --potential: #fbbf24;
+  --potential-soft: rgba(251, 191, 36, 0.14);
+  --import: #94a3b8;
+  --import-soft: rgba(148, 163, 184, 0.14);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --new: #a78bfa;
+  --new-soft: rgba(167, 139, 250, 0.14);
+
+  /* Map */
+  --sea: #0d1b2a;
+  --land: #16222e;
+  --india: #1d4a44;
+  --india-edge: #2dd4bf;
+
+  /* Elevation */
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  /* Fair Work badge grade colours, dark variants (light fallbacks live in
+     FairWorkBadge's var() defaults — main's warm palette). */
+  --fw-grade-A: #22c55e;
+  --fw-grade-B: #14b8a6;
+  --fw-grade-C: #f59e0b;
+  --fw-grade-D: #f97316;
+  --fw-grade-E: #ef4444;
+}

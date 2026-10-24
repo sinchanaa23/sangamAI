@@ -4,13 +4,18 @@ import { currentBusiness, opportunitiesFor } from '../diversify';
 import type { OppResult } from '../diversify';
 import type { Seller } from '../types';
 import CapabilityWheel, { roiColor } from '../components/CapabilityWheel';
+import TextReveal from '../components/motion/TextReveal';
+import Reveal from '../components/motion/Reveal';
+import CountUp from '../components/motion/CountUp';
 import { processHi, strings } from './i18n';
 import type { Lang } from './i18n';
+import { useSupplierTheme } from '../components/motion/theme';
 
 const lakh = (n: number, unit: string) => `₹${Math.round(n).toLocaleString('en-IN')} ${unit}`;
 const short = (s: string, n = 24) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
 
 export default function Diversification({ seller, lang }: { seller: Seller; lang: Lang }) {
+  useSupplierTheme();
   const t = strings[lang];
   const results = opportunitiesFor(seller);
   const [pickedId, setPickedId] = useState<string | null>(null);
@@ -23,16 +28,16 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
   const bubble = results.map((r) => ({ id: r.opp.id, name: short(nameOf(r), 18), invest: Math.round(r.investment.total), profit: Math.round(r.profitLakh), market: r.opp.marketCr }));
   const roiBars = results.map((r) => ({ id: r.opp.id, name: short(nameOf(r), 18), r5: Math.round(r.roi5 * 100), r10: Math.round(r.roi10 * 100) }));
   const costRows = [
-    { k: t.equipment, v: sel.investment.equipment, c: '#3d5a45' },
-    { k: t.certification, v: sel.investment.certification, c: '#5b6f8f' },
-    { k: t.training, v: sel.investment.training, c: '#a4552c' },
-    { k: t.workingCapital, v: sel.investment.workingCapital, c: '#787774' },
+    { k: t.equipment, v: sel.investment.equipment, c: '#14b8a6' },
+    { k: t.certification, v: sel.investment.certification, c: '#7c3aed' },
+    { k: t.training, v: sel.investment.training, c: '#f97316' },
+    { k: t.workingCapital, v: sel.investment.workingCapital, c: '#64748b' },
   ];
 
   return (
     <div className="stack">
       <div>
-        <h1 className="lead">{t.growLead(seller.name)}</h1>
+        <TextReveal as="h1" className="lead" text={t.growLead(seller.name)} />
         <p className="muted" style={{ marginTop: 6 }}>{t.growSub}</p>
       </div>
 
@@ -56,9 +61,9 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
           <div style={{ height: 330 }}>
             <ResponsiveContainer>
               <ScatterChart margin={{ top: 16, right: 110, bottom: 22, left: 4 }}>
-                <CartesianGrid stroke="#efeeea" />
-                <XAxis type="number" dataKey="invest" name={t.invest} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#6b6a66' }} label={{ value: `${t.invest} (${L})`, position: 'insideBottom', offset: -12, fontSize: 12, fill: '#9a9892' }} domain={[0, 'auto']} />
-                <YAxis type="number" dataKey="profit" name={t.profitYr} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#6b6a66' }} width={52} domain={[0, 'auto']} />
+                <CartesianGrid stroke="#223140" />
+                <XAxis type="number" dataKey="invest" name={t.invest} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#748899' }} label={{ value: `${t.invest} (${L})`, position: 'insideBottom', offset: -12, fontSize: 12, fill: '#748899' }} domain={[0, 'auto']} />
+                <YAxis type="number" dataKey="profit" name={t.profitYr} tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#748899' }} width={52} domain={[0, 'auto']} />
                 <ZAxis type="number" dataKey="market" range={[120, 700]} />
                 <Tooltip cursor={false} formatter={(v: number, n: string) => (n === 'market' ? `₹${v} Cr` : lakh(v, L))} />
                 <Scatter data={bubble} isAnimationActive={false} onClick={(d: { id: string }) => setPickedId(d.id)} shape={(raw: unknown) => {
@@ -69,7 +74,7 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
                 }}>
                   <LabelList dataKey="name" content={(raw: unknown) => {
                     const p = raw as { x: number; y: number; width: number; height: number; value: string };
-                    return <text x={p.x + p.width + 4} y={p.y + p.height / 2 + 4} fontSize={11} fill="#6b6a66">{p.value}</text>;
+                    return <text x={p.x + p.width + 4} y={p.y + p.height / 2 + 4} fontSize={11} fill="#748899">{p.value}</text>;
                   }} />
                 </Scatter>
               </ScatterChart>
@@ -79,29 +84,32 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
       </div>
 
+      <Reveal>
       <div className="card">
         <div className="section-title">{t.compareTitle}</div>
         <div style={{ height: 240 }}>
           <ResponsiveContainer>
             <BarChart data={roiBars} margin={{ top: 18, right: 16, bottom: 0, left: 0 }} barGap={4}>
-              <CartesianGrid stroke="#efeeea" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} />
-              <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} width={50} />
-              <Tooltip formatter={(v: number) => `${v}%`} cursor={{ fill: '#fbfbfa' }} />
+              <CartesianGrid stroke="#223140" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#748899' }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12, fill: '#748899' }} axisLine={false} tickLine={false} width={50} />
+              <Tooltip formatter={(v: number) => `${v}%`} cursor={{ fill: '#1b2836' }} />
               <Legend wrapperStyle={{ fontSize: 13 }} />
-              <Bar dataKey="r5" name={t.ret5} fill="#99d5cc" radius={[3, 3, 0, 0]} isAnimationActive={false} onClick={(d: { id: string }) => setPickedId(d.id)}>
-                <LabelList dataKey="r5" position="top" formatter={(v: number) => `${v}%`} style={{ fontSize: 11, fill: '#6b6a66' }} />
+              <Bar dataKey="r5" name={t.ret5} fill="#2dd4bf" radius={[3, 3, 0, 0]} isAnimationActive={false} onClick={(d: { id: string }) => setPickedId(d.id)}>
+                <LabelList dataKey="r5" position="top" formatter={(v: number) => `${v}%`} style={{ fontSize: 11, fill: '#748899' }} />
               </Bar>
               <Bar dataKey="r10" name={t.ret10} radius={[3, 3, 0, 0]} isAnimationActive={false} onClick={(d: { id: string }) => setPickedId(d.id)}>
-                {roiBars.map((b) => <Cell key={b.id} fill={b.id === sel.opp.id ? '#3d5a45' : '#3f9c90'} />)}
-                <LabelList dataKey="r10" position="top" formatter={(v: number) => `${v}%`} style={{ fontSize: 11, fill: '#6b6a66' }} />
+                {roiBars.map((b) => <Cell key={b.id} fill={b.id === sel.opp.id ? '#14b8a6' : '#3f9c90'} />)}
+                <LabelList dataKey="r10" position="top" formatter={(v: number) => `${v}%`} style={{ fontSize: 11, fill: '#748899' }} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
+      </Reveal>
 
-      <div className="card stack">
+      <Reveal>
+      <div className="card stack fw-glass">
         <div>
           <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
             <h2 className="lead" style={{ fontSize: 21 }}>{nameOf(sel)}</h2>
@@ -111,10 +119,10 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
 
         <div className="grid-4">
-          <div className="stat"><div className="label">{t.invest}</div><div className="value">{lakh(sel.investment.total, L)}</div><div className="delta muted">{lakh(sel.profitLakh, L)} {t.profitYr}</div></div>
-          <div className="stat"><div className="label">{t.payback}</div><div className="value">{sel.paybackYears !== null ? `${sel.paybackYears.toFixed(1)} ${t.years}` : t.notReached}</div><div className="delta muted">{t.readyIn} {sel.opp.readyMonths} {t.months}</div></div>
-          <div className="stat"><div className="label">{t.ret5}</div><div className={`value ${sel.roi5 >= 0 ? 'down' : 'up'}`}>{Math.round(sel.roi5 * 100)}%</div><div className="delta muted">{'₹'}{(1 + sel.roi5).toFixed(2)} {t.per1}</div></div>
-          <div className="stat"><div className="label">{t.ret10}</div><div className={`value ${sel.roi10 >= 0 ? 'down' : 'up'}`}>{Math.round(sel.roi10 * 100)}%</div><div className="delta muted">+{Math.round(sel.opp.jobs * sel.scale)} {t.newJobs.toLowerCase()}</div></div>
+          <div className="stat"><div className="label">{t.invest}</div><div className="value"><CountUp value={sel.investment.total} format={(n) => lakh(n, L)} /></div><div className="delta muted">{lakh(sel.profitLakh, L)} {t.profitYr}</div></div>
+          <div className="stat"><div className="label">{t.payback}</div><div className="value">{sel.paybackYears !== null ? <CountUp value={sel.paybackYears} format={(n) => `${n.toFixed(1)} ${t.years}`} /> : t.notReached}</div><div className="delta muted">{t.readyIn} {sel.opp.readyMonths} {t.months}</div></div>
+          <div className="stat"><div className="label">{t.ret5}</div><div className={`value ${sel.roi5 >= 0 ? 'down' : 'up'}`}><CountUp value={Math.round(sel.roi5 * 100)} format={(n) => `${n}%`} /></div><div className="delta muted">{'₹'}{(1 + sel.roi5).toFixed(2)} {t.per1}</div></div>
+          <div className="stat"><div className="label">{t.ret10}</div><div className={`value ${sel.roi10 >= 0 ? 'down' : 'up'}`}><CountUp value={Math.round(sel.roi10 * 100)} format={(n) => `${n}%`} /></div><div className="delta muted">+{Math.round(sel.opp.jobs * sel.scale)} {t.newJobs.toLowerCase()}</div></div>
         </div>
 
         <div className="grid-2" style={{ gridTemplateColumns: '1fr 1fr' }}>
@@ -157,13 +165,13 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
             <div style={{ height: 220 }}>
               <ResponsiveContainer>
                 <LineChart data={sel.cash} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-                  <CartesianGrid stroke="#efeeea" vertical={false} />
-                  <XAxis dataKey="year" tickFormatter={(v) => `Y${v}`} tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} width={56} />
+                  <CartesianGrid stroke="#223140" vertical={false} />
+                  <XAxis dataKey="year" tickFormatter={(v) => `Y${v}`} tick={{ fontSize: 12, fill: '#748899' }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 12, fill: '#748899' }} axisLine={false} tickLine={false} width={56} />
                   <Tooltip formatter={(v: number) => lakh(v, L)} labelFormatter={(v) => `Y${v}`} />
                   <Legend iconType="plainline" wrapperStyle={{ fontSize: 13 }} />
-                  <Line dataKey="asIs" name={t.asIs} stroke="#b4b2ac" strokeWidth={2} dot={false} isAnimationActive={false} />
-                  <Line dataKey="expand" name={t.expand} stroke="#3d5a45" strokeWidth={3} dot={false} isAnimationActive={false} />
+                  <Line dataKey="asIs" name={t.asIs} stroke="#94a3b8" strokeWidth={2} dot={false} isAnimationActive={false} />
+                  <Line dataKey="expand" name={t.expand} stroke="#14b8a6" strokeWidth={3} dot={false} isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -172,6 +180,7 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
         <p className="tiny">{t.growDisclaimer}</p>
       </div>
+      </Reveal>
     </div>
   );
 }

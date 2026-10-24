@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { useUi } from '../ui';
 import { FIRMNESS } from '../buyer/RequirementsPage';
 import { buyerLabel, visibleTo, volumeLabel } from './visibility';
+import { useSupplierTheme } from '../components/motion/theme';
 
 function QuoteForm({ req, bidders, onDone }: { req: Requirement; bidders: { b: Bidder; label: string; capacity: number; districtId: string }[]; onDone: () => void }) {
   const { update } = useStore();
@@ -51,6 +52,7 @@ function QuoteForm({ req, bidders, onDone }: { req: Requirement; bidders: { b: B
 }
 
 export default function OpportunitiesPage() {
+  useSupplierTheme();
   const { state, update } = useStore();
   const { actingSeller, go } = useUi();
   const [open, setOpen] = useState<string | null>(null);
