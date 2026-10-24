@@ -15,7 +15,7 @@ import { useBuyer } from './context';
 
 export type SimTab = 'live' | 'whatif';
 
-const LEVEL_COLOR = { low: '#15803d', elevated: '#b45309', high: '#b91c1c' };
+const LEVEL_COLOR = { low: '#346538', elevated: '#956400', high: '#9f2f2d' };
 
 function FeedDot({ name, state }: { name: string; state: FeedState<unknown> }) {
   const cls = state.status === 'ok' ? 'ok' : state.status === 'error' ? 'err' : 'load';
@@ -47,9 +47,9 @@ function LiveWorld({ live, scenario, onApply }: { live: Live; scenario: Scenario
   const proposal = suggestScenario(scenario, signals, fxData);
   const onLane = signals.filter((s) => ['taiwan', 'malacca', 'shanghai', 'chennai'].includes(s.id));
 
-  const lines: MapLine[] = lane.paths.map((p, i) => ({ id: `l${i}`, coords: p, color: '#334155', width: 2 }));
+  const lines: MapLine[] = lane.paths.map((p, i) => ({ id: `l${i}`, coords: p, color: '#2f3437', width: 2 }));
   const points: MapPoint[] = [
-    ...hz.map((h) => ({ id: h.id, at: h.at, color: h.level === 'Red' ? '#dc2626' : '#f59e0b', r: 3.5 })),
+    ...hz.map((h) => ({ id: h.id, at: h.at, color: h.level === 'Red' ? '#9f2f2d' : '#b98319', r: 3.5 })),
     ...signals.map((s) => ({
       id: s.id, at: s.at, color: LEVEL_COLOR[s.level], r: 5.5, ring: s.level !== 'low', label: s.name,
       side: (s.id === 'redSea' || s.id === 'hormuz' ? 'left' : s.id === 'chennai' ? 'bottom' : 'right') as MapPoint['side'],
@@ -74,11 +74,11 @@ function LiveWorld({ live, scenario, onApply }: { live: Live; scenario: Scenario
         <div className="card">
           <MapCanvas view="world" lines={lines} points={points} ariaLabel="Live risk on today's shipping lane" />
           <div className="legend">
-            <span><i style={{ background: '#334155' }} />Today&apos;s lane, {todayLane().origin} to Chennai</span>
-            <span><i className="dot" style={{ background: '#15803d' }} />Low</span>
-            <span><i className="dot" style={{ background: '#b45309' }} />Elevated</span>
-            <span><i className="dot" style={{ background: '#b91c1c' }} />High</span>
-            <span><i className="dot" style={{ background: '#f59e0b' }} />Disaster alert{hz.length ? ` (${[...new Set(hz.map((h) => h.source))].join(', ')})` : ''}</span>
+            <span><i style={{ background: '#2f3437' }} />Today&apos;s lane, {todayLane().origin} to Chennai</span>
+            <span><i className="dot" style={{ background: '#346538' }} />Low</span>
+            <span><i className="dot" style={{ background: '#956400' }} />Elevated</span>
+            <span><i className="dot" style={{ background: '#9f2f2d' }} />High</span>
+            <span><i className="dot" style={{ background: '#b98319' }} />Disaster alert{hz.length ? ` (${[...new Set(hz.map((h) => h.source))].join(', ')})` : ''}</span>
           </div>
         </div>
         <div className="card">
@@ -154,13 +154,13 @@ function WhatIf({ scenario: s, setScenario }: { scenario: Scenario; setScenario:
   const rise = ((shock.unitCost - buyer.unitCost) / buyer.unitCost) * 100;
 
   const lines: MapLine[] = [
-    ...(shock.lane.status !== 'normal' ? base.paths.map((p, i) => ({ id: `b${i}`, coords: p, color: '#94a3b8', width: 1.4, dash: '4 4' })) : []),
-    ...shock.lane.paths.map((p, i) => ({ id: `l${i}`, coords: p, color: shock.lane.status === 'normal' ? '#334155' : '#b45309', width: 2.2 })),
+    ...(shock.lane.status !== 'normal' ? base.paths.map((p, i) => ({ id: `b${i}`, coords: p, color: '#b4b2ac', width: 1.4, dash: '4 4' })) : []),
+    ...shock.lane.paths.map((p, i) => ({ id: `l${i}`, coords: p, color: shock.lane.status === 'normal' ? '#2f3437' : '#956400', width: 2.2 })),
   ];
   const points: MapPoint[] = [
-    { id: 'o', at: todayLane().originPoint, color: '#334155', label: todayLane().origin, side: 'right' },
-    { id: 'd', at: [80.35, 13.1], color: '#0f766e', label: 'Chennai', side: 'bottom', bold: true },
-    ...CHOKEPOINTS.map((c) => ({ id: c.id, at: [c.lon, c.lat] as [number, number], color: s.closed[c.id] ? '#b91c1c' : '#94a3b8', r: s.closed[c.id] ? 6 : 4, ring: s.closed[c.id], label: s.closed[c.id] ? `${c.name} closed` : undefined, side: (c.id === 'redSea' || c.id === 'hormuz' ? 'left' : 'right') as MapPoint['side'] })),
+    { id: 'o', at: todayLane().originPoint, color: '#2f3437', label: todayLane().origin, side: 'right' },
+    { id: 'd', at: [80.35, 13.1], color: '#3d5a45', label: 'Chennai', side: 'bottom', bold: true },
+    ...CHOKEPOINTS.map((c) => ({ id: c.id, at: [c.lon, c.lat] as [number, number], color: s.closed[c.id] ? '#9f2f2d' : '#b4b2ac', r: s.closed[c.id] ? 6 : 4, ring: s.closed[c.id], label: s.closed[c.id] ? `${c.name} closed` : undefined, side: (c.id === 'redSea' || c.id === 'hormuz' ? 'left' : 'right') as MapPoint['side'] })),
   ];
 
   return (

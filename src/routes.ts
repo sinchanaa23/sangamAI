@@ -369,3 +369,39 @@ export function importInlandLane(): { path: LonLat[] } {
 }
 
 export const CHENNAI_PORT = CHENNAI;
+
+// ---------- Export lanes (global buyers) ----------
+// The same sea lanes run in reverse: an Indian supplier's goods leave from Chennai for the buyer's port.
+// Freight is assumed to cost the same in both directions; every figure here is indicative and tagged estimated.
+
+export { USD_INR };
+
+export interface ExportRoute {
+  lane: IntlLane;
+  paths: LonLat[][];
+  distanceKm: number;
+  days: number;
+  legs: Leg[];
+  /** rupees per unit, before the buyer's own import duty */
+  costPerUnit: number;
+}
+
+export function exportRoute(lane: IntlLane, from: District, unitPriceInr: number, weightKg: number, dutyPct: number): ExportRoute {
+  const per = buyer.unitsPerContainer;
+  const paths = [...lane.segments].reverse().map((seg) => [...seg.path].reverse());
+  const seaKm = paths.reduce((s, p) => s + pathKm(p), 0);
+  const roadKm = Math.round(km([from.lon, from.lat], CHENNAI) * 1.3);
+  const seaDays = Math.round(seaKm / SEA_KM_PER_DAY) + (lane.hub ? 3 : 0);
+  const L = lpiOf(lane.iso3);
+  const legs: Leg[] = [
+    { id: 'first', title: 'Truck to port', who: 'Freight forwarder (export packing and pick-up)', place: `${from.name} to Chennai, ${roadKm} km`, mode: 'road', days: Math.max(1, Math.ceil(roadKm / 450)), p90: Math.ceil(roadKm / 450) + 1, cost: (TRUCK_PER_KM * roadKm) / per, reliability: 0.93, damagePct: 0.05, co2Kg: (weightKg / 1000) * roadKm * 0.062, documents: ['E-way bill', 'Lorry receipt'], risks: [], src: 'estimated' },
+    { id: 'oport', title: 'Chennai port and Indian export customs', who: 'Customs broker (CHA), ICEGATE shipping bill', place: 'Chennai', mode: 'customs', days: 2.5, p90: 5, cost: (THC_DEST + CHA_FEE + DOCS) / per, reliability: 0.85, damagePct: 0.02, co2Kg: 0, documents: ['Shipping bill', 'Commercial invoice', 'Packing list', 'Certificate of origin'], risks: ['Congestion in north-east monsoon (Oct-Dec)'], src: 'estimated' },
+    { id: 'ocean', title: 'Ocean freight', who: lane.hub ? `Mainline service with transshipment at ${lane.hub}` : 'Direct mainline service', place: `Chennai to ${lane.port}, ${Math.round(seaKm).toLocaleString('en-IN')} km`, mode: 'sea', days: seaDays, p90: Math.round(seaDays * 1.35 + 4), cost: (lane.freightUsdPerFeu * USD_INR) / per, reliability: Math.max(0.35, Math.min(0.85, 0.4 + (L - 2.5) * 0.2)), damagePct: 0.05, co2Kg: (weightKg / 1000) * seaKm * 0.012, documents: ['Bill of lading', 'Insurance certificate'], risks: lane.segments.flatMap((s) => (s.via ? [`Passes ${({ taiwan: 'Taiwan Strait', malacca: 'Strait of Malacca', redSea: 'Red Sea and Suez', hormuz: 'Strait of Hormuz' } as const)[s.via]}`] : [])), src: 'estimated', note: `About $${lane.freightUsdPerFeu.toLocaleString('en-IN')} per 40-ft container, assumed the same as the inbound rate` },
+    { id: 'dport', title: `${lane.port} and import customs`, who: 'Destination terminal and customs broker', place: lane.country, mode: 'customs', days: portDwell(L), p90: portDwell(L) * 2, cost: THC_ORIGIN / per + unitPriceInr * (dutyPct / 100 + INSURANCE), reliability: Math.min(0.95, L / 4.5), damagePct: 0.02, co2Kg: 0, documents: ['Import declaration', 'Commercial invoice', 'Certificate of origin'], risks: [], src: 'estimated', note: `Your import duty ${dutyPct}% (you set this) plus insurance ${INSURANCE * 100}%; ${lane.country} logistics performance ${L.toFixed(1)}/5 (World Bank)` },
+  ];
+  const days = Math.round(legs.reduce((s, l) => s + l.days, 0));
+  legs.push({ id: 'stock', title: 'Inventory in transit', who: 'Your working capital', place: `${days} days on the way`, mode: 'check', days: 0, p90: 0, cost: unitPriceInr * CARRYING_RATE * (days / 365), reliability: 1, damagePct: 0, co2Kg: 0, documents: [], risks: [], src: 'estimated', note: '12% a year cost of capital' });
+  return { lane, paths, distanceKm: roadKm + seaKm, days, legs, costPerUnit: legs.reduce((s, l) => s + l.cost, 0) };
+}
+
+function portDwell(lpiScore: number) { return +(1.5 + (4.2 - lpiScore) * 1.6).toFixed(1); }

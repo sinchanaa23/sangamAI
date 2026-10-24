@@ -71,7 +71,7 @@ export default function SupplyChainPage() {
                     </tr>
                     {open === l.id && (
                       <tr>
-                        <td colSpan={4} style={{ background: '#fafbfc' }}>
+                        <td colSpan={4} style={{ background: '#fbfbfa' }}>
                           <div className="small" style={{ fontWeight: 600, marginBottom: 6 }}>What the supplier of this part has to buy</div>
                           <div className="stack" style={{ gap: 8 }}>
                             {l.tiers.map((tier) => {
@@ -104,10 +104,10 @@ export default function SupplyChainPage() {
         <div className="section-title">The whole chain, down to raw materials</div>
         <div className="table-wrap"><div style={{ minWidth: 700 }}><TierDiagram /></div></div>
         <div className="legend">
-          <span><i style={{ background: '#15803d' }} />India can supply well</span>
-          <span><i style={{ background: '#b45309' }} />Partly</span>
-          <span><i style={{ background: '#b91c1c' }} />Weak: mostly imported</span>
-          <span><i style={{ background: '#94a3b8' }} />Part imported today</span>
+          <span><i style={{ background: '#346538' }} />India can supply well</span>
+          <span><i style={{ background: '#956400' }} />Partly</span>
+          <span><i style={{ background: '#9f2f2d' }} />Weak: mostly imported</span>
+          <span><i style={{ background: '#b4b2ac' }} />Part imported today</span>
         </div>
         {weak.length > 0 && (
           <div className="note warn" style={{ marginTop: 14 }}>

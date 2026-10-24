@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import type { KeyboardEvent } from 'react';
 import { geoArea, geoMercator, geoNaturalEarth1, geoPath } from 'd3-geo';
 import type { GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
@@ -57,11 +58,13 @@ interface Props {
   lines: MapLine[];
   points: MapPoint[];
   ariaLabel: string;
+  /** makes points clickable (and keyboard-focusable); called with the point's id */
+  onPick?: (id: string) => void;
 }
 
 const SIZE = { world: [760, 400], india: [420, 470] } as const;
 
-export default function MapCanvas({ view, lines, points, ariaLabel }: Props) {
+export default function MapCanvas({ view, lines, points, ariaLabel, onPick }: Props) {
   const [W, H] = SIZE[view];
   const { path, proj } = useMemo(() => {
     const proj = view === 'world'
@@ -76,7 +79,7 @@ export default function MapCanvas({ view, lines, points, ariaLabel }: Props) {
       <rect width={W} height={H} rx={10} fill="var(--sea)" />
       <g>
         {land.map((c: { id: string }, i: number) => (
-          <path key={c.id ?? `c${i}`} d={path(c as GeoPermissibleObjects) ?? ''} fill="var(--land)" stroke="#d3dbe3" strokeWidth={0.5} />
+          <path key={c.id ?? `c${i}`} d={path(c as GeoPermissibleObjects) ?? ''} fill="var(--land)" stroke="#dcdad4" strokeWidth={0.5} />
         ))}
         <path d={path(indiaShape) ?? ''} fill="var(--india)" stroke="var(--india-edge)" strokeWidth={0.8} />
       </g>
@@ -102,7 +105,15 @@ export default function MapCanvas({ view, lines, points, ariaLabel }: Props) {
         const dx = side === 'left' ? -(r + 5) : side === 'right' ? r + 5 : 0;
         const dy = side === 'top' ? -(r + 6) : side === 'bottom' ? r + 13 : 4;
         return (
-          <g key={p.id}>
+          <g
+            key={p.id}
+            {...(onPick && {
+              role: 'button', tabIndex: 0, 'aria-label': p.label ?? p.id, style: { cursor: 'pointer' },
+              onClick: () => onPick(p.id),
+              onKeyDown: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(p.id); } },
+            })}
+          >
+            {onPick && <circle cx={x} cy={y} r={r + 8} fill="transparent" />}
             {p.ring && <circle cx={x} cy={y} r={r + 5} fill={p.color} fillOpacity={0.18} />}
             <circle cx={x} cy={y} r={r} fill={p.hollow ? '#fff' : p.color} stroke={p.color} strokeWidth={p.hollow ? 2 : 1} />
             {p.label && (

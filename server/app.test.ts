@@ -96,3 +96,37 @@ describe('server', () => {
     expect((await app.request('/api/scorecard/s1')).status).toBe(404);
   });
 });
+
+describe('P4 routes on the shared store', () => {
+  let app: ReturnType<typeof createApp>;
+  beforeEach(() => { app = createApp(openDb(':memory:')); });
+
+  it('signs a credential, keeps it, and tells a changed one from a genuine one', async () => {
+    const cred = await (await app.request('/api/credentials/sign', json('POST', { type: 'SkillCredential', subject: { skill: 'Crimping', headcount: 40 } }))).json() as { id: string; subject: Record<string, unknown> };
+    expect(cred.id).toBeTruthy();
+    expect(await (await app.request('/api/credentials/verify', json('POST', cred))).json()).toMatchObject({ ok: true });
+    expect((await app.request(`/api/credentials/${cred.id}`)).status).toBe(200);
+    const forged = { ...cred, subject: { ...cred.subject, headcount: 400 } };
+    expect(await (await app.request('/api/credentials/verify', json('POST', forged))).json()).toMatchObject({ ok: false });
+  });
+
+  it('takes an anonymous grievance and ignores anything that identifies the reporter', async () => {
+    const r = await app.request('/api/grievances', json('POST', { id: 'g1', sellerId: 's13', category: 'wages', text: 'Paid late', at: '2026-10-24', name: 'Asha', phone: '9999999999' }));
+    expect(r.status).toBe(201);
+    const list = await (await app.request('/api/grievances')).json() as Record<string, unknown>[];
+    expect(list).toHaveLength(1);
+    expect(list[0]).not.toHaveProperty('phone');
+    expect(list[0]).not.toHaveProperty('name');
+  });
+
+  it('counts a confirmed agent deal in the SDG 8 impact figures', async () => {
+    const ask = (async (o: { system: string }) => (o.system.includes('Auditor') ? { decision: 'pass', text: 'ok' } : (() => { throw new Error('no model'); })())) as never;
+    const live = createApp(openDb(':memory:'), { ask });
+    const n = await (await live.request('/api/negotiations', json('POST', { rfq: { ...rfq, buyerCountry: 'IN', budget: { amount: 14_000_000, currency: 'INR' }, part: 'EV scooter wiring harness (assembly and test)', quantity: 8000, needBy: '2099-01-01' }, supplierIds: ['s12'] }))).json() as { id: string };
+    await readStream(await live.request(`/api/negotiations/${n.id}/stream`));
+    const impact = await (await live.request('/api/impact')).json() as { deals: { sellerId: string; valueInr: number; workers: number }[] };
+    expect(impact.deals).toHaveLength(1);
+    expect(impact.deals[0]).toMatchObject({ sellerId: 's12' });
+    expect(impact.deals[0]!.valueInr).toBeGreaterThan(0);
+  });
+});

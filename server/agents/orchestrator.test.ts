@@ -3,6 +3,7 @@ import type { NegotiationEvent, Offer, Rfq } from '../../src/contracts';
 import { openDb } from '../db';
 import type { Ask } from '../llm';
 import { MAX_ROUNDS, runNegotiation } from './orchestrator';
+import { setGrievanceStore } from '../grievances';
 import { wageFloorPerDay } from './tools';
 
 const rfq = (over: Partial<Rfq> = {}): Rfq => ({
@@ -59,6 +60,15 @@ describe('orchestrator', () => {
     expect(events.find((e) => e.type === 'audit')).toMatchObject({ decision: 'flag' });
     const last = events.filter((e) => e.type === 'confirm').at(-1) as { text: string };
     expect(last.text).toContain('Held for the Sangam team');
+  });
+
+  it('lowers the grade while a grievance about the supplier is open', async () => {
+    const grade = async () => (await run(scripted)).find((e) => e.type === 'audit') as { score: { grade: string } };
+    const before = (await grade()).score.grade;
+    setGrievanceStore({ save: () => {}, list: () => [{ id: 'g1', sellerId: 's13', category: 'wages', text: '', at: '', status: 'open' }] });
+    const after = (await grade()).score.grade;
+    setGrievanceStore({ save: () => {}, list: () => [] });
+    expect(after.charCodeAt(0)).toBeGreaterThan(before.charCodeAt(0)); // A < B < C ... a later letter is a lower grade
   });
 
   it('words a flag as held for review, never as blocked', async () => {

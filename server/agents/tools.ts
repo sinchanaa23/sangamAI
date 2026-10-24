@@ -9,6 +9,7 @@ import { trustScore } from '../../src/trust';
 import type { FairWorkScore, Offer, Rfq, WorkforceProfile } from '../../src/contracts';
 import { livingWageFor, scoreFairWork } from '../../src/fairwork';
 import type { Db, Doc } from '../db';
+import { openGrievances } from '../grievances';
 
 // Wage benchmarks and grading come from P3's src/fairwork.ts (GLWC living wages, state minimum wages, one table of grading rules).
 // If a district has no benchmark at all the floor falls back to the nearest rural figure so a missing row can never switch protection off.
@@ -173,7 +174,8 @@ export function scoreOffer(c: DealContext, o: Offer): FairWorkScore {
     supplierId: c.seller.id, district: c.districtName, skills: [], hoursPerDay: o.labour.hoursPerDay, overtimeHoursPerWeek: 0,
     safetyRecord: 'none', trainingHoursPerYear: 0, womenEmployed: 0, childOrForcedLabourFlag: false, openGrievances: 0, updatedAt: new Date().toISOString(),
   };
-  return scoreFairWork(o.labour, profile);
+  // A worker's anonymous report (P4's grievance channel) lowers the grade a step while it is open
+  return scoreFairWork(o.labour, { ...profile, openGrievances: Math.max(profile.openGrievances, openGrievances(c.seller.id)) });
 }
 
 /**

@@ -63,7 +63,7 @@ export default function DistrictDashboard() {
   const maxDem = Math.max(1, ...rows.map((r) => r.demandCr));
   const points: MapPoint[] = rows.map((r) => ({
     id: r.d.id, at: [r.d.lon, r.d.lat], r: 3 + 9 * Math.sqrt(r.demandCr / maxDem),
-    color: r === sel ? '#c2410c' : r.gapCr > 0.5 ? '#b91c1c' : r.capCr > r.demandCr ? '#15803d' : '#b45309',
+    color: r === sel ? '#a4552c' : r.gapCr > 0.5 ? '#9f2f2d' : r.capCr > r.demandCr ? '#346538' : '#956400',
     hollow: r.gapCr <= 0.5, label: rows.indexOf(r) < 5 || r === sel ? r.d.name : undefined, side: (r.d.lon < 75 ? 'left' : 'right') as MapPoint['side'], bold: r === sel,
   }));
   const totalGap = rows.reduce((t, r) => t + r.gapCr, 0);
@@ -99,9 +99,9 @@ export default function DistrictDashboard() {
         <div className="card">
           <MapCanvas view="india" lines={[]} points={points} ariaLabel="District supply gap map" />
           <div className="legend">
-            <span><i className="dot" style={{ background: '#b91c1c' }} />Demand exceeds capability</span>
-            <span><i className="dot" style={{ background: '#b45309' }} />Roughly balanced</span>
-            <span><i className="dot" style={{ background: '#15803d' }} />Surplus capability</span>
+            <span><i className="dot" style={{ background: '#9f2f2d' }} />Demand exceeds capability</span>
+            <span><i className="dot" style={{ background: '#956400' }} />Roughly balanced</span>
+            <span><i className="dot" style={{ background: '#346538' }} />Surplus capability</span>
             <span>Size = demand nearby</span>
           </div>
         </div>
