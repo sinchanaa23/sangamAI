@@ -37,7 +37,7 @@ export async function buyerMove(ask: Ask, c: DealContext, standing: Offer, round
     `Supplier record: ${JSON.stringify(buyerFacts(c))}`,
     `You want ${c.rfq.quantity} units of "${c.rfq.part}" by ${c.rfq.needBy}. Budget ceiling ${money(c.budgetInr)} in total (${money(budgetPerUnit(c))} a unit). Round ${round} of 4.`,
     `The supplier (${c.seller.name}) offers ${money(st.pricePerUnit)} a unit with ${standing.labour.workers} workers for ${st.productionDays} days; delivery in ${standing.leadTimeDays} days.`,
-    `If you counter, keep their team size. With ${standing.labour.workers} workers they need at least ${workersNeededDays(c, standing.labour.workers)} production days for ${c.rfq.quantity} units, so do not ask for fewer days. You may change the price, or ask for more days.`,
+    `If you counter, keep their team size. With ${standing.labour.workers} workers they need at least ${workersNeededDays(c, standing.labour.workers)} production days for ${c.rfq.quantity} units, so do not ask for fewer days. You may change the price, or ask for more days. The platform raises any counter below ₹${minViablePrice(c, standing.labour.workers ? { workers: standing.labour.workers, productionDays: st.productionDays } : st)} a unit (the price that pays the living wage) to that price.`,
     feedback ? `Your previous answer was not allowed: ${feedback} Fix it.` : '',
   ].filter(Boolean).join('\n');
   try {
