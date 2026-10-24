@@ -27,6 +27,7 @@ import ConsortiaPage from './seller/ConsortiaPage';
 import ProfilePage from './seller/ProfilePage';
 import ReviewsPage from './seller/ReviewsPage';
 import Diversification from './seller/Diversification';
+import ArchitectPage from './architect/ArchitectPage';
 import VerificationDesk from './ecosystem/VerificationDesk';
 import DistrictDashboard from './ecosystem/DistrictDashboard';
 import ImpactPage from './ecosystem/ImpactPage';
@@ -89,7 +90,7 @@ function Shell() {
     ],
     supplier: [
       { title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
-      { title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
+      { title: 'Grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
       { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'profile', label: 'Profile and documents' }, { id: 'reviews', label: 'Reviews' }] },
     ],
     ecosystem: [
@@ -109,7 +110,7 @@ function Shell() {
     'buyer:negotiate': <NegotiationRoom />,
     'supplier:overview': <SellerView lang={lang} />, 'supplier:opps': <OpportunitiesPage />, 'supplier:consortia': <ConsortiaPage />,
     'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
-    'supplier:workforce': <WorkforcePage />, 'supplier:profile': <ProfilePage />, 'supplier:reviews': <ReviewsPage />,
+    'supplier:architect': <ArchitectPage />, 'supplier:workforce': <WorkforcePage />, 'supplier:profile': <ProfilePage />, 'supplier:reviews': <ReviewsPage />,
     'ecosystem:verify': <VerificationDesk />, 'ecosystem:passport': <PassportPage />, 'ecosystem:check': <VerifyPage />,
     'ecosystem:impact': <ImpactPage />, 'ecosystem:districts': <DistrictDashboard />, 'ecosystem:report': <GrievancePage />, 'ecosystem:sources': <DataSourcesPage />,
   };

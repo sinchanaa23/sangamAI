@@ -13,6 +13,7 @@ import { credentialRoutes, setCredentialStore } from './credentials';
 import { dealRecords } from './deals';
 import { grievanceRoutes, setGrievanceStore } from './grievances';
 import { impactRoutes, setDealSource } from './impact';
+import { architectRoutes } from './architect';
 import { createNegotiations, fixture } from './negotiations';
 import { NegotiationInput, RfqInput, WorkforceInput } from './schemas';
 
@@ -36,7 +37,7 @@ export function createApp(db: Db = openDb(), opts: Parameters<typeof createNegot
   });
   setGrievanceStore({ save: (g) => { db.put('grievances', g); }, list: () => db.list<Grievance & Doc>('grievances') });
   setDealSource(() => dealRecords(db));
-  for (const r of [...credentialRoutes, ...impactRoutes, ...grievanceRoutes]) app.on(r.method, r.path, (c) => r.handler(c.req.raw, c.req.param()));
+  for (const r of [...credentialRoutes, ...impactRoutes, ...grievanceRoutes, ...architectRoutes(opts.ask)]) app.on(r.method, r.path, (c) => r.handler(c.req.raw, c.req.param()));
 
   app.post('/api/ask', async (c) => reply(c, await handleAsk((await body(c)) as AskBody)));
   app.post('/api/extract-certificate', async (c) => reply(c, await handleExtract((await body(c)) as ExtractBody)));
