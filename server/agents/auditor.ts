@@ -20,7 +20,7 @@ A missing safety record or an open grievance lowers the grade a step. Certificat
 Your text must agree with your decision. "pass" means the contract can be signed; "flag" means it is held for a person on the Sangam team to review (it is not rejected); "block" means it is refused.`;
 
 /** Models sometimes write "blocked" for a flag. A flagged deal is held for review, not refused, so the words must say so. */
-const consistent = (d: Decision, text: string) => (d === 'block' ? text : text.replace(/(is |was |are |has been )?(blocked|rejected|refused)/gi, (_m, aux) => `${aux ?? ''}held for review`));
+const consistent = (d: Decision, text: string) => (d === 'block' ? text : text.replace(/\b(is |was |are |has been )?(blocked|rejected|refused)\b/gi, (_m, aux) => `${aux ?? ''}held for review`));
 
 export async function audit(ask: Ask, c: DealContext, offer: Offer, score: FairWorkScore, certGaps: string[] = []): Promise<{ decision: Decision; text: string }> {
   // An open certificate gap takes "pass" off the table
