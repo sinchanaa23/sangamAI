@@ -300,7 +300,7 @@ details[open] summary { margin-bottom: 14px; }
    Loaded last on purpose: it refines the component rules above without changing their markup.
    ===================================================================================================================== */
 
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 ::selection { background: #e9e5d8; color: #111; }
 h1, h2, h3, .lead, .section-title { text-wrap: balance; }
 p, li { text-wrap: pretty; }

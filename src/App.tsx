@@ -39,6 +39,7 @@ import SupplierDrawer from './components/SupplierDrawer';
 import AskSangam from './components/AskSangam';
 import RiverBackdrop from './components/RiverBackdrop';
 import NavRiver from './components/NavRiver';
+import SmoothScroll from './components/SmoothScroll';
 import type { Lang } from './seller/i18n';
 
 function Logo() {
@@ -110,6 +111,7 @@ function Shell() {
   return (
     <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
       <RiverBackdrop where={home ? 'home' : workspace} />
+      <SmoothScroll />
       <a className="skip" href="#content">Skip to content</a>
       <header className="topbar">
         <button className="brand" onClick={() => { setHome(true); window.scrollTo(0, 0); }} style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', font: 'inherit', color: 'inherit' }} aria-label="Sangam home">
