@@ -4,6 +4,9 @@ import { currentBusiness, opportunitiesFor } from '../diversify';
 import type { OppResult } from '../diversify';
 import type { Seller } from '../types';
 import CapabilityWheel, { roiColor } from '../components/CapabilityWheel';
+import TextReveal from '../components/motion/TextReveal';
+import FadeContent from '../components/motion/FadeContent';
+import CountUp from '../components/motion/CountUp';
 import { processHi, strings } from './i18n';
 import type { Lang } from './i18n';
 
@@ -32,7 +35,7 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
   return (
     <div className="stack">
       <div>
-        <h1 className="lead">{t.growLead(seller.name)}</h1>
+        <TextReveal as="h1" className="lead" text={t.growLead(seller.name)} />
         <p className="muted" style={{ marginTop: 6 }}>{t.growSub}</p>
       </div>
 
@@ -79,6 +82,7 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
       </div>
 
+      <FadeContent>
       <div className="card">
         <div className="section-title">{t.compareTitle}</div>
         <div style={{ height: 240 }}>
@@ -100,7 +104,9 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
           </ResponsiveContainer>
         </div>
       </div>
+      </FadeContent>
 
+      <FadeContent>
       <div className="card stack">
         <div>
           <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
@@ -111,10 +117,10 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
 
         <div className="grid-4">
-          <div className="stat"><div className="label">{t.invest}</div><div className="value">{lakh(sel.investment.total, L)}</div><div className="delta muted">{lakh(sel.profitLakh, L)} {t.profitYr}</div></div>
-          <div className="stat"><div className="label">{t.payback}</div><div className="value">{sel.paybackYears !== null ? `${sel.paybackYears.toFixed(1)} ${t.years}` : t.notReached}</div><div className="delta muted">{t.readyIn} {sel.opp.readyMonths} {t.months}</div></div>
-          <div className="stat"><div className="label">{t.ret5}</div><div className={`value ${sel.roi5 >= 0 ? 'down' : 'up'}`}>{Math.round(sel.roi5 * 100)}%</div><div className="delta muted">{'₹'}{(1 + sel.roi5).toFixed(2)} {t.per1}</div></div>
-          <div className="stat"><div className="label">{t.ret10}</div><div className={`value ${sel.roi10 >= 0 ? 'down' : 'up'}`}>{Math.round(sel.roi10 * 100)}%</div><div className="delta muted">+{Math.round(sel.opp.jobs * sel.scale)} {t.newJobs.toLowerCase()}</div></div>
+          <div className="stat"><div className="label">{t.invest}</div><div className="value"><CountUp value={sel.investment.total} format={(n) => lakh(n, L)} /></div><div className="delta muted">{lakh(sel.profitLakh, L)} {t.profitYr}</div></div>
+          <div className="stat"><div className="label">{t.payback}</div><div className="value">{sel.paybackYears !== null ? <CountUp value={sel.paybackYears} format={(n) => `${n.toFixed(1)} ${t.years}`} /> : t.notReached}</div><div className="delta muted">{t.readyIn} {sel.opp.readyMonths} {t.months}</div></div>
+          <div className="stat"><div className="label">{t.ret5}</div><div className={`value ${sel.roi5 >= 0 ? 'down' : 'up'}`}><CountUp value={Math.round(sel.roi5 * 100)} format={(n) => `${n}%`} /></div><div className="delta muted">{'₹'}{(1 + sel.roi5).toFixed(2)} {t.per1}</div></div>
+          <div className="stat"><div className="label">{t.ret10}</div><div className={`value ${sel.roi10 >= 0 ? 'down' : 'up'}`}><CountUp value={Math.round(sel.roi10 * 100)} format={(n) => `${n}%`} /></div><div className="delta muted">+{Math.round(sel.opp.jobs * sel.scale)} {t.newJobs.toLowerCase()}</div></div>
         </div>
 
         <div className="grid-2" style={{ gridTemplateColumns: '1fr 1fr' }}>
@@ -172,6 +178,7 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
         <p className="tiny">{t.growDisclaimer}</p>
       </div>
+      </FadeContent>
     </div>
   );
 }

@@ -10,6 +10,12 @@ import { GRADE_LABEL, FAIR_WORK_RULES, labourFromProfile, livingWageFor, minimum
 import type { WorkforceProfile, WorkforceSkill } from '../fairwork';
 import FairWorkBadge from '../components/FairWorkBadge';
 import Src from '../components/Src';
+import TextReveal from '../components/motion/TextReveal';
+import GradientText from '../components/motion/GradientText';
+import CountUp from '../components/motion/CountUp';
+import FadeContent from '../components/motion/FadeContent';
+import SpotlightCard from '../components/motion/SpotlightCard';
+import ClickSpark from '../components/motion/ClickSpark';
 import { loadWorkforce, saveWorkforce } from './workforce';
 import type { WorkforceSource } from './workforce';
 import { listenOnce, matchChoice, parseNumber, speak, speechSupported, stopSpeaking } from '../voice';
@@ -224,7 +230,7 @@ export default function WorkforcePage() {
   return (
     <div className="stack">
       <div>
-        <h1 className="lead">{t.gradeTitle} · {t.skills}</h1>
+        <TextReveal as="h1" className="lead" text={`${t.gradeTitle} · ${t.skills}`} />
         <p className="muted" style={{ marginTop: 6 }}>{t.intro}</p>
       </div>
 
@@ -253,32 +259,33 @@ export default function WorkforcePage() {
       </div>
 
       {/* live grade */}
-      <div className="card stack" style={{ gap: 10 }}>
+      <SpotlightCard className="card"><div className="stack" style={{ gap: 10 }}>
         <div className="section-title" style={{ margin: 0 }}>{t.gradeTitle}</div>
         {loading ? <p className="muted">…</p> : score && (
           <>
             <div className="row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
               <FairWorkBadge score={score} />
-              <span className="muted small">{GRADE_LABEL[score.grade]} · {t.gradeNote}</span>
+              <span className="muted small"><GradientText>{GRADE_LABEL[score.grade]}</GradientText> · {t.gradeNote}</span>
             </div>
             <ul style={{ margin: 0, paddingLeft: 18 }} className="small">
               {score.reasons.map((r, i) => <li key={i} style={{ marginBottom: 2 }}>{r}</li>)}
             </ul>
             <div className="row small" style={{ gap: 14, flexWrap: 'wrap' }}>
               <span>
-                {t.benchmark}: {living ? <>{living.perDayInr.toLocaleString('en-IN')}{t.perDay} <Src kind={score.benchmarkTag} /> ({living.region})</> : '—'}
+                {t.benchmark}: {living ? <><CountUp value={living.perDayInr} />{t.perDay} <Src kind={score.benchmarkTag} /> ({living.region})</> : '—'}
               </span>
               <span>
-                {t.minimum}: {min ? <>{min.perDayInr.toLocaleString('en-IN')}{t.perDay} ({min.asNotified})</> : <span className="muted">{t.noMinimum}</span>}
+                {t.minimum}: {min ? <><CountUp value={min.perDayInr} />{t.perDay} ({min.asNotified})</> : <span className="muted">{t.noMinimum}</span>}
               </span>
-              <span>{t.womenShare}: {Math.round(labour.womenShare * 100)}%</span>
-              <span>{t.headcount}: {totalWorkers}</span>
+              <span>{t.womenShare}: <CountUp value={Math.round(labour.womenShare * 100)} format={(n) => `${n}%`} /></span>
+              <span>{t.headcount}: <CountUp value={totalWorkers} /></span>
             </div>
           </>
         )}
-      </div>
+      </div></SpotlightCard>
 
       {/* the form: typed input always available */}
+      <FadeContent>
       <div className="card stack" style={{ gap: 14 }}>
         <label className="field">{t.district}
           <select value={profile.district} onChange={(e) => set('district', e.target.value)}>
@@ -334,17 +341,21 @@ export default function WorkforcePage() {
         </label>
 
         <div className="row" style={{ gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <button className="btn primary" disabled={saving || !profile.district || !profile.skills.some((s) => s.headcount > 0)} onClick={save}>
-            {saving ? t.saving : t.save}
-          </button>
+          <ClickSpark>
+            <button className="btn primary" disabled={saving || !profile.district || !profile.skills.some((s) => s.headcount > 0)} onClick={save}>
+              {saving ? t.saving : t.save}
+            </button>
+          </ClickSpark>
           {saveMsg && <span className="small">{saveMsg}</span>}
         </div>
         <p className="tiny" style={{ margin: 0 }}>
           Legal hours ceiling {FAIR_WORK_RULES.maxHoursPerDay}/day and {FAIR_WORK_RULES.maxOvertimeHoursPerWeek} h/week overtime; a missing safety record or an open grievance lowers the grade one step; a child- or forced-labour flag blocks every deal.
         </p>
       </div>
+      </FadeContent>
 
       {/* voice: one question at a time */}
+      <FadeContent>
       <div className="card stack" style={{ gap: 10 }}>
         <div className="section-title" style={{ margin: 0 }}>{t.voiceTitle}</div>
         <p className="muted small" style={{ margin: 0 }}>{t.voiceIntro}</p>
@@ -354,7 +365,9 @@ export default function WorkforcePage() {
             {VOICE_LANGS.map((v) => <option key={v.code} value={v.code}>{v.native} ({v.english})</option>)}
           </select>
           {voiceStep == null ? (
-            <button className="btn primary" disabled={!canVoice} onClick={() => askQuestion(0)}>{t.voiceStart}</button>
+            <ClickSpark>
+              <button className="btn primary" disabled={!canVoice} onClick={() => askQuestion(0)}>{t.voiceStart}</button>
+            </ClickSpark>
           ) : (
             <>
               <button className="btn" onClick={stopVoice}>{t.stop}</button>
@@ -371,6 +384,7 @@ export default function WorkforcePage() {
           </div>
         )}
       </div>
+      </FadeContent>
     </div>
   );
 }
