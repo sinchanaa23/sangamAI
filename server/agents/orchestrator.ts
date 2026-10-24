@@ -1,7 +1,7 @@
 // The orchestrator is a small state machine, not a model: search, quotes, at most four rounds of counter-offers, audit, confirm.
 // Agents propose; this code enforces the hard limits (wage floor, free capacity, budget ceiling), so a negotiation always ends,
 // never agrees below the wage floor, and can be replayed. Messages follow the shape of Beckn's search, select, init and confirm.
-import type { Credential, NegotiationEvent, Offer, Rfq } from '../../src/contracts';
+import type { NegotiationEvent, Offer, Rfq } from '../../src/contracts';
 import type { Db } from '../db';
 import type { Ask } from '../llm';
 import { audit } from './auditor';
@@ -18,8 +18,6 @@ export interface RunDeps {
   ask: Ask;
   emit: (e: NegotiationEvent) => void;
   db: Db;
-  /** Signs the contract credential when the Auditor passes a deal (P4's sign()). Optional. */
-  sign?: (subject: Record<string, unknown>) => Promise<Credential | undefined>;
 }
 
 interface Move { action: 'offer' | 'counter' | 'accept'; terms: Terms; message: string }
@@ -83,13 +81,9 @@ export async function runNegotiation(negId: string, rfq: Rfq, supplierIds: strin
       return end('no-deal');
     }
     const dealId = `deal-${negId.replace(/^neg-/, '')}`;
-    let credential: Credential | undefined;
-    if (verdict.decision === 'pass') {
-      credential = await deps.sign?.({ dealId, rfqId: rfq.id, supplierId: c.seller.id, grade: score.grade, wagePerWorkerDay: accepted.labour.wagePerWorkerDay, price: accepted.price }).catch(() => undefined);
-    }
     const pending = verdict.decision === 'flag';
-    db.put('deals', { id: dealId, negotiationId: negId, rfqId: rfq.id, supplierId: c.seller.id, offer: accepted, score, decision: verdict.decision, status: pending ? 'pending-review' : 'confirmed', credentialId: credential?.id, at: at() });
-    emit({ type: 'confirm', from: 'auditor', at: at(), text: pending ? `${verdict.text} Held for the Sangam team to review before a credential is signed.` : `${verdict.text}${credential ? ' Contract credential signed.' : ''}` });
+    db.put('deals', { id: dealId, negotiationId: negId, rfqId: rfq.id, supplierId: c.seller.id, offer: accepted, score, decision: verdict.decision, status: pending ? 'pending-review' : 'confirmed', at: at() });
+    emit({ type: 'confirm', from: 'auditor', at: at(), text: pending ? `${verdict.text} Held for the Sangam team to review before a credential is signed.` : verdict.text });
     end('deal', dealId);
   }
 
