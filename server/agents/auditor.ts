@@ -2,6 +2,7 @@
 // The model writes the reasoning; the grade limits which decisions are open to it, so a deal with child labour can never pass.
 import { z } from 'zod';
 import type { FairWorkScore, Offer } from '../../src/contracts';
+import { logFallback } from '../llm';
 import type { Ask } from '../llm';
 import type { DealContext } from './tools';
 
@@ -15,7 +16,8 @@ const DEFAULT: Record<FairWorkScore['grade'], Decision> = { A: 'pass', B: 'pass'
 const SYSTEM = `You are the Auditor Agent for Sangam, a platform for fair-wage supply from Indian producers. You review a Fair Work Scorecard before a contract is signed.
 Grades: A wage at or above the living wage with a complete safety record; B wage at least 90% of the living wage; C below that; D below the legal minimum or over the legal hours; E child or forced labour.
 A missing safety record or an open grievance lowers the grade a step. Certificates the part needs must be held, in date and verified; if any gap is listed you may not pass. Reply with ONE JSON object only:
-{"decision":"pass"|"flag"|"block","text":"two plain sentences: the grade, and the main reason for it"}`;
+{"decision":"pass"|"flag"|"block","text":"two plain sentences: the grade, and the main reason for it"}
+Your text must agree with your decision. "pass" means the contract can be signed; "flag" means it is held for a person on the Sangam team to review (it is not rejected); "block" means it is refused.`;
 
 export async function audit(ask: Ask, c: DealContext, offer: Offer, score: FairWorkScore, certGaps: string[] = []): Promise<{ decision: Decision; text: string }> {
   // An open certificate gap takes "pass" off the table
@@ -27,7 +29,8 @@ export async function audit(ask: Ask, c: DealContext, offer: Offer, score: FairW
   try {
     const t = await ask({ role: 'audit', system: SYSTEM, user, schema: Turn, timeoutMs: 30_000 });
     return allowed.includes(t.decision) ? { decision: t.decision, text: t.text.slice(0, 400) } : { decision: dflt, text: `${t.text.slice(0, 300)} (Decision set to ${dflt} by the grade and certificate rules.)` };
-  } catch {
+  } catch (e) {
+    logFallback('auditor', e);
     return fallback('Reviewed by the rule-based check.');
   }
 }

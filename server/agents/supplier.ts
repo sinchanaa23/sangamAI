@@ -1,8 +1,9 @@
 // Supplier Agent: speaks for the MSME, cooperative or FPO. The model proposes; server/agents/tools.ts decides what is allowed.
 import { z } from 'zod';
 import type { Offer } from '../../src/contracts';
+import { logFallback } from '../llm';
 import type { Ask } from '../llm';
-import { fastestPlan, minViablePrice, supplierTools, termsOf } from './tools';
+import { fastestPlan, minViablePrice, supplierFacts, termsOf } from './tools';
 import type { DealContext, Terms } from './tools';
 
 const Turn = z.object({ action: z.enum(['offer', 'accept']), pricePerUnit: z.number(), workers: z.number(), productionDays: z.number(), message: z.string() });
@@ -11,7 +12,7 @@ export interface SupplierMove { action: 'offer' | 'accept'; terms: Terms; messag
 
 const SYSTEM = `You are the Supplier Agent for a small Indian producer (an MSME, cooperative, SHG federation or FPO) negotiating a sale to a buyer.
 Your duties: get a fair price, and never pay your workers below the wage floor or commit more workers than you have free.
-Call my_capacity first to read your real figures. Money is in rupees. Reply with ONE JSON object only:
+Your real figures are given below; use them. Money is in rupees. Reply with ONE JSON object only:
 {"action":"offer"|"accept","pricePerUnit":number,"workers":number,"productionDays":number,"message":"one or two plain sentences to the buyer"}
 Use action "accept" only to take the buyer's last offer as it stands (repeat its numbers).`;
 
@@ -40,13 +41,15 @@ function ruleMove(c: DealContext, last?: Offer, buyer?: Offer): SupplierMove {
 export async function supplierMove(ask: Ask, c: DealContext, last?: Offer, buyer?: Offer, feedback?: string): Promise<SupplierMove> {
   const user = [
     brief(c),
+    `Your figures: ${JSON.stringify(supplierFacts(c))}`,
     last && buyer ? `Your last offer: ${shows(last, c)}. The buyer counters: ${shows(buyer, c)}.` : 'Make your opening quote.',
     feedback ? `Your previous answer was not allowed: ${feedback} Fix it.` : '',
   ].filter(Boolean).join('\n');
   try {
-    const t = await ask({ role: 'turn', system: SYSTEM, user, tools: supplierTools(c), schema: Turn });
+    const t = await ask({ role: 'turn', system: SYSTEM, user, schema: Turn });
     return { action: buyer ? t.action : 'offer', terms: { pricePerUnit: t.pricePerUnit, workers: Math.round(t.workers), productionDays: Math.round(t.productionDays) }, message: t.message.slice(0, 300), by: 'model' };
-  } catch {
+  } catch (e) {
+    logFallback('supplier', e);
     return ruleMove(c, last, buyer);
   }
 }

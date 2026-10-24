@@ -26,6 +26,9 @@ export interface AskOptions<T> {
 /** Agents receive this as a parameter so tests can replace the model with a script. */
 export type Ask = <T>(o: AskOptions<T>) => Promise<T>;
 
+/** Why a model turn fell back to the rule-based move; printed when SANGAM_DEBUG is set. */
+export const logFallback = (who: string, e: unknown) => { if (process.env.SANGAM_DEBUG) console.warn(`[llm] ${who} fell back to rules: ${String((e as Error)?.message ?? e).slice(0, 300)}`); };
+
 export const llmConfigured = () => Boolean(process.env.LLM_API_KEY);
 
 const settings = () => ({
@@ -85,7 +88,7 @@ export function extractJson(text: string): unknown {
   return JSON.parse(text.slice(start, end + 1));
 }
 
-export const ask: Ask = async <T>({ role, system, user, tools = [], files = [], schema, timeoutMs = 20_000 }: AskOptions<T>) => {
+export const ask: Ask = async <T>({ role, system, user, tools = [], files = [], schema, timeoutMs = 30_000 }: AskOptions<T>) => {
   const cfg = settings();
   if (!(role === 'vision' ? cfg.visionKey : cfg.key)) throw new Error('LLM_API_KEY is not set');
   const signal = AbortSignal.timeout(timeoutMs); // one deadline for the whole turn, tool calls included

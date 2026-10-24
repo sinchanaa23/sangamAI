@@ -8,7 +8,6 @@ import { EMPTY } from '../../src/model';
 import { trustScore } from '../../src/trust';
 import type { FairWorkScore, Offer, Rfq, WorkforceProfile } from '../../src/contracts';
 import type { Db, Doc } from '../db';
-import type { Tool } from '../llm';
 
 // TEMPORARY until P3's src/fairwork.ts and src/real/wages.json land; then wageFloorPerDay() and scoreOffer() delegate to them.
 // ₹14,926 a month (GLWC, rural Nilgiris, the nearest rural benchmark) over 26 working days. Tagged estimated for any other district.
@@ -109,6 +108,9 @@ export const impliedWage = (c: DealContext, t: Terms) => Math.round((t.pricePerU
 export const minViablePrice = (c: DealContext, t: Pick<Terms, 'workers' | 'productionDays'>) =>
   Math.ceil((c.wageFloor * t.workers * t.productionDays) / (c.rfq.quantity * c.labourShare));
 
+/** The fewest production days a team of this size needs for the whole order. */
+export const workersNeededDays = (c: DealContext, workers: number) => Math.ceil(c.rfq.quantity / (workers * c.unitsPerWorkerDay));
+
 /** Production time with all available workers: the fastest the supplier can deliver. */
 export function fastestPlan(c: DealContext): Pick<Terms, 'workers' | 'productionDays'> {
   const workers = c.availableWorkers;
@@ -189,25 +191,20 @@ export function scoreOffer(c: DealContext, o: Offer): FairWorkScore {
   };
 }
 
-/** The tools an agent may call. Read-only: they report engine figures, they never change a deal. */
-export function supplierTools(c: DealContext): Tool[] {
-  return [{
-    name: 'my_capacity', description: 'Your free capacity, workers, usual price, delivery transit time and the wage floor you may not pay below.',
-    parameters: { type: 'object', properties: {} },
-    run: () => ({
-      freeUnitsPerMonth: c.freeUnitsPerMonth, availableWorkers: c.availableWorkers, unitsPerWorkerDay: +c.unitsPerWorkerDay.toFixed(2),
-      transitDays: c.transitDays, referenceUnitPriceInr: c.referenceUnitPrice, wageFloorPerWorkerDayInr: c.wageFloor, labourShareOfPrice: c.labourShare,
-    }),
-  }];
+/**
+ * Engine figures handed to each agent with its prompt. They used to be fetched through a tool call, which costs a second request per turn;
+ * on a free tier with a few requests a minute that made negotiations time out, so the orchestrator reads the engine once and passes the result in.
+ */
+export function supplierFacts(c: DealContext) {
+  return {
+    freeUnitsPerMonth: c.freeUnitsPerMonth, availableWorkers: c.availableWorkers, unitsPerWorkerDay: +c.unitsPerWorkerDay.toFixed(2),
+    transitDays: c.transitDays, referenceUnitPriceInr: c.referenceUnitPrice, wageFloorPerWorkerDayInr: c.wageFloor, labourShareOfPrice: c.labourShare,
+  };
 }
 
-export function buyerTools(c: DealContext): Tool[] {
-  return [{
-    name: 'supplier_check', description: 'Trust score, verification status, quality and delivery record of the supplier you are negotiating with.',
-    parameters: { type: 'object', properties: {} },
-    run: () => ({
-      supplier: c.seller.name, type: c.seller.type, district: c.districtName, verification: c.seller.verification, trustScore: c.trust,
-      defectPpm: c.seller.details.defectPpm, onTimeInFullPct: c.seller.details.otifPct, referenceUnitPriceInr: c.referenceUnitPrice, transitDays: c.transitDays,
-    }),
-  }];
+export function buyerFacts(c: DealContext) {
+  return {
+    supplier: c.seller.name, type: c.seller.type, district: c.districtName, verification: c.seller.verification, trustScore: c.trust,
+    defectPpm: c.seller.details.defectPpm, onTimeInFullPct: c.seller.details.otifPct, referenceUnitPriceInr: c.referenceUnitPrice, transitDays: c.transitDays,
+  };
 }
