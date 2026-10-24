@@ -137,3 +137,52 @@ The phases are file-disjoint; 1B's CSS does not depend on 1A's tokens except `--
 5. Toggle `prefers-reduced-motion` in devtools (Rendering tab) → everything snaps with no animation.
 6. Hindi locale (हिंदी toggle on seller pages): TextReveal renders Devanagari correctly (no broken matras).
 7. P2's SupplierGrade path still renders (badge unchanged API).
+
+---
+
+# Delta: "Confluence Dark" (session 4)
+
+User direction: darker colours, more of the striking ReactBits patterns — the light theme read as "too sober". This delta supersedes the restraint parts of Sections 1–3 where stated; principles 3 (tokens), 5 (data still), 6 (reduced-motion) and the DO-NOT-ANIMATE list REMAIN in force.
+
+## D1. Dark theme — `src/components/motion/theme.css` (new file)
+
+Overrides the app's `:root` tokens for dark (same names, never new ones). Loaded app-wide via one line in `src/main.tsx` (flagged to the team in the PR):
+
+- Surfaces: `--bg: #0a1118`, `--card: #111a24`, `--line: #223140`
+- Text: `--ink: #e8eef2`, `--ink-2: #9fb0bd`, `--ink-3: #64757f` (wait: keep contrast — use `#748899`)
+- Accents brightened for dark contrast, softs become translucent tints:
+  `--accent: #14b8a6 / rgba(20,184,166,.14)` · `--rural: #f97316 / rgba(249,115,22,.14)` · `--ready: #4ade80 / rgba(74,222,128,.14)` · `--potential: #fbbf24 / rgba(251,191,36,.14)` · `--import: #94a3b8 / rgba(148,163,184,.14)` · `--danger: #f87171 / rgba(248,113,113,.14)` · `--new: #a78bfa / rgba(167,139,250,.14)`
+- Map: `--sea: #0d1b2a`, `--land: #16222e`, `--india: #1d4a44`, `--india-edge: #2dd4bf`
+- `--shadow: 0 1px 2px rgba(0,0,0,.4)`; add `--fw-glow: 0 0 24px` helper
+- Font/radius unchanged. Reduced-motion rules unaffected (they kill animation, not colour).
+
+## D2. New kit components (original code; `.reactbits-tmp/{Aurora,DotGrid,SoftAurora,ShinyText,TiltedCard}.jsx` are behavioral reference only — that repo has no license)
+
+| File | Component | Props | Behavior |
+|---|---|---|---|
+| `Aurora.tsx` + `bg.css` (agent 1) | `<Aurora>` | `{ colors?: string[]; className?: string; opacity?: number }` | 3–4 blurred gradient blobs (CSS filter: blur) drifting slowly (30–40s loops, translate/scale keyframes). Absolute, inset-0, pointer-events none, behind content. Default colors: teal/orange/purple at low alpha. |
+| `DotGrid.tsx` (agent 1) | `<DotGrid>` | `{ color?: string; spacing?: px; radius?: px; className?: string; dim?: number }` | Canvas dot field; dots within ~120px of the cursor brighten and grow (rAF loop, devicePixelRatio aware, pauses when tab hidden). Absolute layer, pointer-events none. Default dot `#2dd4bf` at low alpha. |
+| `ShinyText.tsx` (agent 2) | `<ShinyText>` | `{ children: ReactNode; className?: string; speed?: ms }` | Text with a periodic shine sweep (background-clip: text over a moving highlight), ~2.8s loop. Use on primary button labels and the brand word only. |
+| `TiltCard.tsx` (agent 2) | `<TiltCard>` | `{ children: ReactNode; className?: string; maxTilt?: deg (default 6) }` | Subtle perspective tilt following the cursor; 6° ceiling, 150ms ease-out return on leave. Applied ONLY to the SellerView identity card — never to data-dense cards. |
+
+## D3. Glow & glass utilities — `src/components/motion/glow.css` (agent 2) + motion.css edits (agent 2)
+
+- `.fw-glass` — dark glass card: `background: rgba(17,26,36,.72); backdrop-filter: blur(10px); border: 1px solid rgba(45,212,191,.18)`.
+- `.fw-glow` — `box-shadow: 0 0 0 1px var(--fw-glow-color, rgba(45,212,191,.3)), 0 0 24px var(--fw-glow-color, rgba(45,212,191,.25))` set via `--fw-glow-color`.
+- `motion.css`: TextReveal gains blur-in (filter: blur(6px)→0 alongside the rise — reads dramatically on dark); `--fw-grad` stops brightened for dark (`#2dd4bf → #fb923c`).
+- Primary buttons (`.btn.primary`) get the ShinyText treatment at the wiring level (component wrap, not a global class grab).
+
+## D4. Wiring delta (agent 3)
+
+- WorkforcePage: `<DotGrid>` as the page's background layer (very low alpha); the live-grade card becomes `fw-glass fw-glow` (glow color keyed to the current grade colour) with `<Aurora>` softly behind the card top region; Save/Start-voice labels wrapped in ShinyText; big CountUp numbers (workers, women %) may use `.fw-grad-text`.
+- FairWorkBadge: COLOR map brightened for dark — A `#22c55e`, B `#14b8a6`, C `#f59e0b`, D `#f97316`, E `#ef4444`; circle gains a matching `box-shadow: 0 0 14px <color>40`. API unchanged.
+- SellerView: identity card → TiltCard + fw-glass; Aurora behind the identity area.
+- ProfilePage: WorkforceGradeCard → fw-glass + fw-glow(teal).
+- Diversification: chart ticks/grid/strokes in MY file switch to dark-appropriate hexes (#748899 ticks, #223140 grid, brightened series colors); cards FadeContent (existing).
+- KNOWN GAP (adoption note): P4's ImpactPage chart hardcodes light colors (#eef0f3 grid) — snippet in §6 updated to ask for dark equivalents after this merges; P2's room.css bubble borders may need one darker pass. Neither file is touched by us.
+
+## D5. Verification additions
+
+8. Dark visual pass on every P3 page: text contrast ≥ WCAG AA on --bg/--card, inputs/tables/chips readable, no white flash boxes.
+9. Buyer "Supply chain today" spot-check: token-flipped pages look intentional; note (not fix) teammates' hardcoded light colors.
+10. Badge glow + pop both visible on dark; Hindi still perfect; reduced-motion still kills everything.

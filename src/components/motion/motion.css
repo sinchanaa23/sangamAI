@@ -6,7 +6,7 @@
   --fw-ease: cubic-bezier(0.2, 0.6, 0.2, 1); /* ease-out, no overshoot */
   --fw-rise: 6px;            /* entrance translate */
   --fw-stagger: 45ms;        /* per-item delay in staggered lists */
-  --fw-grad: linear-gradient(100deg, var(--accent) 0%, #0e9488 38%, var(--rural) 100%);
+  --fw-grad: linear-gradient(100deg, #2dd4bf 0%, #fb923c 100%); /* brightened for dark */
   --fw-spot: rgba(15, 118, 110, 0.08); /* spotlight tint on hover */
 }
 
@@ -37,10 +37,12 @@
   from {
     opacity: 0;
     transform: translateY(var(--fw-rise));
+    filter: blur(6px); /* dramatic blur-in on dark; final state is filter-free */
   }
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: none;
   }
 }
 
