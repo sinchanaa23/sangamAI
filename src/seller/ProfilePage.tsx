@@ -15,6 +15,7 @@ import { useStore } from '../store';
 import { checksFor } from '../trust';
 import { useUi } from '../ui';
 import type { CertDetail, OrgType } from '../types';
+import { useSupplierTheme } from '../components/motion/theme';
 
 const TYPES: OrgType[] = ['MSME', 'SHG federation', 'FPO', 'Cooperative'];
 
@@ -51,6 +52,7 @@ const toBase64 = (f: File) => new Promise<string>((res, rej) => {
 });
 
 export default function ProfilePage() {
+  useSupplierTheme();
   const { state, update } = useStore();
   const { actingSeller, setActingSeller, openSupplier } = useUi();
   const current = state.onboarded.find((o) => o.id === actingSeller);

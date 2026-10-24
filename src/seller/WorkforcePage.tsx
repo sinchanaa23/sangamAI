@@ -28,6 +28,7 @@ import { listenOnce, matchChoice, parseNumber, speak, speechSupported, stopSpeak
 import type { ListenHandle, VoiceLang } from '../voice';
 import { VOICE_LANGS } from '../voice';
 import { useUi } from '../ui';
+import { useSupplierTheme } from '../components/motion/theme';
 
 type UiLang = 'en' | VoiceLang;
 
@@ -127,6 +128,7 @@ const BLANK = (district: string): WorkforceProfile => ({
 });
 
 export default function WorkforcePage() {
+  useSupplierTheme();
   const { actingSeller, setActingSeller } = useUi();
   const seller = sellers.find((s) => s.id === actingSeller) ?? sellers[0];
   const [lang, setLang] = useState<UiLang>('en');

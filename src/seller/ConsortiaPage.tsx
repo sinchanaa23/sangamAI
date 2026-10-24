@@ -7,10 +7,12 @@ import { useStore } from '../store';
 import { trustScore } from '../trust';
 import { useUi } from '../ui';
 import { visibleTo } from './visibility';
+import { useSupplierTheme } from '../components/motion/theme';
 
 const STATUS_CLS = { invited: 'potential', accepted: 'ready', declined: 'danger' } as const;
 
 export default function ConsortiaPage() {
+  useSupplierTheme();
   const { state, update } = useStore();
   const { actingSeller, openSupplier, setActingSeller } = useUi();
   const seller = sellers.find((s) => s.id === actingSeller);

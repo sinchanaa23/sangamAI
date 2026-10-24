@@ -12,8 +12,10 @@ import CountUp from '../components/motion/CountUp';
 import TiltCard from '../components/motion/TiltCard';
 import Aurora from '../components/motion/Aurora';
 import '../components/motion/motion.css';
+import { useSupplierTheme } from '../components/motion/theme';
 
 export default function SellerView({ lang }: { lang: Lang }) {
+  useSupplierTheme();
   const { state } = useStore();
   const { actingSeller, openSupplier, go } = useUi();
   const t = strings[lang];

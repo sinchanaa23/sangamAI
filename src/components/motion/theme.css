@@ -1,5 +1,9 @@
-/* Confluence Dark — same token names as styles.css, dark values; loaded from main.tsx */
-:root {
+/* Confluence Dark — same token names as styles.css, dark values.
+   Scoped to body.fw-dark, which the supplier workspace's pages add via
+   useSupplierTheme() (src/components/motion/theme.ts): the Supplier tab renders
+   dark, the Buyer and Ecosystem workspaces keep main's light river redesign
+   untouched. Loaded from theme.ts (no shared-file import needed). */
+body.fw-dark {
   /* Surfaces + line */
   --bg: #0a1118;
   --card: #111a24;
@@ -36,4 +40,12 @@
 
   /* Elevation */
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  /* Fair Work badge grade colours, dark variants (light fallbacks live in
+     FairWorkBadge's var() defaults — main's warm palette). */
+  --fw-grade-A: #22c55e;
+  --fw-grade-B: #14b8a6;
+  --fw-grade-C: #f59e0b;
+  --fw-grade-D: #f97316;
+  --fw-grade-E: #ef4444;
 }

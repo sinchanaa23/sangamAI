@@ -9,11 +9,13 @@ import Reveal from '../components/motion/Reveal';
 import CountUp from '../components/motion/CountUp';
 import { processHi, strings } from './i18n';
 import type { Lang } from './i18n';
+import { useSupplierTheme } from '../components/motion/theme';
 
 const lakh = (n: number, unit: string) => `₹${Math.round(n).toLocaleString('en-IN')} ${unit}`;
 const short = (s: string, n = 24) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
 
 export default function Diversification({ seller, lang }: { seller: Seller; lang: Lang }) {
+  useSupplierTheme();
   const t = strings[lang];
   const results = opportunitiesFor(seller);
   const [pickedId, setPickedId] = useState<string | null>(null);

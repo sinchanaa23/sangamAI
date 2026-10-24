@@ -3,34 +3,34 @@
    !important, no sizing/padding/layout changes. Loaded after styles.css via
    Reveal.tsx. */
 
-.btn {
+body.fw-dark .btn {
   transition:
     transform 150ms ease,
     box-shadow 150ms ease,
     filter 150ms ease;
 }
 
-.btn:hover {
+body.fw-dark .btn:hover {
   transform: translateY(-1px);
 }
 
-.btn:active {
+body.fw-dark .btn:active {
   transform: translateY(0);
 }
 
-.btn.primary {
+body.fw-dark .btn.primary {
   box-shadow:
     0 0 0 1px rgba(45, 212, 191, 0.25),
     0 4px 18px rgba(20, 184, 166, 0.18);
 }
 
-.btn.primary:hover {
+body.fw-dark .btn.primary:hover {
   box-shadow:
     0 0 0 1px rgba(45, 212, 191, 0.4),
     0 6px 26px rgba(20, 184, 166, 0.3);
 }
 
-.btn:focus-visible {
+body.fw-dark .btn:focus-visible {
   outline: 2px solid var(--accent, #14b8a6);
   outline-offset: 2px;
 }
