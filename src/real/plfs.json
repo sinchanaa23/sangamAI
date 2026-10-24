@@ -1,0 +1,381 @@
+{
+ "source": "MoSPI Periodic Labour Force Survey, annual 2025 (calendar year), rural and urban together, via the eSankhyiki data server",
+ "fetched": "2026-10-24",
+ "year": "2025",
+ "units": {
+  "casualPerDay": "rupees per day, casual labour other than public works",
+  "salariedPerMonth": "rupees per month, regular wage or salaried employees"
+ },
+ "states": {
+  "All India": {
+   "casualPerDay": {
+    "person": 452.77,
+    "female": 315.17
+   },
+   "salariedPerMonth": {
+    "person": 22698.65,
+    "female": 18353.28
+   }
+  },
+  "Andaman & Nicobar Islands": {
+   "casualPerDay": {
+    "person": 645.85,
+    "female": 356.41
+   },
+   "salariedPerMonth": {
+    "person": 30531.39,
+    "female": 25298.73
+   }
+  },
+  "Andhra Pradesh": {
+   "casualPerDay": {
+    "person": 513.94,
+    "female": 344.01
+   },
+   "salariedPerMonth": {
+    "person": 22510.6,
+    "female": 17024.65
+   }
+  },
+  "Arunachal Pradesh": {
+   "casualPerDay": {
+    "person": 352.98,
+    "female": 250
+   },
+   "salariedPerMonth": {
+    "person": 31025.16,
+    "female": 26332.17
+   }
+  },
+  "Assam": {
+   "casualPerDay": {
+    "person": 467.44,
+    "female": 278.97
+   },
+   "salariedPerMonth": {
+    "person": 18816.42,
+    "female": 14045.69
+   }
+  },
+  "Bihar": {
+   "casualPerDay": {
+    "person": 441.74,
+    "female": 347.6
+   },
+   "salariedPerMonth": {
+    "person": 20135.25,
+    "female": 16924.41
+   }
+  },
+  "Chandigarh": {
+   "casualPerDay": {
+    "person": 652.51,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 29210.56,
+    "female": 23761.17
+   }
+  },
+  "Chhattisgarh": {
+   "casualPerDay": {
+    "person": 302.9,
+    "female": 204.68
+   },
+   "salariedPerMonth": {
+    "person": 17662.28,
+    "female": 12135.04
+   }
+  },
+  "Dadra & Nagar Haveli & Daman & Diu": {
+   "casualPerDay": {
+    "person": 444.09,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 18490.47,
+    "female": 11511.87
+   }
+  },
+  "Delhi": {
+   "casualPerDay": {
+    "person": 668.94,
+    "female": 600
+   },
+   "salariedPerMonth": {
+    "person": 30651.22,
+    "female": 29284.13
+   }
+  },
+  "Goa": {
+   "casualPerDay": {
+    "person": 822.29,
+    "female": 591.54
+   },
+   "salariedPerMonth": {
+    "person": 28859.49,
+    "female": 24440.01
+   }
+  },
+  "Gujarat": {
+   "casualPerDay": {
+    "person": 382.36,
+    "female": 275.69
+   },
+   "salariedPerMonth": {
+    "person": 20170.82,
+    "female": 15289.34
+   }
+  },
+  "Haryana": {
+   "casualPerDay": {
+    "person": 551.01,
+    "female": 483.25
+   },
+   "salariedPerMonth": {
+    "person": 26784.33,
+    "female": 26219.8
+   }
+  },
+  "Himachal Pradesh": {
+   "casualPerDay": {
+    "person": 557.93,
+    "female": 490.75
+   },
+   "salariedPerMonth": {
+    "person": 24255.19,
+    "female": 17345.02
+   }
+  },
+  "Jammu & Kashmir": {
+   "casualPerDay": {
+    "person": 580.44,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 26567.92,
+    "female": 23637.51
+   }
+  },
+  "Jharkhand": {
+   "casualPerDay": {
+    "person": 396.48,
+    "female": 361.27
+   },
+   "salariedPerMonth": {
+    "person": 22839.1,
+    "female": 15989.71
+   }
+  },
+  "Karnataka": {
+   "casualPerDay": {
+    "person": 496.46,
+    "female": 345.64
+   },
+   "salariedPerMonth": {
+    "person": 26266.32,
+    "female": 21371.46
+   }
+  },
+  "Kerala": {
+   "casualPerDay": {
+    "person": 924.3,
+    "female": 482.96
+   },
+   "salariedPerMonth": {
+    "person": 25443.28,
+    "female": 21513.42
+   }
+  },
+  "Ladakh": {
+   "casualPerDay": {
+    "person": 751.01,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 42060.16,
+    "female": 34475.84
+   }
+  },
+  "Lakshadweep": {
+   "casualPerDay": {
+    "person": 968.36,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 32602.09,
+    "female": 23950.41
+   }
+  },
+  "Madhya Pradesh": {
+   "casualPerDay": {
+    "person": 379.22,
+    "female": 307.61
+   },
+   "salariedPerMonth": {
+    "person": 20548.47,
+    "female": 16748.68
+   }
+  },
+  "Maharashtra": {
+   "casualPerDay": {
+    "person": 384.58,
+    "female": 262.82
+   },
+   "salariedPerMonth": {
+    "person": 27168.83,
+    "female": 21647.47
+   }
+  },
+  "Manipur": {
+   "casualPerDay": {
+    "person": 522.93,
+    "female": 374.12
+   },
+   "salariedPerMonth": {
+    "person": 29783.79,
+    "female": 29008.01
+   }
+  },
+  "Meghalaya": {
+   "casualPerDay": {
+    "person": 433.71,
+    "female": 313.42
+   },
+   "salariedPerMonth": {
+    "person": 20652.76,
+    "female": 16839.03
+   }
+  },
+  "Mizoram": {
+   "casualPerDay": {
+    "person": 620.97,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 37169.43,
+    "female": 31670.96
+   }
+  },
+  "Nagaland": {
+   "casualPerDay": {
+    "person": 545.58,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 31090.32,
+    "female": 27416.16
+   }
+  },
+  "Odisha": {
+   "casualPerDay": {
+    "person": 368.33,
+    "female": 269.31
+   },
+   "salariedPerMonth": {
+    "person": 19459.29,
+    "female": 14387.64
+   }
+  },
+  "Puducherry": {
+   "casualPerDay": {
+    "person": 708,
+    "female": 502.53
+   },
+   "salariedPerMonth": {
+    "person": 27785.69,
+    "female": 24138.66
+   }
+  },
+  "Punjab": {
+   "casualPerDay": {
+    "person": 490.3,
+    "female": 264.3
+   },
+   "salariedPerMonth": {
+    "person": 16466.84,
+    "female": 12430.51
+   }
+  },
+  "Rajasthan": {
+   "casualPerDay": {
+    "person": 479.96,
+    "female": 322.95
+   },
+   "salariedPerMonth": {
+    "person": 23081.18,
+    "female": 20391.18
+   }
+  },
+  "Sikkim": {
+   "casualPerDay": {
+    "person": 590.63,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 23585.34,
+    "female": 19148.81
+   }
+  },
+  "Tamil Nadu": {
+   "casualPerDay": {
+    "person": 589.77,
+    "female": 329.67
+   },
+   "salariedPerMonth": {
+    "person": 23798.07,
+    "female": 19087.41
+   }
+  },
+  "Telangana": {
+   "casualPerDay": {
+    "person": 513.68,
+    "female": 347.23
+   },
+   "salariedPerMonth": {
+    "person": 27051.97,
+    "female": 21179.46
+   }
+  },
+  "Tripura": {
+   "casualPerDay": {
+    "person": 483.43,
+    "female": 203.74
+   },
+   "salariedPerMonth": {
+    "person": 17865.53,
+    "female": 10889.35
+   }
+  },
+  "Uttarakhand": {
+   "casualPerDay": {
+    "person": 497.44,
+    "female": 0
+   },
+   "salariedPerMonth": {
+    "person": 19608.68,
+    "female": 13329.85
+   }
+  },
+  "Uttar Pradesh": {
+   "casualPerDay": {
+    "person": 434.2,
+    "female": 390.49
+   },
+   "salariedPerMonth": {
+    "person": 18425.63,
+    "female": 14730.08
+   }
+  },
+  "West Bengal": {
+   "casualPerDay": {
+    "person": 373.92,
+    "female": 315.89
+   },
+   "salariedPerMonth": {
+    "person": 16618.2,
+    "female": 11527.92
+   }
+  }
+ }
+}

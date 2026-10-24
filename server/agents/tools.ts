@@ -3,7 +3,7 @@
 import type { BomLine, Seller } from '../../src/types';
 import { bom, loadDataset, sellers } from '../../src/data';
 import { district, isRural } from '../../src/engine';
-import { fxRate, industryStats } from '../../src/realdata';
+import { fxRate, industryStats, labourMarket } from '../../src/realdata';
 import { partRoute } from '../../src/chainRoute';
 import { EMPTY } from '../../src/model';
 import { trustScore } from '../../src/trust';
@@ -44,6 +44,8 @@ export interface DealContext {
   workforce?: WorkforceProfile;
   /** what factory workers in this state and industry were actually paid per worker-day (ASI 2023-24), for context only */
   marketWage?: { perDay: number; scope: 'state' | 'all-india'; industry: string; source: string };
+  /** what casual labourers in the state earn a day, for everyone and for women (PLFS 2025), for context only */
+  casualWage?: { perDay: number; perDayFemale: number | null; source: string };
 }
 
 /** Two-digit industry (NIC 2008) a process belongs to, for matching it to Annual Survey of Industries figures. */
@@ -91,6 +93,10 @@ export function buildContext(rfq: Rfq, seller: Seller, line: BomLine, db: Db): D
     budgetInr: rfq.budget.amount * FX_INR[rfq.budget.currency],
     trust: trustScore(seller, EMPTY).score,
     workforce,
+    casualWage: (() => {
+      const m = labourMarket(district(seller.districtId).state);
+      return m?.casualPerDay ? { perDay: Math.round(m.casualPerDay), perDayFemale: m.casualPerDayFemale ? Math.round(m.casualPerDayFemale) : null, source: m.source } : undefined;
+    })(),
     marketWage: (() => {
       const st = industryStats(district(seller.districtId).state, nicFor(line.process));
       return st ? { perDay: Math.round(st.wagePerWorkerDay), scope: st.scope, industry: st.industry, source: st.source } : undefined;
@@ -208,6 +214,7 @@ export function supplierFacts(c: DealContext) {
     freeUnitsPerMonth: c.freeUnitsPerMonth, availableWorkers: c.availableWorkers, unitsPerWorkerDay: +c.unitsPerWorkerDay.toFixed(2),
     transitDays: c.transitDays, referenceUnitPriceInr: c.referenceUnitPrice, wageFloorPerWorkerDayInr: c.wageFloor, labourShareOfPrice: c.labourShare,
     ...(c.marketWage ? { averageFactoryWagePerWorkerDayInr: c.marketWage.perDay, averageFactoryWageSource: c.marketWage.source } : {}),
+    ...(c.casualWage ? { casualLabourWagePerDayInr: c.casualWage.perDay, casualLabourWageWomenPerDayInr: c.casualWage.perDayFemale } : {}),
   };
 }
 

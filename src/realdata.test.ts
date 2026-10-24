@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fxRate, importDuty, industryStats, trade, unitValueUsdPerKg } from './realdata';
+import { fxRate, importDuty, industryStats, labourMarket, trade, unitValueUsdPerKg } from './realdata';
 
 describe('real public data accessors', () => {
   it('reads India\'s MFN duty for a tracked product', () => {
@@ -50,5 +50,21 @@ describe('factory statistics (Annual Survey of Industries)', () => {
   it('falls back to All India for a state without figures, and to nothing for an unknown industry', () => {
     expect(industryStats('Atlantis', '27')?.scope).toBe('all-india');
     expect(industryStats('Tamil Nadu', '99')).toBeNull();
+  });
+});
+
+describe('labour market wages (Periodic Labour Force Survey)', () => {
+  it('gives what casual and salaried workers earn in a state, with the pay gap for women', () => {
+    const m = labourMarket('Tamil Nadu')!;
+    expect(m.casualPerDay).toBeGreaterThan(200);
+    expect(m.casualPerDay).toBeLessThan(1500);
+    expect(m.casualPerDayFemale!).toBeLessThan(m.casualPerDay!);
+    expect(m.salariedPerMonth).toBeGreaterThan(8000);
+    expect(m.source).toContain('Periodic Labour Force Survey');
+  });
+
+  it('matches the app\'s state spellings and returns nothing for an unknown state', () => {
+    expect(labourMarket('Dadra and Nagar Haveli')?.casualPerDay).toBeGreaterThan(0);
+    expect(labourMarket('Atlantis')).toBeNull();
   });
 });

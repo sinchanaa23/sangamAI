@@ -5,6 +5,7 @@
 //   - World Bank WITS (TRAINS): India's MFN import duty for each tracked HS code
 //   - Frankfurter (ECB reference rates): INR per USD and per EUR
 //   - MoSPI eSankhyiki (Annual Survey of Industries): factories, workers, wages and output by state and industry
+//   - MoSPI eSankhyiki (Periodic Labour Force Survey): average casual and salaried earnings by state
 //   - Open-Meteo archive: 10 years of daily rain and heat per district -> climate exposure
 //   - OpenStreetMap Overpass: industrial areas, rail stations and airports around each district
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -14,7 +15,7 @@ const OUT = new URL('../src/real/', import.meta.url);
 const UA = { 'User-Agent': 'Sangam-prototype/0.2 (SAP Hackfest; contact via GitHub sohini-d/Sangam)' };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const today = new Date().toISOString().slice(0, 10);
-const only = process.argv[2]; // optional: comtrade | lpi | tariffs | fx | industry | climate | osm
+const only = process.argv[2]; // optional: comtrade | lpi | tariffs | fx | industry | plfs | climate | osm
 
 async function get(url, init = {}, tries = 3) {
   for (let i = 0; i < tries; i++) {
@@ -228,7 +229,28 @@ async function industry() {
   });
 }
 
-const jobs = { comtrade, lpi, tariffs, fx, industry, climate, osm };
+// Periodic Labour Force Survey, calendar 2025: what workers actually earn, by state and sex (all areas). Indicator codes take one value per call.
+async function plfs() {
+  const kinds = { casualPerDay: 7, salariedPerMonth: 6 };
+  const states = {};
+  for (const [kind, code] of Object.entries(kinds)) {
+    for (const [sex, gender] of [['person', '3'], ['female', '2']]) {
+      const res = await mospi('get_data', { dataset: 'PLFS', filters: {
+        indicator_code: String(code), frequency_code: '1', year: '2025', year_type_code: '2', gender_code: gender, sector_code: '3', limit: '100',
+      } });
+      if (!res.data) { console.warn(`  no PLFS rows for ${kind}/${sex}: ${res.msg ?? res.error}`); continue; }
+      for (const row of res.data) ((states[row.state] ??= {})[kind] ??= {})[sex] = Number(row.value);
+      console.log(`  ${kind} ${sex}: ${res.data.length} states`);
+      await sleep(400);
+    }
+  }
+  await save('plfs.json', {
+    source: 'MoSPI Periodic Labour Force Survey, annual 2025 (calendar year), rural and urban together, via the eSankhyiki data server',
+    fetched: today, year: '2025', units: { casualPerDay: 'rupees per day, casual labour other than public works', salariedPerMonth: 'rupees per month, regular wage or salaried employees' }, states,
+  });
+}
+
+const jobs = { comtrade, lpi, tariffs, fx, industry, plfs, climate, osm };
 for (const [k, f] of Object.entries(jobs)) {
   if (only && only !== k) continue;
   console.log(k);

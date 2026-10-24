@@ -4,6 +4,7 @@ import lpiFile from './real/lpi.json';
 import tariffsFile from './real/tariffs.json';
 import fxFile from './real/fx.json';
 import industryFile from './real/industry.json';
+import plfsFile from './real/plfs.json';
 import districtList from './geo/districts.json';
 import type { District, Provenance } from './types';
 
@@ -27,6 +28,7 @@ export const SOURCES = {
   climate: { name: 'Open-Meteo', detail: climateFile?.source ?? 'Not fetched yet', fetched: climateFile?.fetched ?? '', url: 'https://open-meteo.com' },
   tariffs: { name: 'World Bank WITS (UNCTAD TRAINS)', detail: tariffsFile.source, fetched: tariffsFile.fetched, url: 'https://wits.worldbank.org' },
   industry: { name: 'MoSPI Annual Survey of Industries', detail: industryFile.source, fetched: industryFile.fetched, url: 'https://www.mospi.gov.in' },
+  plfs: { name: 'MoSPI Periodic Labour Force Survey', detail: plfsFile.source, fetched: plfsFile.fetched, url: 'https://www.mospi.gov.in' },
   fx: { name: 'ECB reference rates (Frankfurter)', detail: fxFile.source, fetched: fxFile.fetched, url: 'https://www.frankfurter.app' },
   osm: { name: 'OpenStreetMap', detail: osmFile?.source ?? 'Not fetched yet', fetched: osmFile?.fetched ?? '', url: 'https://www.openstreetmap.org/copyright' },
 };
@@ -91,6 +93,32 @@ export function industryStats(state: string, nic: string): IndustryStats | null 
     wageShareOfGva: c.workerWagesLakh! / c.gvaLakh!, wageShareOfOutput: c.workerWagesLakh! / c.outputLakh!,
     femaleShare: (c.femaleWorkers ?? 0) / c.workers!,
     source: `MoSPI Annual Survey of Industries ${industryFile.year}, factory sector, ${scope === 'state' ? state : 'All India'}, NIC ${nic}`,
+  };
+}
+
+interface PlfsCell { person?: number; female?: number }
+const PLFS_STATES = Object.fromEntries(Object.keys(plfsFile.states).map((k) => [asiKey(k), k]));
+PLFS_STATES['dadraandnagarhaveli'] = 'Dadra & Nagar Haveli & Daman & Diu';
+
+export interface LabourMarket {
+  state: string; year: string;
+  /** average earnings of casual labourers, rupees per day, for everyone and for women */
+  casualPerDay: number | null; casualPerDayFemale: number | null;
+  /** average monthly pay of regular salaried employees, rupees */
+  salariedPerMonth: number | null; salariedPerMonthFemale: number | null;
+  source: string;
+}
+
+/** What workers in a state actually earn, from the Periodic Labour Force Survey (all of the state, rural and urban). */
+export function labourMarket(state: string): LabourMarket | null {
+  const key = PLFS_STATES[asiKey(state)];
+  const row = key ? (plfsFile.states as Record<string, { casualPerDay?: PlfsCell; salariedPerMonth?: PlfsCell }>)[key] : undefined;
+  if (!row) return null;
+  return {
+    state: key!, year: plfsFile.year,
+    casualPerDay: row.casualPerDay?.person ?? null, casualPerDayFemale: row.casualPerDay?.female ?? null,
+    salariedPerMonth: row.salariedPerMonth?.person ?? null, salariedPerMonthFemale: row.salariedPerMonth?.female ?? null,
+    source: `MoSPI Periodic Labour Force Survey ${plfsFile.year}, ${key}`,
   };
 }
 
