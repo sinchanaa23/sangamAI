@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { bom, buyer, certGaps, districts, processes, sellers, unitLabel } from '../data';
 import { now, uid } from '../model';
 import type { DocItem, OnboardedSeller } from '../model';
 import { scoreProfile } from '../fairwork';
 import type { ScoredWork } from '../fairwork';
-import FairWorkBadge from '../components/FairWorkBadge';
+import FairWorkBadge, { GRADE_GLOW } from '../components/FairWorkBadge';
 import SpotlightCard from '../components/motion/SpotlightCard';
 import FadeContent from '../components/motion/FadeContent';
 import CountUp from '../components/motion/CountUp';
@@ -31,11 +32,13 @@ function WorkforceGradeCard({ sellerId, sellerName }: { sellerId: string; seller
   if (!score) return null;
   return (
     <FadeContent>
-      <SpotlightCard className="card"><div className="row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ '--fw-glow-color': GRADE_GLOW[score.grade] } as CSSProperties}>
+      <SpotlightCard className="card fw-glass fw-glow"><div className="row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <FairWorkBadge score={score} />
         <span className="small muted">The Fair Work grade buyers see on every quote, from the workforce profile.</span>
         <button className="btn small" onClick={() => go('supplier', 'workforce')}>Workforce and fair work</button>
       </div></SpotlightCard>
+      </div>
     </FadeContent>
   );
 }

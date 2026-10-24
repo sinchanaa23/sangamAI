@@ -8,7 +8,13 @@ import type { FairWorkScore } from '../fairwork';
 import './motion/motion.css';
 
 const COLOR: Record<FairWorkScore['grade'], string> = {
-  A: '#15803d', B: '#0f766e', C: '#b45309', D: '#c2410c', E: '#b91c1c',
+  A: '#22c55e', B: '#14b8a6', C: '#f59e0b', D: '#f97316', E: '#ef4444',
+};
+
+// Halo colour for the live-grade card glow (WorkforcePage / ProfilePage), keyed to the same grade colours.
+export const GRADE_GLOW: Record<FairWorkScore['grade'], string> = {
+  A: 'rgba(34,197,94,.32)', B: 'rgba(20,184,166,.32)', C: 'rgba(245,158,11,.32)',
+  D: 'rgba(249,115,22,.32)', E: 'rgba(239,68,68,.36)',
 };
 
 export default function FairWorkBadge({ score, showLabel = true, size = 'md' }: {
@@ -34,6 +40,7 @@ export default function FairWorkBadge({ score, showLabel = true, size = 'md' }: 
         width: dim, height: dim, borderRadius: '50%', background: COLOR[g], color: '#fff',
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         fontWeight: 700, fontSize: size === 'sm' ? 12 : 14, flex: '0 0 auto',
+        boxShadow: `0 0 14px ${COLOR[g]}66`,
         '--fw-ring': COLOR[g],
       } as CSSProperties}>{g}</span>
       {showLabel && <span style={{ fontWeight: 600, fontSize: size === 'sm' ? 12 : 14 }}>{GRADE_LABEL[g]}</span>}

@@ -12,7 +12,7 @@
 - Reference docs (`docs/` folder, untracked .docx/.pptx): the proposal ("…proposal and 24-hour build plan") is the final reference over any agent's own ideas.
 - Teammate branches on origin: `feat/agents` (P1, merged to main twice — PR #1 and PR #3 `agents/use-fairwork`, which integrated my fairwork.ts into their agents and adjusted my reason wording), `feat/buyer` (P2, not merged), `feat/ecosystem` (P4, not merged — **main still has the OLD App.tsx sidebar without the Workforce nav entry**; P4's branch has it).
 
-## Current state (after session 3, 2026-10-24 evening)
+## Current state (after session 4, 2026-10-24 night)
 
 - **PR #2 (all P3 features) is MERGED to main.** P1 built on it (PR #3).
 - **Design language "Confluence" implemented on branch `feat/supplier-design`** (from main @ f1db058): DESIGN.md + a dependency-free motion kit in `src/components/motion/` (8 files) + wiring across all five P3 pages. Verified: build ✓, tests 41/41 ✓ (P1's tests joined my 22), browser ✓ (staggered reveals, gradient grade label, CountUp with retargeting, badge pop on grade flip, click sparks, spotlight hover, Hindi Devanagari grapheme-safe, real server save through P1's API).
@@ -59,6 +59,10 @@ Browser-verified on localhost:5173 (temporary nav wiring in App.tsx, reverted be
 6. Hour blocks 21–24: rehearsals; fixes only through pull requests.
 
 ## Session log
+
+### Session 4 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash subagents, night)
+
+User direction: "darker colours, use the cool ReactBits animations, too sober". Wrote the Confluence Dark delta (DESIGN.md D1–D5) in-session; two parallel Flash agents built it (theme.css+bg.css+Aurora+DotGrid | glow.css+ShinyText+TiltCard+motion.css blur-in; the ReactBits references turned out to be WebGL shaders, so implementations are original CSS/canvas), one wiring agent applied it (grade-keyed glass/glow card, aurora, dot grid, shiny buttons, gradient numbers, tilt identity card, brightened badge + glow, dark chart colors). main.tsx got ONE shared-file line importing theme.css (app-wide dark; flagged). Verified 51/51 tests, full dark visual pass with screenshots. Note: teammates' files with hardcoded light colors (P4's ImpactPage chart grid #eef0f3) will need one dark pass on their side — in the PR notes.
 
 ### Session 3 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash subagents, evening)
 

@@ -5,10 +5,11 @@
 // always available. Workers are stored by skill and wage band only - never by
 // name, phone or Aadhaar.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { districts, sellers } from '../data';
 import { GRADE_LABEL, FAIR_WORK_RULES, labourFromProfile, livingWageFor, minimumWageFor, scoreProfile } from '../fairwork';
 import type { WorkforceProfile, WorkforceSkill } from '../fairwork';
-import FairWorkBadge from '../components/FairWorkBadge';
+import FairWorkBadge, { GRADE_GLOW } from '../components/FairWorkBadge';
 import Src from '../components/Src';
 import TextReveal from '../components/motion/TextReveal';
 import GradientText from '../components/motion/GradientText';
@@ -16,6 +17,9 @@ import CountUp from '../components/motion/CountUp';
 import FadeContent from '../components/motion/FadeContent';
 import SpotlightCard from '../components/motion/SpotlightCard';
 import ClickSpark from '../components/motion/ClickSpark';
+import DotGrid from '../components/motion/DotGrid';
+import Aurora from '../components/motion/Aurora';
+import ShinyText from '../components/motion/ShinyText';
 import { loadWorkforce, saveWorkforce } from './workforce';
 import type { WorkforceSource } from './workforce';
 import { listenOnce, matchChoice, parseNumber, speak, speechSupported, stopSpeaking } from '../voice';
@@ -228,7 +232,8 @@ export default function WorkforcePage() {
   const totalWorkers = labour.workers;
 
   return (
-    <div className="stack">
+    <div className="stack" style={{ position: 'relative' }}>
+      <DotGrid dim={0.1} spacing={28} />
       <div>
         <TextReveal as="h1" className="lead" text={`${t.gradeTitle} · ${t.skills}`} />
         <p className="muted" style={{ marginTop: 6 }}>{t.intro}</p>
@@ -259,7 +264,9 @@ export default function WorkforcePage() {
       </div>
 
       {/* live grade */}
-      <SpotlightCard className="card"><div className="stack" style={{ gap: 10 }}>
+      <div style={{ position: 'relative' }}>
+        <Aurora opacity={0.35} />
+        <SpotlightCard className="card"><div className="stack fw-glass fw-glow" style={{ gap: 10, '--fw-glow-color': score ? GRADE_GLOW[score.grade] : undefined } as CSSProperties}>
         <div className="section-title" style={{ margin: 0 }}>{t.gradeTitle}</div>
         {loading ? <p className="muted">…</p> : score && (
           <>
@@ -277,12 +284,13 @@ export default function WorkforcePage() {
               <span>
                 {t.minimum}: {min ? <><CountUp value={min.perDayInr} />{t.perDay} ({min.asNotified})</> : <span className="muted">{t.noMinimum}</span>}
               </span>
-              <span>{t.womenShare}: <CountUp value={Math.round(labour.womenShare * 100)} format={(n) => `${n}%`} /></span>
-              <span>{t.headcount}: <CountUp value={totalWorkers} /></span>
+              <span>{t.womenShare}: <span className="fw-grad-text"><CountUp value={Math.round(labour.womenShare * 100)} format={(n) => `${n}%`} /></span></span>
+              <span>{t.headcount}: <span className="fw-grad-text"><CountUp value={totalWorkers} /></span></span>
             </div>
           </>
         )}
       </div></SpotlightCard>
+      </div>
 
       {/* the form: typed input always available */}
       <FadeContent>
@@ -343,7 +351,7 @@ export default function WorkforcePage() {
         <div className="row" style={{ gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <ClickSpark>
             <button className="btn primary" disabled={saving || !profile.district || !profile.skills.some((s) => s.headcount > 0)} onClick={save}>
-              {saving ? t.saving : t.save}
+              <ShinyText>{saving ? t.saving : t.save}</ShinyText>
             </button>
           </ClickSpark>
           {saveMsg && <span className="small">{saveMsg}</span>}
@@ -366,7 +374,7 @@ export default function WorkforcePage() {
           </select>
           {voiceStep == null ? (
             <ClickSpark>
-              <button className="btn primary" disabled={!canVoice} onClick={() => askQuestion(0)}>{t.voiceStart}</button>
+              <button className="btn primary" disabled={!canVoice} onClick={() => askQuestion(0)}><ShinyText>{t.voiceStart}</ShinyText></button>
             </ClickSpark>
           ) : (
             <>

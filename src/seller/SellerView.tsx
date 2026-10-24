@@ -9,6 +9,8 @@ import { visibleTo } from './visibility';
 import TextReveal from '../components/motion/TextReveal';
 import SpotlightCard from '../components/motion/SpotlightCard';
 import CountUp from '../components/motion/CountUp';
+import TiltCard from '../components/motion/TiltCard';
+import Aurora from '../components/motion/Aurora';
 import '../components/motion/motion.css';
 
 export default function SellerView({ lang }: { lang: Lang }) {
@@ -34,7 +36,10 @@ export default function SellerView({ lang }: { lang: Lang }) {
 
   return (
     <div className="stack">
-      <SpotlightCard className="card">
+      <div style={{ position: 'relative' }}>
+        <Aurora opacity={0.3} />
+        <TiltCard>
+          <SpotlightCard className="card fw-glass">
         <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
           <span className={`chip ${isRural(seller) ? 'rural' : 'plain'}`}>{lang === 'hi' ? typeHi[seller.type] : seller.type}</span>
           <span className={`trust-badge trust-${trust.band}`}>Trust {trust.score} · {trust.band}</span>
@@ -48,7 +53,9 @@ export default function SellerView({ lang }: { lang: Lang }) {
           <button className="btn small" onClick={() => openSupplier(seller.id)}>See how buyers see you</button>
           <button className="btn small ghost" onClick={() => go('supplier', 'profile')}>Improve your profile</button>
         </div>
-      </SpotlightCard>
+          </SpotlightCard>
+        </TiltCard>
+      </div>
 
       <div className="grid-2">
         <div className="stack">
