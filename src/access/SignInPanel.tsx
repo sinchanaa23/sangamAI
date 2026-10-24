@@ -53,15 +53,15 @@ export default function SignInPanel({ note }: { note?: string }) {
         {(['buyer', 'supplier'] as Kind[]).map((r) => <button key={r} role="tab" aria-selected={role === r} className={role === r ? 'on' : ''} onClick={() => pick(r)}>{s[r]}</button>)}
       </div>
       <label className="field"><span>{role === 'buyer' ? s.email : s.phone}</span>
-        <input value={identifier} onChange={(e) => setIdentifier(e.target.value)} inputMode={role === 'buyer' ? 'email' : 'tel'} placeholder={role === 'buyer' ? 'name@company.com' : '98765 43210'} />
+        <input name="identifier" autoComplete={role === 'buyer' ? 'email' : 'tel'} spellCheck={false} value={identifier} onChange={(e) => setIdentifier(e.target.value)} inputMode={role === 'buyer' ? 'email' : 'tel'} placeholder={role === 'buyer' ? 'name@company.com' : '98765 43210'} />
       </label>
-      <label className="field"><span>{s.name}</span><input value={name} onChange={(e) => setName(e.target.value)} /></label>
+      <label className="field"><span>{s.name}</span><input name="organization" autoComplete="organization" value={name} onChange={(e) => setName(e.target.value)} /></label>
       {!sent ? (
         <button className="btn primary" disabled={busy || !identifier.trim()} style={{ visibility: 'visible' }} onClick={() => run(async () => { const r = await startCode(role, identifier, name || undefined); setSent(true); setDemoCode(r.devCode ?? null); })}>{s.sendCode}</button>
       ) : (
         <>
           {demoCode && <div className="note">{s.demoCode} <b style={{ fontFamily: 'var(--mono)' }}>{demoCode}</b> <button className="btn small ghost" onClick={() => setCode(demoCode)}>↵</button></div>}
-          <label className="field"><span>{s.code}</span><input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" maxLength={6} autoComplete="one-time-code" /></label>
+          <label className="field"><span>{s.code}</span><input name="code" spellCheck={false} value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" maxLength={6} autoComplete="one-time-code" /></label>
           <button className="btn primary" disabled={busy || code.length < 6} style={{ visibility: 'visible' }} onClick={() => run(() => signIn(role, identifier, code, name || undefined))}>{s.signIn}</button>
         </>
       )}

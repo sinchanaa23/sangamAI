@@ -249,11 +249,11 @@ function BuyerReviewForm({ known, offline, onSubmit, onCancel }: { known: string
   return (
     <div className="stack" style={{ gap: 12 }}>
       <div className="form-grid">
-        <label className="field">Buyer you sold to<input list="rv-buyers" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Company name" /></label>
+        <label className="field">Buyer you sold to<input name="buyer" autoComplete="off" list="rv-buyers" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Company name" /></label>
         <datalist id="rv-buyers">{known.map((k) => <option key={k} value={k} />)}</datalist>
-        <label className="field">Purchase order or contract number<input value={orderRef} onChange={(e) => setOrderRef(e.target.value)} placeholder="PO-2026-0412" /></label>
-        <label className="field">Order value (₹ lakh)<input type="number" min={0} value={value} onChange={(e) => setValue(Number(e.target.value))} /></label>
-        <label className="field">Evidence of the order<input value={evidence} onChange={(e) => setEvidence(e.target.value)} placeholder="Invoice or goods receipt number" /></label>
+        <label className="field">Purchase order or contract number<input name="order-ref" autoComplete="off" spellCheck={false} value={orderRef} onChange={(e) => setOrderRef(e.target.value)} placeholder="PO-2026-0412…" /></label>
+        <label className="field">Order value (₹ lakh)<input name="order-value" autoComplete="off" type="number" min={0} value={value} onChange={(e) => setValue(Number(e.target.value))} /></label>
+        <label className="field">Evidence of the order<input name="evidence" autoComplete="off" spellCheck={false} value={evidence} onChange={(e) => setEvidence(e.target.value)} placeholder="Invoice or goods receipt number…" /></label>
       </div>
       <div className="form-grid">
         {DIMS.map((d) => (
@@ -262,7 +262,7 @@ function BuyerReviewForm({ known, offline, onSubmit, onCancel }: { known: string
           </label>
         ))}
       </div>
-      <label className="field">What went well, what didn&apos;t<textarea value={text} onChange={(e) => setText(e.target.value)} /></label>
+      <label className="field">What went well, what didn&apos;t<textarea name="review-text" autoComplete="off" value={text} onChange={(e) => setText(e.target.value)} /></label>
       <div className="note">Reviews are published only after the Sangam team matches them to a real order. {offline ? 'You are in the offline demo, so this review stays in this browser tab.' : ''}</div>
       {err && <div className="note warn" role="alert">{err}</div>}
       <div className="row"><button className="btn primary" disabled={!ok || busy} style={{ visibility: 'visible' }} onClick={send}>Submit for verification</button><button className="btn" style={{ visibility: 'visible' }} onClick={onCancel}>Cancel</button></div>
