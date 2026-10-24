@@ -4,6 +4,7 @@
 //   - World Bank: Logistics Performance Index for the lane countries
 //   - World Bank WITS (TRAINS): India's MFN import duty for each tracked HS code
 //   - Frankfurter (ECB reference rates): INR per USD and per EUR
+//   - MoSPI eSankhyiki (Annual Survey of Industries): factories, workers, wages and output by state and industry
 //   - Open-Meteo archive: 10 years of daily rain and heat per district -> climate exposure
 //   - OpenStreetMap Overpass: industrial areas, rail stations and airports around each district
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -13,7 +14,7 @@ const OUT = new URL('../src/real/', import.meta.url);
 const UA = { 'User-Agent': 'Sangam-prototype/0.2 (SAP Hackfest; contact via GitHub sohini-d/Sangam)' };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const today = new Date().toISOString().slice(0, 10);
-const only = process.argv[2]; // optional: comtrade | lpi | tariffs | fx | climate | osm
+const only = process.argv[2]; // optional: comtrade | lpi | tariffs | fx | industry | climate | osm
 
 async function get(url, init = {}, tries = 3) {
   for (let i = 0; i < tries; i++) {
@@ -173,7 +174,61 @@ async function fx() {
   await save('fx.json', { source: 'ECB euro foreign exchange reference rates via Frankfurter', fetched: today, date: j.date, inrPerUsd: j.rates.INR, inrPerEur: +(j.rates.INR / j.rates.EUR).toFixed(4) });
 }
 
-const jobs = { comtrade, lpi, tariffs, fx, climate, osm };
+// MoSPI's eSankhyiki data server (Model Context Protocol over HTTP, no key). Calls must go get_metadata -> get_data.
+let rpcId = 0;
+async function mospi(name, args) {
+  const r = await get('https://mcp.mospi.gov.in/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method: 'tools/call', params: { name, arguments: args } }),
+  });
+  const line = (await r.text()).split('\n').find((l) => l.startsWith('data: '));
+  const res = JSON.parse(line.slice(6)).result;
+  if (res.isError) throw new Error(res.content?.[0]?.text ?? 'MoSPI error');
+  return JSON.parse(res.content[0].text);
+}
+
+// Annual Survey of Industries 2023-24, factory sector. NIC 2008 two-digit industries the three sector templates draw on.
+const ASI_INDUSTRIES = { '10': 'Food products', '13': 'Textiles', '16': 'Wood products', '17': 'Paper products', '22': 'Rubber and plastics', '23': 'Non-metallic minerals', '24': 'Basic metals', '25': 'Fabricated metal', '27': 'Electrical equipment', '28': 'Machinery', '29': 'Motor vehicles and parts' };
+const ASI_INDICATORS = { 1: 'factories', 2: 'factoriesOperating', 32: 'workers', 35: 'femaleWorkers', 42: 'mandaysThousand', 46: 'workerWagesLakh', 15: 'outputLakh', 19: 'gvaLakh' };
+const ASI_BY_NAME = { 'Number of Factories': 'factories', 'Factories in Operation': 'factoriesOperating', 'Total Number of Workers': 'workers', 'No. of Directly Employed Female Workers': 'femaleWorkers', 'Total Mandays Employed': 'mandaysThousand', 'Wages and Salary of Workers': 'workerWagesLakh', 'Total Output': 'outputLakh', 'Gross Value Added': 'gvaLakh' };
+async function industry() {
+  const year = '2023-24';
+  const meta = await mospi('get_metadata', { dataset: 'ASI', indicator_code: 32, classification_year: '2008' });
+  const norm = (x) => x.toLowerCase().replace(/[^a-z]/g, '').replace('chattisgarh', 'chhattisgarh');
+  const stateCode = Object.fromEntries(meta.data.state.map((s) => [norm(s.state_name), s.state_code]));
+  const ourStates = [...new Set(DISTRICTS.map((d) => d.state))];
+  const codes = {};
+  for (const name of ourStates) {
+    const c = stateCode[norm(name)] ?? (norm(name) === 'dadraandnagarhaveli' ? 88 : undefined); // ASI reports Dadra & Nagar Haveli and Daman & Diu together
+    if (c) codes[c] = name; else console.warn(`  no ASI state code for ${name}`);
+  }
+  codes[99] = 'All India';
+  const states = {};
+  // One request per state: the server rejects very large pages
+  for (const [code, name] of Object.entries(codes)) {
+    let res;
+    try {
+      res = await mospi('get_data', { dataset: 'ASI', filters: {
+        indicator_code: Object.keys(ASI_INDICATORS).join(','), classification_year: '2008', year, state_code: code,
+        nic_type: '2-digit', nic_code: Object.keys(ASI_INDUSTRIES).join(','), sector_code: 'Combined', limit: '200',
+      } });
+    } catch (e) { console.warn(`  skipped ${name}: ${e.message}`); continue; }
+    if (!res.data) { console.warn(`  no ASI rows for ${name}: ${res.msg}`); continue; }
+    for (const row of res.data) {
+      const key = ASI_BY_NAME[row.indicator];
+      if (key) ((states[row.state] ??= {})[row.nic_code] ??= {})[key] = Number(row.value);
+    }
+    console.log(`  ${name}: ${res.data.length} rows`);
+    await sleep(400);
+  }
+  await save('industry.json', {
+    source: 'MoSPI Annual Survey of Industries 2023-24 (factory sector, NIC 2008 two-digit), via the eSankhyiki data server',
+    fetched: today, year, units: { money: 'rupees lakh (1 lakh = 100,000)', mandays: 'thousand' }, industries: ASI_INDUSTRIES, states,
+  });
+}
+
+const jobs = { comtrade, lpi, tariffs, fx, industry, climate, osm };
 for (const [k, f] of Object.entries(jobs)) {
   if (only && only !== k) continue;
   console.log(k);

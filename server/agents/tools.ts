@@ -3,7 +3,7 @@
 import type { BomLine, Seller } from '../../src/types';
 import { bom, loadDataset, sellers } from '../../src/data';
 import { district, isRural } from '../../src/engine';
-import { fxRate } from '../../src/realdata';
+import { fxRate, industryStats } from '../../src/realdata';
 import { partRoute } from '../../src/chainRoute';
 import { EMPTY } from '../../src/model';
 import { trustScore } from '../../src/trust';
@@ -42,6 +42,22 @@ export interface DealContext {
   budgetInr: number;
   trust: number;
   workforce?: WorkforceProfile;
+  /** what factory workers in this state and industry were actually paid per worker-day (ASI 2023-24), for context only */
+  marketWage?: { perDay: number; scope: 'state' | 'all-india'; industry: string; source: string };
+}
+
+/** Two-digit industry (NIC 2008) a process belongs to, for matching it to Annual Survey of Industries figures. */
+export function nicFor(process: string): string {
+  const p = process.toLowerCase();
+  if (/wire|cable|connector|harness|electric/.test(p)) return '27';
+  if (/plastic|polymer|mould|extrus|film|rubber/.test(p)) return '22';
+  if (/cement|tile|block|brick|ceramic|glass/.test(p)) return '23';
+  if (/steel|metal|alumin|rebar/.test(p)) return '24';
+  if (/fabricat|window|fitting|valve/.test(p)) return '25';
+  if (/carton|packag|paper/.test(p)) return '17';
+  if (/panel|wood|bamboo/.test(p)) return '16';
+  if (/food|millet|spice|vegetable|flake|dry|dehydrat|mix/.test(p)) return '10';
+  return '27';
 }
 
 export function ensureDataset() {
@@ -75,6 +91,10 @@ export function buildContext(rfq: Rfq, seller: Seller, line: BomLine, db: Db): D
     budgetInr: rfq.budget.amount * FX_INR[rfq.budget.currency],
     trust: trustScore(seller, EMPTY).score,
     workforce,
+    marketWage: (() => {
+      const st = industryStats(district(seller.districtId).state, nicFor(line.process));
+      return st ? { perDay: Math.round(st.wagePerWorkerDay), scope: st.scope, industry: st.industry, source: st.source } : undefined;
+    })(),
   };
 }
 
@@ -187,6 +207,7 @@ export function supplierFacts(c: DealContext) {
   return {
     freeUnitsPerMonth: c.freeUnitsPerMonth, availableWorkers: c.availableWorkers, unitsPerWorkerDay: +c.unitsPerWorkerDay.toFixed(2),
     transitDays: c.transitDays, referenceUnitPriceInr: c.referenceUnitPrice, wageFloorPerWorkerDayInr: c.wageFloor, labourShareOfPrice: c.labourShare,
+    ...(c.marketWage ? { averageFactoryWagePerWorkerDayInr: c.marketWage.perDay, averageFactoryWageSource: c.marketWage.source } : {}),
   };
 }
 

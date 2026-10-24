@@ -3,6 +3,7 @@ import comtradeFile from './real/comtrade.json';
 import lpiFile from './real/lpi.json';
 import tariffsFile from './real/tariffs.json';
 import fxFile from './real/fx.json';
+import industryFile from './real/industry.json';
 import districtList from './geo/districts.json';
 import type { District, Provenance } from './types';
 
@@ -25,6 +26,7 @@ export const SOURCES = {
   lpi: { name: 'World Bank LPI', detail: lpiFile.source, fetched: lpiFile.fetched, url: 'https://lpi.worldbank.org' },
   climate: { name: 'Open-Meteo', detail: climateFile?.source ?? 'Not fetched yet', fetched: climateFile?.fetched ?? '', url: 'https://open-meteo.com' },
   tariffs: { name: 'World Bank WITS (UNCTAD TRAINS)', detail: tariffsFile.source, fetched: tariffsFile.fetched, url: 'https://wits.worldbank.org' },
+  industry: { name: 'MoSPI Annual Survey of Industries', detail: industryFile.source, fetched: industryFile.fetched, url: 'https://www.mospi.gov.in' },
   fx: { name: 'ECB reference rates (Frankfurter)', detail: fxFile.source, fetched: fxFile.fetched, url: 'https://www.frankfurter.app' },
   osm: { name: 'OpenStreetMap', detail: osmFile?.source ?? 'Not fetched yet', fetched: osmFile?.fetched ?? '', url: 'https://www.openstreetmap.org/copyright' },
 };
@@ -48,6 +50,48 @@ export function unitValueUsdPerKg(hs?: string, iso3?: string): { usdPerKg: numbe
 export function importDuty(hs?: string): { rate: number; year: number; source: string } | null {
   const t = hs ? (tariffsFile.codes as Record<string, { mfnPct: number; year: number }>)[hs] : undefined;
   return t ? { rate: t.mfnPct / 100, year: t.year, source: `World Bank WITS (UNCTAD TRAINS) ${t.year}: India MFN applied duty for HS ${hs}, basic duty only` } : null;
+}
+
+interface AsiCell { factories?: number; factoriesOperating?: number; workers?: number; femaleWorkers?: number; mandaysThousand?: number; workerWagesLakh?: number; outputLakh?: number; gvaLakh?: number }
+const asiKey = (x: string) => x.toLowerCase().replace(/[^a-z]/g, '').replace('chattisgarh', 'chhattisgarh');
+const ASI_STATES = Object.fromEntries(Object.keys(industryFile.states).map((k) => [asiKey(k), k]));
+ASI_STATES['dadraandnagarhaveli'] = 'Dadra & Nagar Havelli and Daman & Diu'; // ASI reports the two territories together
+
+export interface IndustryStats {
+  state: string; nic: string; industry: string; year: string;
+  /** 'state' when the state's own figures are used, 'all-india' when that state has no figures for this industry */
+  scope: 'state' | 'all-india';
+  factories: number; workers: number; femaleWorkers: number;
+  workersPerFactory: number;
+  /** rupees per worker-day: wages of workers / mandays worked */
+  wagePerWorkerDay: number;
+  outputPerWorkerDay: number; gvaPerWorkerDay: number;
+  /** share of gross value added paid as wages to workers, and share of total output */
+  wageShareOfGva: number; wageShareOfOutput: number;
+  femaleShare: number;
+  source: string;
+}
+
+/** Actual factory-sector figures for a state and a two-digit industry (NIC 2008), from the Annual Survey of Industries. */
+export function industryStats(state: string, nic: string): IndustryStats | null {
+  const files = industryFile.states as Record<string, Record<string, AsiCell>>;
+  const own = files[ASI_STATES[asiKey(state)] ?? '']?.[nic];
+  const usable = (c?: AsiCell) => Boolean(c?.workers && c.mandaysThousand && c.workerWagesLakh && c.gvaLakh && c.outputLakh && c.factories);
+  const scope = usable(own) ? 'state' : 'all-india';
+  const c = scope === 'state' ? own : files['All India']?.[nic];
+  if (!c || !usable(c)) return null;
+  const mandays = c.mandaysThousand! * 1e3, lakh = 1e5;
+  return {
+    state: scope === 'state' ? (ASI_STATES[asiKey(state)] ?? state) : 'All India', nic,
+    industry: (industryFile.industries as Record<string, string>)[nic] ?? nic, year: industryFile.year, scope,
+    factories: c.factories!, workers: c.workers!, femaleWorkers: c.femaleWorkers ?? 0,
+    workersPerFactory: c.workers! / c.factories!,
+    wagePerWorkerDay: (c.workerWagesLakh! * lakh) / mandays,
+    outputPerWorkerDay: (c.outputLakh! * lakh) / mandays, gvaPerWorkerDay: (c.gvaLakh! * lakh) / mandays,
+    wageShareOfGva: c.workerWagesLakh! / c.gvaLakh!, wageShareOfOutput: c.workerWagesLakh! / c.outputLakh!,
+    femaleShare: (c.femaleWorkers ?? 0) / c.workers!,
+    source: `MoSPI Annual Survey of Industries ${industryFile.year}, factory sector, ${scope === 'state' ? state : 'All India'}, NIC ${nic}`,
+  };
 }
 
 /** Rupees per unit of a currency, from the ECB reference rate on the date in fx.json. */

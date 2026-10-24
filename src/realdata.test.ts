@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fxRate, importDuty, trade, unitValueUsdPerKg } from './realdata';
+import { fxRate, importDuty, industryStats, trade, unitValueUsdPerKg } from './realdata';
 
 describe('real public data accessors', () => {
   it('reads India\'s MFN duty for a tracked product', () => {
@@ -26,5 +26,29 @@ describe('real public data accessors', () => {
     expect(fxRate('USD').inrPer).toBeLessThan(130);
     expect(fxRate('EUR').inrPer).toBeGreaterThan(fxRate('USD').inrPer);
     expect(fxRate('USD').date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('factory statistics (Annual Survey of Industries)', () => {
+  it('derives wage, output and women\'s share from real counts', () => {
+    const s = industryStats('Tamil Nadu', '27')!;
+    expect(s.scope).toBe('state');
+    // 204,030 lakh of worker wages over 30,725 thousand mandays
+    expect(s.wagePerWorkerDay).toBeCloseTo((204030 * 1e5) / (30725 * 1e3), 0);
+    expect(s.wagePerWorkerDay).toBeGreaterThan(200);
+    expect(s.wagePerWorkerDay).toBeLessThan(2000);
+    expect(s.femaleShare).toBeCloseTo(11607 / 83980, 4);
+    expect(s.wageShareOfGva).toBeGreaterThan(0);
+    expect(s.wageShareOfGva).toBeLessThan(1);
+    expect(s.source).toContain('Annual Survey of Industries');
+  });
+
+  it('matches the app\'s state spellings, including Dadra and Nagar Haveli', () => {
+    expect(industryStats('Dadra and Nagar Haveli', '27')?.scope).toBe('state');
+  });
+
+  it('falls back to All India for a state without figures, and to nothing for an unknown industry', () => {
+    expect(industryStats('Atlantis', '27')?.scope).toBe('all-india');
+    expect(industryStats('Tamil Nadu', '99')).toBeNull();
   });
 });
