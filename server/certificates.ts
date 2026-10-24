@@ -3,17 +3,20 @@
 import { z } from 'zod';
 import type { Ask } from './llm';
 
+// Some providers return null for a field the document does not show; treat it as empty
+const text = z.string().nullish().transform((v) => v ?? '');
+
 export const Certificate = z.object({
-  documentType: z.string().describe('For example: ISO 9001 certificate, BIS licence, FSSAI licence, Udyam registration'),
-  standard: z.string().describe('Standard or scheme named on the document, or empty'),
-  holderName: z.string(),
-  certificateNumber: z.string(),
-  issuer: z.string(),
-  issueDate: z.string().describe('YYYY-MM-DD if visible, else empty'),
-  expiryDate: z.string().describe('YYYY-MM-DD if visible, else empty'),
-  scope: z.string().describe('Products or processes covered, or empty'),
+  documentType: text.describe('For example: ISO 9001 certificate, BIS licence, FSSAI licence, Udyam registration'),
+  standard: text.describe('Standard or scheme named on the document, or empty'),
+  holderName: text,
+  certificateNumber: text,
+  issuer: text,
+  issueDate: text.describe('YYYY-MM-DD if visible, else empty'),
+  expiryDate: text.describe('YYYY-MM-DD if visible, else empty'),
+  scope: text.describe('Products or processes covered, or empty'),
   confidence: z.enum(['low', 'medium', 'high']),
-  notes: z.string().describe('Anything that looks unclear, altered or inconsistent'),
+  notes: text.describe('Anything that looks unclear, altered or inconsistent'),
 });
 export type CertificateFields = z.infer<typeof Certificate>;
 

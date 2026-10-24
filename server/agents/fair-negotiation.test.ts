@@ -7,6 +7,7 @@ import { openDb } from '../db';
 import type { Db } from '../db';
 import type { Ask } from '../llm';
 import { runNegotiation } from './orchestrator';
+import { audit } from './auditor';
 import { buildContext, ensureDataset, minViablePrice, pickLine, priceFloor, reviewReasons, termsOf, wageFloorFor } from './tools';
 
 const rfq = (over: Partial<Rfq> = {}): Rfq => ({
@@ -153,5 +154,18 @@ describe('runner-up (1.5)', () => {
   it('ends with no deal when nobody on the shortlist can reach a deal', async () => {
     const events = await run(noModel, ['s12', 's19'], rfq({ budget: { amount: 500_000, currency: 'INR' } }));
     expect(events.at(-1)).toMatchObject({ type: 'end', outcome: 'no-deal' });
+  });
+});
+
+describe('the Auditor words match the grade the code computed', () => {
+  it('replaces a wrong grade the model wrote with the real one', async () => {
+    const c = ctxFor('s13');
+    const offer = { id: 'o', rfqId: 'r', supplierId: 's13', round: 3, price: { amount: 5_000_000, currency: 'INR' as const }, leadTimeDays: 40,
+      labour: { workers: 54, workerDays: 4698, wagePerWorkerDay: 800, hoursPerDay: 8, womenShare: 0, district: 'Krishnagiri' }, status: 'accepted' as const };
+    const score = { supplierId: 's13', grade: 'B' as const, wageVsMinimum: 0, wageVsLivingWage: 1.4, overtimeHours: 0, safety: 0, womenShare: 0, childLabourFlag: false, benchmarkSource: 'x' };
+    const wrong: Ask = async () => reply({ decision: 'flag', text: 'The supplier is assigned a grade of C because the safety record is missing.' });
+    const v = await audit(wrong, c, offer, score, ['IPC/WHMA-A-620 training: not held']);
+    expect(v.text).toContain('grade of B');
+    expect(v.text).not.toMatch(/grade of C/i);
   });
 });
