@@ -4,7 +4,9 @@
 
 From an import-dependent India to a self-sufficient one, with rural India growing alongside urban India.
 
-Sangam is an agentic marketplace built for HACK4SDG on **UN SDG 8, decent work and economic growth**: it connects skilled workers and suppliers in India's districts with buyers in India and abroad, at fair wages and in decent conditions. It designs the Indian supply chain a company will need, shows MSMEs, cooperatives, FPOs and SHGs what they need to build to be part of it, lets AI agents negotiate deals that never go below a living wage, and signs the skills, audits and contracts so anyone can check them.
+Sangam is an AI-powered supply-chain intelligence and domestic localization platform. India is building assembly capacity fast, but the inputs underneath still come from one or two countries. Sangam doesn't just find a replacement supplier after a disruption: it designs the domestic supply chain a company will need in five years, shows MSMEs, cooperatives, FPOs and SHGs what they need to build to be part of it, and gives states and clusters a map of where the gaps are.
+
+For HACK4SDG we added a layer on top for **UN SDG 8, decent work and economic growth**: AI agents for the buyer and each supplier negotiate the order and never go below the district's living wage, an Auditor Agent checks wages, hours and safety, and Sangam signs the skills, audits and contracts so anyone can check them.
 
 Every number carries a tag saying where it comes from: **Live**, **Public data**, **Verified**, **Self-declared**, **Estimate** or **Simulated**.
 
