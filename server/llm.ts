@@ -77,6 +77,8 @@ async function post(base: string, rpm: number, key: string, body: unknown, signa
     const text = await r.text();
     // Free tiers rate-limit hard: wait as long as the provider asks (up to 15 s), at most twice
     if (r.status === 429 && attempt < 2 && retryDelayMs(r, text) <= 15_000) { await sleep(retryDelayMs(r, text)); continue; }
+    // 500, 502, 503 and 504 are usually a model that is briefly overloaded: one short retry
+    if ([500, 502, 503, 504].includes(r.status) && attempt < 1) { await sleep(2000); continue; }
     throw new Error(`LLM ${r.status}: ${text.slice(0, 200)}`);
   }
 }

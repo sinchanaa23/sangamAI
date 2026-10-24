@@ -27,7 +27,9 @@ export async function audit(ask: Ask, c: DealContext, offer: Offer, score: FairW
   const user = `Supplier ${c.seller.name}, ${c.districtName}. Offer: wage ₹${offer.labour.wagePerWorkerDay} per worker-day (living-wage floor ₹${c.wageFloor}), ${offer.labour.hoursPerDay} hours a day, ${offer.labour.workers} workers.\nScorecard: ${JSON.stringify(score)}\nRequired certificates: ${c.line.requiredCerts.join(', ') || 'none'}.${gapText || ' All required certificates are held and verified.'}`;
   const fallback = (why: string) => ({ decision: dflt, text: `Grade ${score.grade}: wage is ${Math.round(score.wageVsLivingWage * 100)}% of the living-wage floor${score.safety < 1 ? '; the safety record is not complete, which lowers the grade a step' : ''}.${gapText} ${why}` });
   try {
-    const t = await ask({ role: 'audit', system: SYSTEM, user, schema: Turn, timeoutMs: 30_000 });
+    // The Auditor model may be a stronger, busier one: if it fails, the everyday model reviews before the rule-based check does
+    const t = await ask({ role: 'audit', system: SYSTEM, user, schema: Turn, timeoutMs: 30_000 })
+      .catch((e) => { logFallback('auditor (strong model)', e); return ask({ role: 'turn', system: SYSTEM, user, schema: Turn, timeoutMs: 30_000 }); });
     return allowed.includes(t.decision) ? { decision: t.decision, text: t.text.slice(0, 400) } : { decision: dflt, text: `${t.text.slice(0, 300)} (Decision set to ${dflt} by the grade and certificate rules.)` };
   } catch (e) {
     logFallback('auditor', e);

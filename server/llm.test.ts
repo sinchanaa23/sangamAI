@@ -52,8 +52,15 @@ describe('llm client', () => {
   it('retries once after a 429 and reports other errors', async () => {
     script = [() => ({ status: 429 }), () => ({ message: { content: '{"n": 1}' } })];
     expect(await ask(opts)).toEqual({ n: 1 });
-    script = [() => ({ status: 500 })];
-    await expect(ask(opts)).rejects.toThrow('LLM 500');
+    script = [() => ({ status: 400 })];
+    await expect(ask(opts)).rejects.toThrow('LLM 400');
+  });
+
+  it('retries once when the model is briefly overloaded (503), then gives up', async () => {
+    script = [() => ({ status: 503 }), () => ({ message: { content: '{"n": 3}' } })];
+    expect(await ask(opts)).toEqual({ n: 3 });
+    script = [() => ({ status: 503 }), () => ({ status: 503 })];
+    await expect(ask(opts)).rejects.toThrow('LLM 503');
   });
 
   it('sends the key and the model', async () => {
