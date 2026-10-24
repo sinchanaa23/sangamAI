@@ -104,7 +104,9 @@ export default function NegotiationRoom() {
   const { go } = useUi();
   const session = useRoomSession();
   const feed = useFeed(session?.id ?? null);
-  const rfq = session?.rfq ?? DEMO_RFQ;
+  // In replay mode the server plays the recorded demo whatever the request, so its numbers belong to the demo RFQ.
+  const replaying = !session || session.mode === 'replay';
+  const rfq = replaying ? DEMO_RFQ : session.rfq;
   const listEnd = useRef<HTMLLIElement>(null);
   const shown = feed.events;
 
@@ -128,12 +130,17 @@ export default function NegotiationRoom() {
       <div className="card">
         <div className="eyebrow">
           Negotiation room · {rfq.id}{' '}
-          {session ? <Src kind="live" title="Streamed from the Sangam server as the agents negotiate" /> : <Src kind="simulated" title="Replay of a recorded demo negotiation; companies and prices are simulated" />}
+          {!replaying ? <Src kind="live" title="Streamed from the Sangam server as the agents negotiate" /> : <Src kind="simulated" title="Replay of a recorded demo negotiation; companies and prices are simulated" />}
         </div>
         <h1 className="lead" style={{ marginTop: 6 }}>{rfq.quantity.toLocaleString('en-IN')} × {rfq.part}, negotiated by agents under a living-wage floor.</h1>
         <p className="muted" style={{ marginTop: 8 }}>
-          The Buyer Agent bargains for {session ? buyer.name : 'Veer Electric Mobility'}, the Supplier Agent for {supplierIds.length ? supplierIds.map(supplierName).join(' and ') : 'each invited supplier'}. Plain code checks every offer before the other side sees it: at most {MAX_ROUNDS} rounds, the budget, free capacity and a wage no lower than the district&apos;s living wage.
+          The Buyer Agent bargains for {replaying ? 'Veer Electric Mobility' : buyer.name}, the Supplier Agent for {supplierIds.length ? supplierIds.map(supplierName).join(' and ') : 'each invited supplier'}. Plain code checks every offer before the other side sees it: at most {MAX_ROUNDS} rounds, the budget, free capacity and a wage no lower than the district&apos;s living wage.
         </p>
+        {session?.mode === 'replay' && (
+          <div className="note" style={{ marginTop: 10 }}>
+            Started for &ldquo;{session.rfq.part}&rdquo;. The agents are not connected to the server yet, so it is playing the recorded demo negotiation instead.
+          </div>
+        )}
         <div className="nr-steps" aria-label="Negotiation steps">
           {STEPS.map((s, i) => (
             <div key={s} className={`nr-step ${i < stepIdx ? 'done' : i === stepIdx ? 'on' : ''}`}><span className="num">{i + 1}</span>{STEP_LABEL[s]}</div>
