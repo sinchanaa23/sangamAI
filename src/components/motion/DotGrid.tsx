@@ -213,6 +213,7 @@ export default function DotGrid({
         inset: 0,
         overflow: 'hidden',
         pointerEvents: 'none',
+        zIndex: 0,
       }}
     >
       <canvas

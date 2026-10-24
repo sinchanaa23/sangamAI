@@ -225,14 +225,15 @@ export default function FundingPage() {
   return (
     <div className="stack" ref={rootRef} style={{ position: 'relative' }}>
       <DotGrid color="#346538" dim={0.12} spacing={28} />
-      <div>
-        <TextReveal as="h1" className="lead" text="Funding" />
-        <p className="muted" style={{ marginTop: 6 }}>
-          Apply for machines, green technology, R&amp;D or working capital. Buyers see your
-          application on the marketplace and can commit to items - every rupee is simulated in
-          this prototype.
-        </p>
-      </div>
+      <div className="stack" style={{ position: 'relative', zIndex: 1 }}>
+        <div>
+          <TextReveal as="h1" className="lead" text="Funding" />
+          <p className="muted" style={{ marginTop: 6 }}>
+            Apply for machines, green technology, R&amp;D or working capital. Buyers see your
+            application on the marketplace and can commit to items - every rupee is simulated in
+            this prototype.
+          </p>
+        </div>
 
       <div className="card stack" style={{ gap: 10 }}>
         <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -488,5 +489,6 @@ export default function FundingPage() {
         );
       })}
     </div>
+  </div>
   );
 }
