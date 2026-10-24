@@ -1,0 +1,180 @@
+{
+  "source": "Global Living Wage Coalition (Anker method) benchmarks and state minimum-wage notifications",
+  "notes": [
+    "Living wage per worker-day = monthly figure divided by 26 working days.",
+    "GLWC figures are the 2025 Estimate updates (Living Wage Update reports, November 2025); each entry links to its source page.",
+    "For a district with no benchmark of its own, the scorecard uses the nearest GLWC benchmark of the same kind (rural/urban) and tags the grade estimated.",
+    "State minimum wages are copied from notifications and credible trackers with their dates; a value left null is not verified - never guess one. Tamil Nadu, Kerala, Andhra Pradesh and Uttar Pradesh are null because sources conflicted.",
+    "For multi-zone states the lowest zone rate is stored (the floor below which a wage is definitely illegal anywhere in the state); city zones are higher.",
+    "Minimum-wage entries checked 24 Oct 2026 against the India Briefing guide (updated 26 June 2026) and cross-checks; verify each figure against the state labour department notification before quoting it to judges."
+  ],
+  "livingWages": [
+    {
+      "id": "delhi-ncr",
+      "region": "Delhi NCR",
+      "kind": "urban",
+      "district": null,
+      "state": "Delhi",
+      "lat": 28.61,
+      "lon": 77.21,
+      "monthlyInr": 23086,
+      "year": 2025,
+      "estimateLabel": "2025 Estimate",
+      "sourceUrl": "https://www.globallivingwage.org/living-wage-benchmarks/living-wage-report-for-delhi-ncr-india/"
+    },
+    {
+      "id": "urban-tiruppur",
+      "region": "Urban Tiruppur (knitwear)",
+      "kind": "urban",
+      "district": "Tiruppur",
+      "state": "Tamil Nadu",
+      "lat": 11.11,
+      "lon": 77.34,
+      "monthlyInr": 19773,
+      "year": 2025,
+      "estimateLabel": "2025 Estimate",
+      "sourceUrl": "https://www.globallivingwage.org/living-wage-benchmarks/urban-india/"
+    },
+    {
+      "id": "rural-andhra",
+      "region": "Rural Andhra Pradesh",
+      "kind": "rural",
+      "district": null,
+      "state": "Andhra Pradesh",
+      "lat": 15.9,
+      "lon": 79.7,
+      "monthlyInr": 17962,
+      "year": 2025,
+      "estimateLabel": "2025 Estimate",
+      "sourceUrl": "https://www.globallivingwage.org/living-wage-benchmarks/living-wage-for-rural-andhra-pradesh-india/"
+    },
+    {
+      "id": "rural-ratlam",
+      "region": "Rural Ratlam, Madhya Pradesh",
+      "kind": "rural",
+      "district": "Ratlam",
+      "state": "Madhya Pradesh",
+      "lat": 23.33,
+      "lon": 75.04,
+      "monthlyInr": 15202,
+      "year": 2025,
+      "estimateLabel": "2025 Estimate",
+      "sourceUrl": "https://www.globallivingwage.org/living-wage-benchmarks/rural-madhya-pradesh-india-ratlam-district/"
+    },
+    {
+      "id": "assam-dibrugarh",
+      "region": "Assam, Dibrugarh district",
+      "kind": "rural",
+      "district": "Dibrugarh",
+      "state": "Assam",
+      "lat": 27.47,
+      "lon": 94.91,
+      "monthlyInr": 15112,
+      "year": 2025,
+      "estimateLabel": "2025 Estimate",
+      "sourceUrl": "https://www.globallivingwage.org/living-wage-benchmarks/living-wage-report-assam-dibrugarh-district-india-2024/"
+    },
+    {
+      "id": "rural-nilgiris",
+      "region": "Rural Nilgiris, Tamil Nadu",
+      "kind": "rural",
+      "district": "Nilgiris",
+      "state": "Tamil Nadu",
+      "lat": 11.41,
+      "lon": 76.7,
+      "monthlyInr": 14926,
+      "year": 2025,
+      "estimateLabel": "2025 Estimate",
+      "sourceUrl": "https://www.globallivingwage.org/living-wage-benchmarks/rural-nilgiris-tamil-nadu-india/"
+    },
+    {
+      "id": "rural-bhadohi",
+      "region": "Rural Bhadohi (carpets)",
+      "kind": "rural",
+      "district": "Bhadohi",
+      "state": "Uttar Pradesh",
+      "lat": 25.3,
+      "lon": 82.6,
+      "monthlyInr": 14509,
+      "year": 2025,
+      "estimateLabel": "2025 Estimate",
+      "sourceUrl": "https://www.globallivingwage.org/living-wage-benchmarks/rural-india/"
+    }
+  ],
+  "minimumWages": [
+    {
+      "state": "Delhi", "notifiedInr": 18456, "unit": "month", "effectiveDate": "2025-04-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
+      "note": "Agreed by two sources (≈ ₹710/day). Delhi revises half-yearly; check for an October 2026 revision before the demo."
+    },
+    { "state": "Tamil Nadu", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
+      "note": "Sources conflicted (₹450 / ₹537-545 / ₹783 per day, no accessible official G.O. figure) - left empty rather than guessed." },
+    { "state": "Andhra Pradesh", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
+      "note": "Employment- and zone-wise rates only; no single verified unskilled figure - left empty." },
+    {
+      "state": "Madhya Pradesh", "notifiedInr": 12425, "unit": "month", "effectiveDate": "2026-04-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
+      "note": "One source reports an Oct 2026 revision to ≈ ₹12,575/month; verify against the state notification."
+    },
+    {
+      "state": "Assam", "notifiedInr": 10354, "unit": "month", "effectiveDate": "2025-06-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
+      "note": "Official VDA schedule eff 1 Jan 2026 shows ≈ ₹398-406/day for unskilled; refine from the notification."
+    },
+    { "state": "Uttar Pradesh", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
+      "note": "Two credible sources disagreed (₹11,314 vs ₹13,690/month, different categories) - left empty." },
+    {
+      "state": "Karnataka", "notifiedInr": 19319.36, "unit": "month", "effectiveDate": "2026-05-22",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
+      "note": "Zone III (lowest zone) shown; Zone I is ₹23,376.43 and Zone II ₹21,251.30."
+    },
+    {
+      "state": "Maharashtra", "notifiedInr": 12728, "unit": "month", "effectiveDate": "2026-01-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
+      "note": "Zone III (lowest zone) shown; Zone I is ₹13,921."
+    },
+    {
+      "state": "Gujarat", "notifiedInr": 13039, "unit": "month", "effectiveDate": "2026-04-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
+      "note": "Zone II (lowest zone) shown; Zone I is ₹13,325."
+    },
+    {
+      "state": "Dadra and Nagar Haveli", "notifiedInr": 12649, "unit": "month", "effectiveDate": "2025-04-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
+    },
+    {
+      "state": "Haryana", "notifiedInr": 11274.6, "unit": "month", "effectiveDate": "2025-07-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
+    },
+    {
+      "state": "Punjab", "notifiedInr": 11726.4, "unit": "month", "effectiveDate": "2025-09-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
+    },
+    {
+      "state": "Jharkhand", "notifiedInr": 13050, "unit": "month", "effectiveDate": "2025-10-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
+    },
+    {
+      "state": "West Bengal", "notifiedInr": 9760, "unit": "month", "effectiveDate": "2026-01-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary",
+      "note": "Zone B (lowest zone) shown; Zone A is ₹10,383."
+    },
+    {
+      "state": "Odisha", "notifiedInr": 12272, "unit": "month", "effectiveDate": "2026-04-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
+    },
+    { "state": "Kerala", "notifiedInr": null, "unit": null, "effectiveDate": null, "sourceUrl": null, "sourceType": null,
+      "note": "Employment- and district-wise rates only; no single verified unskilled figure - left empty." },
+    {
+      "state": "Tripura", "notifiedInr": 8010.34, "unit": "month", "effectiveDate": "2025-10-01",
+      "sourceUrl": "https://www.india-briefing.com/news/guide-minimum-wage-india-19406.html", "sourceType": "secondary", "note": null
+    }
+  ],
+  "nationalFloorWage": {
+    "notifiedInr": 178,
+    "unit": "day",
+    "effectiveDate": "2017-08-01",
+    "sourceUrl": "https://labourbureau.gov.in/uploads/pdf/Minimum_Wages_2017.pdf",
+    "note": "Advisory National Floor Level Minimum Wage (non-statutory). The Code on Wages Central Rules notified 8 May 2026 prescribe the revision method but no statutory floor amount had been notified as of Oct 2026; a ₹450/day floor was reported as under consideration."
+  }
+}
