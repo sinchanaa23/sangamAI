@@ -5,6 +5,8 @@ import { rng } from './sectors/helpers';
 import { RURAL_TYPES, type SectorId } from './types';
 import type { DevProject, Interest, Quote, Requirement, Review } from './model';
 import type { WorkforceProfile, WorkforceSkill } from './fairwork';
+import { computeProjections } from './funding';
+import type { FundingApplication, FundingItem } from './funding';
 
 const day = (offset: number) => new Date(Date.now() + offset * 864e5).toISOString();
 const month = (m: number) => {
@@ -176,7 +178,63 @@ export function seedSector() {
     evidence: 'Consortium work order and completion report', status: 'verified', at: day(-130), sample: true,
   });
 
-  return { requirements, quotes, interests, reviews, projects };
+  // ---------- Funding applications ----------
+  // Three showcase applications per sector so the buyer's Fund-suppliers marketplace
+  // has a ladder: one listed with a demo-buyer commitment, one listed open, one
+  // submitted (awaiting the desk pre-check). Projections are computed, never typed.
+  const fi = (id: string, kind: FundingItem['kind'], label: string, labelHi: string, costLakh: number, months: number, purpose: string, extra: Partial<FundingItem> = {}): FundingItem => ({
+    id, kind, label, labelHi, costLakh, months, purpose, status: 'todo', ...extra,
+  });
+  const sellerOf = (sid: string) => sellers.find((s) => s.id === sid) ?? hero;
+  const fundingApps = ([
+    {
+      id: `fund-${sector}-1`, sector, sellerId: hero.id, sellerName: hero.name,
+      title: 'Solar power and testing R&D for export-grade output',
+      purpose: `We want to cut diesel use and prove our quality to big buyers. A rooftop solar array powers the ${hero.process.toLowerCase()} line by day, and a calibrated testing rig lets us certify every batch ourselves instead of paying an outside lab.`,
+      items: [
+        fi(`fi-${sector}-1a`, 'green-tech', 'Rooftop solar 15 kW with net meter', 'छत पर 15 किलोवाट सौर ऊर्जा', 4.2, 5,
+          'Daytime power from solar instead of the diesel generator.', { schemes: ['SIDBI energy-efficiency finance for MSMEs'], sustainabilityItemId: 'energy-renewable' }),
+        fi(`fi-${sector}-1b`, 'rnd', 'In-house testing and calibration rig', 'घर के अंदर टेस्टिंग और कैलिब्रेशन रिग', 3.2, 6,
+          'Test every batch in-house; the rig pays for itself in outside-lab fees.'),
+      ],
+      evidence: ['energy-audit-report.pdf', 'shg-managing-committee-resolution.pdf'],
+      status: 'listed' as const, commitments: [
+        { buyerId: 'buyer', buyerName: buyer.name || 'Veer Electric Mobility', itemIds: [`fi-${sector}-1a`], amountLakh: 3, committedAt: day(-9), status: 'pledged' as const },
+      ],
+      projections: { totalAskLakh: 7.4, paybackMonths: null, roi5yrPct: null, capacityUpliftPct: null, qualityUpliftPct: null, sustainabilityUplift: null, sangamScoreUplift: null, source: 'estimated' },
+      createdAt: day(-14), updatedAt: day(-9),
+    },
+    {
+      id: `fund-${sector}-2`, sector, sellerId: partner.id, sellerName: partner.name,
+      title: `Second ${partner.process.toLowerCase()} line: semi-automatic press`,
+      purpose: `Orders from the consortium exceed our bench capacity. A semi-automatic press adds a second line, lifts output by roughly a third, and keeps the extra work rural instead of moving it to the city.`,
+      items: [
+        fi(`fi-${sector}-2a`, 'machine', `Semi-automatic ${partner.process.toLowerCase()} press`, `सेमी-ऑटोमैटिक प्रेस`, 6.5, 4,
+          'Adds a second production line at the cooperative shed.', { schemes: ['CGTMSE credit guarantee', 'PMEGP'] }),
+      ],
+      evidence: ['press-quotation.pdf'],
+      status: 'listed' as const, commitments: [],
+      projections: { totalAskLakh: 6.5, paybackMonths: null, roi5yrPct: null, capacityUpliftPct: null, qualityUpliftPct: null, sustainabilityUplift: null, sangamScoreUplift: null, source: 'estimated' },
+      createdAt: day(-11), updatedAt: day(-11),
+    },
+    {
+      id: `fund-${sector}-3`, sector, sellerId: hero.id, sellerName: hero.name,
+      title: 'Environmental certification and working capital',
+      purpose: `Our checklist shows ISO 14001 is the missing step to a stronger level. Certification fees plus two months of working capital for the audit visit would let us reach it this quarter.`,
+      items: [
+        fi(`fi-${sector}-3a`, 'certification', 'ISO 14001 certification and audit fees', 'ISO 14001 प्रमाणपत्र और ऑडिट शुल्क', 1.4, 3,
+          'The environmental management certificate buyers ask for.', { schemes: ['MSME ZED Certification (Zero Defect Zero Effect)'], sustainabilityItemId: 'cert-iso14001' }),
+        fi(`fi-${sector}-3b`, 'working-capital', 'Working capital for the audit quarter', 'ऑडिट तिमाही के लिए कार्यशील पूंजी', 2, 1,
+          'Keeps wages and input orders running while the audit happens.'),
+      ],
+      evidence: ['checklist-export.pdf'],
+      status: 'submitted' as const, commitments: [],
+      projections: { totalAskLakh: 3.4, paybackMonths: null, roi5yrPct: null, capacityUpliftPct: null, qualityUpliftPct: null, sustainabilityUplift: null, sangamScoreUplift: null, source: 'estimated' },
+      createdAt: day(-5), updatedAt: day(-5),
+    },
+  ] as FundingApplication[]).map((app) => computeProjections(app, sellerOf(app.sellerId), sector, seedSustainabilityFor(app.sellerName)));
+
+  return { requirements, quotes, interests, reviews, projects, funding: fundingApps };
 }
 
 // ---------- Fair-work seed workforces (features F4 and F5) ----------
@@ -250,8 +308,10 @@ const sa = (
   Object.fromEntries(Object.entries(answers).map(([id, [value, evidence]]) => [id, { value, evidence }]));
 
 const SEED_SUSTAINABILITY: Record<string, SustainabilityAnswers> = {
-  // Platinum - the hero: rooftop solar, full waste discipline, consent + authorisation,
-  // ISO 14001 and ZED both verified. 4+ verified incl. a certificate.
+  // ==========================================
+  // EV SECTOR (20 companies)
+  // ==========================================
+  // Platinum
   'krishnagiri mahila harness collective': sa({
     'energy-renewable': ['yes', 'verified'], 'energy-audit': ['yes', 'document'], 'energy-tracked': ['yes', 'verified'],
     'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
@@ -261,7 +321,26 @@ const SEED_SUSTAINABILITY: Record<string, SustainabilityAnswers> = {
     'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
     'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['yes', 'document'],
   }),
-  // Gold - strong practice, 2-3 verified, no ISO yet
+  'krishnagiri fpo agro-fibre packs': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'verified'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-rohs': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'document'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['partly', 'declared'],
+  }),
+  'pune precision connectors': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'verified'], 'sector-rohs': ['yes', 'verified'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'verified'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['yes', 'document'],
+  }),
+
+  // Gold
   'satara gramin assembly co-op': sa({
     'energy-renewable': ['partly', 'document'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
     'energy-generator-backup': ['partly', 'declared'], 'waste-segregation': ['yes', 'verified'],
@@ -271,7 +350,62 @@ const SEED_SUSTAINABILITY: Record<string, SustainabilityAnswers> = {
     'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
     'cert-iso14001': ['no', 'declared'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['partly', 'declared'],
   }),
-  // Silver - decent basics, thin evidence
+  "dharwad women's moulding co-op": sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'hosur corrugated boxes': sa({
+    'energy-renewable': ['partly', 'verified'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-rohs': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'sriperumbudur moulders': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'rajkot copper industries': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'verified'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'vapi polymer extrusions': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'verified'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['partly', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+
+  // Silver
+  'silvassa conductors': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'document'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['partly', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['partly', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
   'hosur tool and die cluster': sa({
     'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
     'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
@@ -281,7 +415,6 @@ const SEED_SUSTAINABILITY: Record<string, SustainabilityAnswers> = {
     'local-inputs': ['partly', 'declared'], 'local-transport': ['no', 'declared'],
     'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
   }),
-  // Silver - rural FPO with organic certificate but weak energy story
   'madurai shg kitting network': sa({
     'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
     'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
@@ -291,7 +424,44 @@ const SEED_SUSTAINABILITY: Record<string, SustainabilityAnswers> = {
     'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
     'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
   }),
-  // Bronze - ticking along, no certificates, consent declared only
+  'sanand wiring solutions': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'document'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'hosur plastic components': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['partly', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'coimbatore cable works': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-rohs': ['partly', 'declared'],
+    'water-consent': ['yes', 'document'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'pithampur polymers': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-rohs': ['yes', 'declared'],
+    'water-consent': ['yes', 'document'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+
+  // Bronze
   'chakan harness systems': sa({
     'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
     'energy-generator-backup': ['no', 'declared'], 'waste-segregation': ['partly', 'declared'],
@@ -300,6 +470,348 @@ const SEED_SUSTAINABILITY: Record<string, SustainabilityAnswers> = {
     'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
     'local-inputs': ['partly', 'declared'], 'local-transport': ['no', 'declared'],
     'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'manesar terminal tech': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['partly', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'document'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'document'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['partly', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'rajkot brass terminals': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['no', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-rohs': ['partly', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'chennai flexitubes': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-rohs': ['partly', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['partly', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+
+  // ==========================================
+  // CONSTRUCTION SECTOR (17 companies)
+  // ==========================================
+  // Platinum
+  'pune fly-ash brick shg federation': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['partly', 'document'], 'energy-tracked': ['yes', 'verified'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-flyash': ['yes', 'verified'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'verified'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['partly', 'declared'],
+  }),
+  'agartala bamboo producer company': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'verified'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['yes', 'document'],
+  }),
+  'satara gramin aac cooperative': sa({
+    'energy-renewable': ['partly', 'verified'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-flyash': ['yes', 'verified'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'document'], 'water-reuse': ['yes', 'verified'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'guwahati bamboo board works': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'document'], 'water-reuse': ['partly', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['no', 'declared'],
+  }),
+
+  // Gold
+  'sambhajinagar rebar mills': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'verified'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'document'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'satara cement grinding unit': sa({
+    'energy-renewable': ['partly', 'verified'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'verified'], 'sector-flyash': ['yes', 'verified'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['partly', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['partly', 'declared'],
+  }),
+  'rajkot ceramic works': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'document'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'verified'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'rajkot brass fittings cluster': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'document'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'document'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+
+  // Silver
+  'nashik blocks': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['yes', 'document'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-flyash': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'dharwad bamboo cooperative': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'document'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'pune aluminium systems': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['yes', 'document'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'document'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'nagpur steel re-rollers': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'nashik slag cement co': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['yes', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-flyash': ['partly', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'rajkot extrusion fabricators': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'sanand tile co': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+
+  // Bronze
+  'ludhiana sanitary works': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['no', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  'howrah foundry co-op': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['no', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'sector-flyash': ['na', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+
+  // ==========================================
+  // AGRI SECTOR (14 companies)
+  // ==========================================
+  // Platinum
+  'anantapur millet fpo': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['partly', 'document'], 'energy-tracked': ['yes', 'verified'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'verified'],
+    'local-inputs': ['yes', 'verified'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['yes', 'document'],
+    'sector-organic': ['yes', 'verified'],
+  }),
+  'krishnagiri solar dryer shg network': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'verified'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'document'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'verified'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['partly', 'declared'],
+    'sector-organic': ['yes', 'verified'],
+  }),
+  'dharwad siridhanya producer co': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['yes', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['yes', 'verified'],
+  }),
+  'kochi spice processors': sa({
+    'energy-renewable': ['partly', 'verified'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['yes', 'verified'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['yes', 'document'],
+    'sector-organic': ['yes', 'verified'],
+  }),
+  'tiruppur corrugators': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'verified'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['partly', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['na', 'declared'],
+  }),
+
+  // Gold
+  'anantapur women dryers cooperative': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['yes', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['yes', 'verified'],
+  }),
+  'tumakuru puffed rice shg': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['partly', 'declared'],
+  }),
+  'madurai grain processors': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['partly', 'declared'],
+  }),
+  'nashik dehydration works': sa({
+    'energy-renewable': ['partly', 'verified'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['yes', 'document'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['no', 'declared'],
+  }),
+  'pithampur flexipack': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['partly', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['yes', 'verified'],
+    'waste-hazardous-auth': ['yes', 'document'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['na', 'declared'],
+  }),
+
+  // Silver
+  'coimbatore agro dryers': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['partly', 'declared'],
+  }),
+  'vijayawada chilli and spice fpo': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['partly', 'declared'],
+  }),
+  'mysuru flakes and puffs': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'water-consent': ['yes', 'verified'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['no', 'declared'],
+  }),
+
+  // Bronze
+  'vapi laminates': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['yes', 'declared'], 'water-consent': ['yes', 'declared'],
+    'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+    'sector-organic': ['na', 'declared'],
   }),
 };
 
