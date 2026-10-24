@@ -3,9 +3,9 @@ import { bom, buyer, certInfo, districts, processInfo, sellers, unitLabel } from
 import { RURAL_TYPES } from './types';
 import type { BomLine, District, Gap, Option, Seller, Weights } from './types';
 import type { Scenario } from './scenario';
+import { ROAD_FACTOR, ROAD_RS_PER_TONNE_KM } from './freight';
 
-const ROAD_FACTOR = 1.3;
-const FREIGHT_RS_PER_KG_KM = 0.005;
+const FREIGHT_RS_PER_KG_KM = ROAD_RS_PER_TONNE_KM / 1000; // per kg, from the one road rate in freight.ts
 const PRODUCTION_DAYS = 12;
 /** Exposure score for parts still imported (geopolitical and shipping risk). */
 const IMPORT_EXPOSURE = 0.65;
