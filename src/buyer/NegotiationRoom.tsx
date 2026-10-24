@@ -12,6 +12,7 @@ import { DEMO_RFQ } from './negotiation/demoFixture';
 import { openRoom, useRoomSession } from './negotiation/live';
 import { useFeed } from './negotiation/useFeed';
 import { recordNegotiation } from '../ecosystem/negotiation';
+import ConvergenceCard from './negotiation/ConvergenceCard';
 import type { FairWorkScore, Money, NegotiationEvent, Offer } from '../contracts';
 import './negotiation/room.css';
 
@@ -181,6 +182,7 @@ export default function NegotiationRoom() {
         </div>
 
         <div className="stack nr-side">
+          <ConvergenceCard events={shown} qty={rfq.quantity} budget={rfq.budget.amount} currency={rfq.budget.currency} />
           <div className="card">
             <div className="section-title">Terms on the table</div>
             {terms ? (
