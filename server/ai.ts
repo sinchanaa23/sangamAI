@@ -1,6 +1,5 @@
-// Server-side AI endpoints for the Vite dev/preview server. The API key never reaches the browser:
+// AI endpoints served by the Hono server (server/index.ts). The API key never reaches the browser:
 // the Anthropic client resolves credentials from ANTHROPIC_API_KEY (or an `ant auth login` profile).
-import type { IncomingMessage, ServerResponse } from 'node:http';
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
@@ -16,17 +15,8 @@ Answer using the context block the app sends with each question. It holds the pa
 - Many suppliers are small rural collectives. Avoid jargon; explain acronyms once.
 - If the user writes in Hindi or another Indian language, answer in that language.`;
 
-async function readJson(req: IncomingMessage): Promise<unknown> {
-  const chunks: Buffer[] = [];
-  for await (const c of req) chunks.push(c as Buffer);
-  return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
-}
-
-function send(res: ServerResponse, status: number, body: unknown) {
-  res.statusCode = status;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(body));
-}
+export interface Reply { status: number; body: unknown }
+const reply = (status: number, body: unknown): Reply => ({ status, body });
 
 let client: Anthropic | null = null;
 const getClient = () => (client ??= new Anthropic());
@@ -42,13 +32,11 @@ function explainError(e: unknown): { status: number; error: string } {
   return { status: 500, error: msg };
 }
 
-interface AskBody { question: string; context: string; history?: { role: 'user' | 'assistant'; content: string }[] }
+export interface AskBody { question: string; context: string; history?: { role: 'user' | 'assistant'; content: string }[] }
 
-export async function handleAsk(req: IncomingMessage, res: ServerResponse) {
-  if (req.method !== 'POST') return send(res, 405, { error: 'POST only' });
+export async function handleAsk(body: AskBody): Promise<Reply> {
   try {
-    const body = (await readJson(req)) as AskBody;
-    if (!body.question?.trim()) return send(res, 400, { error: 'Empty question' });
+    if (!body.question?.trim()) return reply(400, { error: 'Empty question' });
     const history: Anthropic.Beta.BetaMessageParam[] = (body.history ?? []).slice(-8).map((m) => ({ role: m.role, content: m.content }));
     const response = await getClient().beta.messages.create({
       model: MODEL,
@@ -63,12 +51,12 @@ export async function handleAsk(req: IncomingMessage, res: ServerResponse) {
         { role: 'user', content: `<context>\n${body.context}\n</context>\n\n${body.question}` },
       ],
     } as Anthropic.Beta.MessageCreateParamsNonStreaming);
-    if (response.stop_reason === 'refusal') return send(res, 200, { answer: 'Sorry, I can’t help with that request.' });
+    if (response.stop_reason === 'refusal') return reply(200, { answer: 'Sorry, I can’t help with that request.' });
     const answer = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('\n').trim();
-    send(res, 200, { answer, model: response.model });
+    return reply(200, { answer, model: response.model });
   } catch (e) {
     const { status, error } = explainError(e);
-    send(res, status, { error });
+    return reply(status, { error });
   }
 }
 
@@ -85,15 +73,13 @@ const Certificate = z.object({
   notes: z.string().describe('Anything that looks unclear, altered or inconsistent'),
 });
 
-interface ExtractBody { mediaType: string; data: string; filename: string }
+export interface ExtractBody { mediaType: string; data: string; filename: string }
 
-export async function handleExtract(req: IncomingMessage, res: ServerResponse) {
-  if (req.method !== 'POST') return send(res, 405, { error: 'POST only' });
+export async function handleExtract(body: ExtractBody): Promise<Reply> {
   try {
-    const body = (await readJson(req)) as ExtractBody;
     const isPdf = body.mediaType === 'application/pdf';
     const isImage = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(body.mediaType);
-    if (!isPdf && !isImage) return send(res, 400, { error: 'Upload a PDF, PNG, JPEG, WebP or GIF.' });
+    if (!isPdf && !isImage) return reply(400, { error: 'Upload a PDF, PNG, JPEG, WebP or GIF.' });
     const file: Anthropic.ContentBlockParam = isPdf
       ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: body.data } }
       : { type: 'image', source: { type: 'base64', media_type: body.mediaType as 'image/png', data: body.data } };
@@ -106,10 +92,10 @@ export async function handleExtract(req: IncomingMessage, res: ServerResponse) {
         content: [file, { type: 'text', text: `Read this document uploaded to a supplier profile (${body.filename}). Extract the fields exactly as printed; leave a field empty if it is not on the document. Do not guess.` }],
       }],
     });
-    if (response.stop_reason === 'refusal' || !response.parsed_output) return send(res, 422, { error: 'Could not read this document.' });
-    send(res, 200, { fields: response.parsed_output });
+    if (response.stop_reason === 'refusal' || !response.parsed_output) return reply(422, { error: 'Could not read this document.' });
+    return reply(200, { fields: response.parsed_output });
   } catch (e) {
     const { status, error } = explainError(e);
-    send(res, status, { error });
+    return reply(status, { error });
   }
 }
