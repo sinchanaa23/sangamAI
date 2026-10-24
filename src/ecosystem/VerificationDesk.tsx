@@ -3,6 +3,8 @@ import { bom, sellers } from '../data';
 import { district } from '../engine';
 import type { Check } from '../model';
 import { loadSustainability, saveSustainability } from '../seller/sustainability';
+import { putServerFunding } from '../seller/funding';
+import { releaseForVerified } from '../funding';
 import { CHECKLIST, scoreSustainability } from '../sustainability';
 import type { SustainabilityAnswers } from '../sustainability';
 import { useStore } from '../store';
@@ -23,6 +25,12 @@ export default function VerificationDesk() {
   const onboarded = state.onboarded.filter((o) => o.sector === state.sector);
   const reviews = state.reviews.filter((r) => r.status === 'pending' && sellers.some((s) => s.id === r.sellerId));
   const milestones = state.projects.filter((p) => p.sector === state.sector).flatMap((p) => p.milestones.filter((m) => m.status === 'submitted').map((m) => ({ p, m })));
+
+  // Funding queues, from state.funding (the store is the working copy; putServerFunding mirrors each change to the server)
+  const fundPrecheck = state.funding.filter((a) => a.status === 'submitted' && a.sector === state.sector);
+  const fundItems = state.funding
+    .filter((a) => (a.status === 'funded' || a.status === 'completed') && a.sector === state.sector)
+    .flatMap((a) => a.items.filter((it) => it.status === 'submitted').map((it) => ({ a, it })));
 
   // Sustainability evidence: each supplier's checklist answers, loaded from the server (seeds fill in demo sellers)
   const [sus, setSus] = useState<Record<string, SustainabilityAnswers>>({});
@@ -53,6 +61,24 @@ export default function VerificationDesk() {
     const next: SustainabilityAnswers = { ...answers, [itemId]: { ...answers[itemId], evidence: ok ? 'verified' : 'document' } };
     setSus({ ...sus, [sellerId]: next });
     void saveSustainability(sellerId, next); // saved so the supplier page and the ranking see the verified evidence
+  };
+  // The desk pre-check: approved applications are listed for buyers, thin ones go back to draft (plan §2.2)
+  const decideFundingApp = (id: string, ok: boolean) => {
+    const app = state.funding.find((a) => a.id === id);
+    if (!app) return;
+    const next = { ...app, status: ok ? ('listed' as const) : ('draft' as const), updatedAt: new Date().toISOString() };
+    update((s) => ({ ...s, funding: s.funding.map((a) => (a.id === id ? next : a)) }));
+    void putServerFunding(next); // best-effort server sync
+  };
+  // A funded item's evidence: verifying releases the pledged commitments behind it via releaseForVerified (plan §2.2)
+  const decideFundedItem = (appId: string, itemId: string, ok: boolean) => {
+    const app = state.funding.find((a) => a.id === appId);
+    if (!app) return;
+    const next = ok
+      ? releaseForVerified(app, [itemId])
+      : { ...app, items: app.items.map((it) => (it.id === itemId ? { ...it, status: 'doing' as const, updatedAt: new Date().toISOString() } : it)), updatedAt: new Date().toISOString() };
+    update((s) => ({ ...s, funding: s.funding.map((a) => (a.id === appId ? next : a)) }));
+    void putServerFunding(next); // best-effort server sync
   };
 
   const Buttons = ({ value, onSet }: { value: Check; onSet: (v: Check) => void }) => (
@@ -188,6 +214,38 @@ export default function VerificationDesk() {
               <button className="btn small primary" onClick={() => decideSustainability(s.id, it.id, true)}>Verify</button>
               <button className="btn small danger" onClick={() => decideSustainability(s.id, it.id, false)}>Reject</button>
             </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card">
+        <div className="section-title">Funding applications to pre-check ({fundPrecheck.length})</div>
+        <p className="tiny">Applications suppliers submitted for the marketplace. Approving lists them for buyers to co-fund; a thin or copy-paste application goes back to draft.</p>
+        {fundPrecheck.length === 0 && <p className="small muted">Nothing waiting. Suppliers submit applications from Grow → Funding.</p>}
+        {fundPrecheck.map((a) => (
+          <div key={a.id} style={{ borderTop: '1px solid var(--line)', padding: '12px 0' }} className="stack">
+            <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+              <span><button className="linkish" style={{ fontWeight: 600 }} onClick={() => openSupplier(a.sellerId)}>{a.sellerName}</button> <span className="tiny">{a.title}</span></span>
+              <span className="tiny">{a.items.length} item{a.items.length === 1 ? '' : 's'} · ₹{a.projections.totalAskLakh} L ask</span>
+            </div>
+            <div className="tiny">evidence: {a.evidence.join(', ') || 'none attached'}</div>
+            <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+              <input placeholder="Note (optional)" value={notes[a.id] ?? ''} onChange={(e) => setNotes({ ...notes, [a.id]: e.target.value })} style={{ flex: 1, minWidth: 200, font: 'inherit', fontSize: 13, padding: '6px 10px', border: '1px solid var(--line)', borderRadius: 8 }} />
+              <button className="btn small primary" onClick={() => decideFundingApp(a.id, true)}>Approve and list</button>
+              <button className="btn small danger" onClick={() => decideFundingApp(a.id, false)}>Return to draft</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card">
+        <div className="section-title">Funded work to verify ({fundItems.length})</div>
+        <p className="tiny">Funded items with submitted evidence. Verifying an item releases the buyer commitments behind it as impact delivered.</p>
+        {fundItems.length === 0 && <p className="small muted">Nothing waiting. Suppliers upload evidence from Grow → Funding once work starts.</p>}
+        {fundItems.map(({ a, it }) => (
+          <div key={`${a.id}:${it.id}`} className="row" style={{ borderTop: '1px solid var(--line)', padding: '10px 0', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+            <span className="small"><b>{a.sellerName}</b>: {it.label} · ₹{it.costLakh} L · evidence {it.evidence || 'none'}</span>
+            <span className="row" style={{ gap: 6 }}><button className="btn small primary" onClick={() => decideFundedItem(a.id, it.id, true)}>Verify</button><button className="btn small" onClick={() => decideFundedItem(a.id, it.id, false)}>Send back</button></span>
           </div>
         ))}
       </div>
