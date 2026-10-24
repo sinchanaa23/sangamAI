@@ -212,7 +212,7 @@ function Shell() {
               </div>
             </div>
           )}
-          <SideNav groups={groups} activeGroup={showHome ? undefined : group?.id} page={showHome ? '' : page} onHub={(id) => go(workspace, hubId(id))} onPage={(id) => go(workspace, id)} />
+          <SideNav groups={groups} workspace={workspace} activeGroup={showHome ? undefined : group?.id} page={showHome ? '' : page} onHub={(id) => go(workspace, hubId(id))} onPage={(id) => go(workspace, id)} />
           <div className="group" style={{ marginTop: 24 }}>
             <div className="tiny" style={{ margin: '0 8px' }}>Demo companies and figures are labelled <b>Simulated</b>; real data is labelled <b>Public data</b> or <b>Live</b>.</div>
           </div>
@@ -227,7 +227,7 @@ function Shell() {
             <SectionHub workspace={workspace} group={group ?? groups[0]!} onPage={(id) => go(workspace, id)} />
           ) : (
             <>
-              {group && <SubNav group={group} page={page} onHub={() => go(workspace, hubId(group.id))} onPage={(id) => go(workspace, id)} />}
+              {group && <SubNav workspace={workspace} group={group} page={page} onHub={() => go(workspace, hubId(group.id))} onPage={(id) => go(workspace, id)} />}
               {content[`${workspace}:${page}`]}
             </>
           )}
