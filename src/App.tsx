@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { sellers } from './data';
 import { SECTOR_LIST } from './sectors';
@@ -40,6 +40,8 @@ import AskSangam from './components/AskSangam';
 import RiverBackdrop from './components/RiverBackdrop';
 import NavRiver from './components/NavRiver';
 import SmoothScroll from './components/SmoothScroll';
+import ScrollProgress from './components/ScrollProgress';
+import useScrollReveal from './components/ScrollReveal';
 import type { Lang } from './seller/i18n';
 
 function Logo() {
@@ -66,6 +68,8 @@ function Shell() {
   const [home, setHome] = useState(true);
   const ledger = useLedger();
   const page = pages[workspace];
+  const pageKey = `${home ? 'home' : workspace}:${page}`;
+  const mainRef = useRef<HTMLElement>(null);
   const go = (w: Workspace, p: string) => { setHome(false); setWorkspace(w); setPages((x) => ({ ...x, [w]: p })); window.scrollTo(0, 0); };
   const actingSeller = sellers.some((s) => s.id === acting) ? acting : sellers[0]?.id ?? '';
 
@@ -96,6 +100,8 @@ function Shell() {
     ],
   };
 
+  useScrollReveal(mainRef, `${pageKey}:${dataVersion}`);
+
   const content: Record<string, ReactNode> = {
     'buyer:today': <SupplyChainPage />, 'buyer:sim': <SimulatorPage />, 'buyer:routes': <RoutesPage />, 'buyer:india': <StepChains />,
     'buyer:network': <NetworkPage />, 'buyer:location': <LocationPlanner />, 'buyer:requirements': <RequirementsPage />,
@@ -111,7 +117,8 @@ function Shell() {
   return (
     <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
       <RiverBackdrop where={home ? 'home' : workspace} />
-      <SmoothScroll />
+      <SmoothScroll pageKey={pageKey} />
+      <ScrollProgress pageKey={`${pageKey}:${dataVersion}`} />
       <a className="skip" href="#content">Skip to content</a>
       <header className="topbar">
         <button className="brand" onClick={() => { setHome(true); window.scrollTo(0, 0); }} style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', font: 'inherit', color: 'inherit' }} aria-label="Sangam home">
@@ -128,7 +135,7 @@ function Shell() {
           ))}
         </div>
         <button className="btn small" onClick={() => setAsk({ open: true })}>Ask Sangam</button>
-        <NavRiver pageKey={`${home ? 'home' : workspace}:${page}`} />
+        <NavRiver pageKey={pageKey} />
       </header>
 
       <div className="shell">
@@ -160,7 +167,7 @@ function Shell() {
             <div className="tiny" style={{ margin: '0 8px' }}>Demo companies and figures are labelled <b>Simulated</b>; real data is labelled <b>Public data</b> or <b>Live</b>.</div>
           </div>
         </nav>
-        <main id="content" tabIndex={-1} key={`${home ? 'home' : workspace}-${dataVersion}`}>{home ? <HomePage go={go} /> : content[`${workspace}:${page}`]}</main>
+        <main ref={mainRef} id="content" tabIndex={-1} key={`${home ? 'home' : workspace}-${dataVersion}`}>{home ? <HomePage go={go} /> : content[`${workspace}:${page}`]}</main>
       </div>
 
       {drawer && <SupplierDrawer id={drawer} onClose={() => setDrawer(null)} />}

@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import type { Workspace } from '../ui';
 import Confluence from '../components/Confluence';
 import WaveDivider from '../components/WaveDivider';
-import { gsap, MOTION_OK, NO_MOTION, ScrollTrigger, useGSAP } from '../gsapSetup';
+import { gsap, MOTION_OK, NO_MOTION, ScrollTrigger, SplitText, useGSAP } from '../gsapSetup';
 
 const DOORS: { w: Workspace; page: string; title: string; who: string; does: string; shortcuts?: { page: string; label: string }[] }[] = [
   { w: 'buyer', page: 'today', title: 'I need parts or products', who: 'Manufacturers, builders, food processors, public buyers', does: 'See which inputs depend on one country, get ranked Indian supply chains and a switch-over plan, and let your agent negotiate the order.', shortcuts: [{ page: 'today', label: 'Supply chain today' }, { page: 'india', label: 'Indian options' }, { page: 'network', label: 'Future network' }, { page: 'negotiate', label: 'Agent negotiation' }] },
@@ -21,6 +21,23 @@ const STEPS = [
 export default function HomePage({ go }: { go: (w: Workspace, page: string) => void }) {
   const stepsRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+
+  // The headline rises in word by word from behind each line, the rest follows; scrolling away lets the hero drift and fade
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add(MOTION_OK, () => {
+      SplitText.create('h1', {
+        type: 'lines, words', mask: 'lines', autoSplit: true,
+        onSplit: (self) => gsap.from(self.words, { yPercent: 115, duration: 1.15, ease: 'expo.out', stagger: 0.05, delay: 0.1 }),
+      });
+      gsap.from(['.eyebrow', '.lede', '.home-actions', '.home-meta'], { autoAlpha: 0, y: 18, duration: 0.9, ease: 'expo.out', stagger: 0.08, delay: 0.45 });
+      const away = { trigger: heroRef.current, start: 'top top', end: 'bottom top', scrub: true };
+      gsap.to('.home-hero-text', { yPercent: -14, autoAlpha: 0.2, ease: 'none', scrollTrigger: away });
+      gsap.to('.home-hero-art', { y: 90, scale: 0.92, ease: 'none', scrollTrigger: away });
+    });
+    return () => mm.revert();
+  }, { scope: heroRef });
 
   // Each step lights up as it crosses the middle of the screen (all lit when motion is reduced)
   useGSAP(() => {
@@ -35,7 +52,7 @@ export default function HomePage({ go }: { go: (w: Workspace, page: string) => v
 
   return (
     <div className="home">
-      <section className="home-hero">
+      <section className="home-hero" ref={heroRef}>
         <div className="home-hero-text">
           <div className="eyebrow">आत्मनिर्भर भारत · विकसित भारत</div>
           <h1>Supply chains India can build, with wages people can live on.</h1>

@@ -3,6 +3,7 @@
 // Everything animates by transform or colour only, and holds still when the visitor prefers reduced motion.
 import { useRef } from 'react';
 import { gsap, MOTION_OK, NO_MOTION, useGSAP } from '../gsapSetup';
+import { onScroll } from '../scroll';
 
 const W = 1600, H = 900;
 const INK = '#111111', CLAY = '#a4552c', GREEN = '#3d5a45';
@@ -49,15 +50,30 @@ export default function RiverBackdrop({ where }: { where: Where }) {
     if (!svg) return;
     const mm = gsap.matchMedia();
     mm.add(MOTION_OK, () => {
+      const drift: gsap.core.Tween[] = [];
       const lines = gsap.utils.toArray<SVGPathElement>('.rv-line', svg);
       lines.forEach((el, i) => {
         const L = LINES[i]!;
-        gsap.fromTo(el, { x: 0 }, { x: L.period, duration: L.period / L.speed, ease: 'none', repeat: -1 });
+        drift.push(gsap.fromTo(el, { x: 0 }, { x: L.period, duration: L.period / L.speed, ease: 'none', repeat: -1 }));
         if (L.dash) gsap.to(el, { strokeDashoffset: -22, duration: 2.4, ease: 'none', repeat: -1 });
       });
       gsap.utils.toArray<SVGPathElement>('.rv-fill', svg).forEach((el, i) => {
         const F = FILLS[i]!;
-        gsap.fromTo(el, { x: 0 }, { x: F.period, duration: F.period / F.speed, ease: 'none', repeat: -1 });
+        drift.push(gsap.fromTo(el, { x: 0 }, { x: F.period, duration: F.period / F.speed, ease: 'none', repeat: -1 }));
+      });
+
+      // The current answers the scroll: it runs faster the faster you scroll, flows back when you scroll up, and the waves swell.
+      const all = svg.querySelector('.rv-all');
+      gsap.set(all, { transformOrigin: '50% 50%' });
+      const flow = { speed: 1 };
+      const speedTo = gsap.quickTo(flow, 'speed', { duration: 0.9, ease: 'power3.out', onUpdate: () => drift.forEach((t) => t.timeScale(flow.speed)) });
+      const swellTo = gsap.quickTo(all, 'scaleY', { duration: 1.1, ease: 'power3.out' });
+      const settle = gsap.delayedCall(0.2, () => { speedTo(1); swellTo(1); }).pause();
+      const stopListening = onScroll(({ velocity }) => {
+        const v = gsap.utils.clamp(-50, 50, velocity);
+        speedTo(1 + v * 0.14);
+        swellTo(1 + Math.min(Math.abs(v) * 0.008, 0.35));
+        settle.restart(true);
       });
       // the water sits still while you scroll past it, so content seems to travel over the current
       gsap.to(svg.querySelector('.rv-all'), { y: -90, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 1.2 } });
@@ -76,7 +92,7 @@ export default function RiverBackdrop({ where }: { where: Where }) {
         gsap.fromTo(dot, { scale: 0.1, autoAlpha: 0.22 }, { scale: 1, autoAlpha: 0, duration: 0.9, ease: 'power2.out', onComplete: () => dot.remove() });
       };
       document.addEventListener('pointerdown', onDown);
-      return () => document.removeEventListener('pointerdown', onDown);
+      return () => { document.removeEventListener('pointerdown', onDown); stopListening(); };
     });
     mm.add(NO_MOTION, () => undefined);
     return () => mm.revert();
