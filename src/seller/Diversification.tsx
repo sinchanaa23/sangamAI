@@ -5,7 +5,7 @@ import type { OppResult } from '../diversify';
 import type { Seller } from '../types';
 import CapabilityWheel, { roiColor } from '../components/CapabilityWheel';
 import TextReveal from '../components/motion/TextReveal';
-import FadeContent from '../components/motion/FadeContent';
+import Reveal from '../components/motion/Reveal';
 import CountUp from '../components/motion/CountUp';
 import { processHi, strings } from './i18n';
 import type { Lang } from './i18n';
@@ -82,7 +82,7 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
       </div>
 
-      <FadeContent>
+      <Reveal>
       <div className="card">
         <div className="section-title">{t.compareTitle}</div>
         <div style={{ height: 240 }}>
@@ -104,9 +104,9 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
           </ResponsiveContainer>
         </div>
       </div>
-      </FadeContent>
+      </Reveal>
 
-      <FadeContent>
+      <Reveal>
       <div className="card stack fw-glass">
         <div>
           <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
@@ -178,7 +178,7 @@ export default function Diversification({ seller, lang }: { seller: Seller; lang
         </div>
         <p className="tiny">{t.growDisclaimer}</p>
       </div>
-      </FadeContent>
+      </Reveal>
     </div>
   );
 }

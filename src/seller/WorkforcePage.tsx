@@ -14,11 +14,13 @@ import Src from '../components/Src';
 import TextReveal from '../components/motion/TextReveal';
 import GradientText from '../components/motion/GradientText';
 import CountUp from '../components/motion/CountUp';
-import FadeContent from '../components/motion/FadeContent';
+import Reveal from '../components/motion/Reveal';
 import SpotlightCard from '../components/motion/SpotlightCard';
 import ClickSpark from '../components/motion/ClickSpark';
 import DotGrid from '../components/motion/DotGrid';
-import Aurora from '../components/motion/Aurora';
+import Waves from '../components/motion/Waves';
+import Magnetic from '../components/motion/Magnetic';
+import SlideTabs from '../components/motion/SlideTabs';
 import ShinyText from '../components/motion/ShinyText';
 import { loadWorkforce, saveWorkforce } from './workforce';
 import type { WorkforceSource } from './workforce';
@@ -265,7 +267,7 @@ export default function WorkforcePage() {
 
       {/* live grade */}
       <div style={{ position: 'relative' }}>
-        <Aurora opacity={0.35} />
+        <Waves opacity={0.3} />
         <SpotlightCard className="card"><div className="stack fw-glass fw-glow" style={{ gap: 10, '--fw-glow-color': score ? GRADE_GLOW[score.grade] : undefined } as CSSProperties}>
         <div className="section-title" style={{ margin: 0 }}>{t.gradeTitle}</div>
         {loading ? <p className="muted">…</p> : score && (
@@ -293,7 +295,7 @@ export default function WorkforcePage() {
       </div>
 
       {/* the form: typed input always available */}
-      <FadeContent>
+      <Reveal>
       <div className="card stack" style={{ gap: 14 }}>
         <label className="field">{t.district}
           <select value={profile.district} onChange={(e) => set('district', e.target.value)}>
@@ -334,13 +336,15 @@ export default function WorkforcePage() {
 
         <div className="field">
           <div className="section-title" style={{ margin: 0 }}>{t.safety}</div>
-          <div className="toggle-row">
-            {(['complete', 'partial', 'none'] as const).map((v) => (
-              <button key={v} className={`pill ${profile.safetyRecord === v ? 'on' : ''}`} onClick={() => set('safetyRecord', v)}>
-                {v === 'complete' ? t.complete : v === 'partial' ? t.partial : t.none}
-              </button>
-            ))}
-          </div>
+          <SlideTabs<'complete' | 'partial' | 'none'>
+            items={[
+              { id: 'complete', label: t.complete },
+              { id: 'partial', label: t.partial },
+              { id: 'none', label: t.none },
+            ]}
+            value={profile.safetyRecord}
+            onChange={(v) => set('safetyRecord', v)}
+          />
         </div>
 
         <label className="row" style={{ gap: 8, alignItems: 'center', color: '#b91c1c', fontWeight: 500, cursor: 'pointer' }}>
@@ -349,21 +353,23 @@ export default function WorkforcePage() {
         </label>
 
         <div className="row" style={{ gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <ClickSpark>
-            <button className="btn primary" disabled={saving || !profile.district || !profile.skills.some((s) => s.headcount > 0)} onClick={save}>
-              <ShinyText>{saving ? t.saving : t.save}</ShinyText>
-            </button>
-          </ClickSpark>
+          <Magnetic>
+            <ClickSpark>
+              <button className="btn primary" disabled={saving || !profile.district || !profile.skills.some((s) => s.headcount > 0)} onClick={save}>
+                <ShinyText>{saving ? t.saving : t.save}</ShinyText>
+              </button>
+            </ClickSpark>
+          </Magnetic>
           {saveMsg && <span className="small">{saveMsg}</span>}
         </div>
         <p className="tiny" style={{ margin: 0 }}>
           Legal hours ceiling {FAIR_WORK_RULES.maxHoursPerDay}/day and {FAIR_WORK_RULES.maxOvertimeHoursPerWeek} h/week overtime; a missing safety record or an open grievance lowers the grade one step; a child- or forced-labour flag blocks every deal.
         </p>
       </div>
-      </FadeContent>
+      </Reveal>
 
       {/* voice: one question at a time */}
-      <FadeContent>
+      <Reveal>
       <div className="card stack" style={{ gap: 10 }}>
         <div className="section-title" style={{ margin: 0 }}>{t.voiceTitle}</div>
         <p className="muted small" style={{ margin: 0 }}>{t.voiceIntro}</p>
@@ -373,9 +379,11 @@ export default function WorkforcePage() {
             {VOICE_LANGS.map((v) => <option key={v.code} value={v.code}>{v.native} ({v.english})</option>)}
           </select>
           {voiceStep == null ? (
-            <ClickSpark>
-              <button className="btn primary" disabled={!canVoice} onClick={() => askQuestion(0)}><ShinyText>{t.voiceStart}</ShinyText></button>
-            </ClickSpark>
+            <Magnetic>
+              <ClickSpark>
+                <button className="btn primary" disabled={!canVoice} onClick={() => askQuestion(0)}><ShinyText>{t.voiceStart}</ShinyText></button>
+              </ClickSpark>
+            </Magnetic>
           ) : (
             <>
               <button className="btn" onClick={stopVoice}>{t.stop}</button>
@@ -392,7 +400,7 @@ export default function WorkforcePage() {
           </div>
         )}
       </div>
-      </FadeContent>
+      </Reveal>
     </div>
   );
 }
