@@ -6,8 +6,9 @@ import { buyer, sellers } from '../data';
 import { inr, lakh, pct } from '../engine';
 import { useUi } from '../ui';
 import Src from '../components/Src';
-import GradeBadge from './negotiation/GradeBadge';
-import { DEMO_RFQ, LIVING_WAGE_PER_DAY } from './negotiation/demoFixture';
+import FairWorkBadge from '../components/FairWorkBadge';
+import { livingWageFor } from '../fairwork';
+import { DEMO_RFQ } from './negotiation/demoFixture';
 import { openRoom, useRoomSession } from './negotiation/live';
 import { useFeed } from './negotiation/useFeed';
 import type { FairWorkScore, Money, NegotiationEvent, Offer } from '../contracts';
@@ -20,8 +21,6 @@ const STEPS = ['search', 'select', 'init', 'confirm'] as const;
 const STEP_LABEL: Record<(typeof STEPS)[number], string> = { search: 'Search', select: 'Quote', init: 'Negotiate', confirm: 'Confirm' };
 const SIDE_LABEL: Record<Side, string> = { buyer: 'Buyer Agent', supplier: 'Supplier Agent', auditor: 'Auditor Agent' };
 const SIDE_FOR: Record<Side, string> = { buyer: 'for the buying company', supplier: 'for the supplier', auditor: 'for the Sangam ecosystem' };
-/** Living-wage floor a worker-day by district, where we have one; P3's fairwork.ts will supply these. */
-const FLOORS: Record<string, number> = { Krishnagiri: LIVING_WAGE_PER_DAY };
 const STATUS_CHIP: Record<Offer['status'], { cls: string; label: string }> = {
   proposed: { cls: 'plain', label: 'Proposed' },
   countered: { cls: 'potential', label: 'Counter-offer' },
@@ -36,7 +35,7 @@ const supplierName = (id: string) => sellers.find((s) => s.id === id)?.name ?? i
 function OfferCard({ offer, qty }: { offer: Offer; qty: number }) {
   const chip = STATUS_CHIP[offer.status];
   const l = offer.labour;
-  const belowFloor = l.wagePerWorkerDay < (FLOORS[l.district] ?? 0);
+  const belowFloor = l.wagePerWorkerDay < (livingWageFor(l.district)?.perDayInr ?? 0);
   return (
     <div className={`nr-offer ${offer.status}`}>
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
@@ -89,7 +88,7 @@ function Scorecard({ score, decision }: { score: FairWorkScore; decision: 'pass'
         <div className="section-title" style={{ margin: 0 }}>Fair Work Scorecard</div>
         <span className={`chip ${decisionChip.cls}`}>{decisionChip.label}</span>
       </div>
-      <div style={{ margin: '14px 0' }}><GradeBadge score={score} size="lg" /></div>
+      <div style={{ margin: '14px 0' }}><FairWorkBadge score={score} /></div>
       <div className="kv">
         {rows.map(([k, v, ok]) => (
           <Fragment key={k}><span>{k}</span><span style={{ color: ok ? undefined : 'var(--potential)' }}>{v}</span></Fragment>
@@ -121,7 +120,7 @@ export default function NegotiationRoom() {
   const lastStep = [...shown].reverse().find((e) => e.type !== 'audit' && e.type !== 'end')?.type;
   const stepIdx = end ? STEPS.length : lastStep ? STEPS.indexOf(lastStep as (typeof STEPS)[number]) : -1;
   const supplierIds = [...new Set(offers.map((o) => o.supplierId))];
-  const floor = terms ? FLOORS[terms.labour.district] : undefined;
+  const floor = terms ? livingWageFor(terms.labour.district) : null;
 
   useEffect(() => { listEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [shown.length]);
 
@@ -187,11 +186,11 @@ export default function NegotiationRoom() {
                 <div className="tiny">{perUnit(terms.price, rfq.quantity)} a {buyer.unitLabel} · {terms.leadTimeDays} days · round {round} of {MAX_ROUNDS}</div>
                 <div className="nr-meter-label"><span>Against budget {money(rfq.budget)}</span><b>{Math.round((terms.price.amount / budget) * 100)}%</b></div>
                 <div className="meter"><span style={{ width: `${Math.min(100, (terms.price.amount / budget) * 100)}%`, background: terms.price.amount > budget ? 'var(--potential)' : 'var(--accent)' }} /></div>
-                <div className="nr-meter-label"><span>Wage a worker-day{floor ? <> against living wage <Src kind="estimated" /></> : ''}</span><b>{inr(terms.labour.wagePerWorkerDay)}</b></div>
+                <div className="nr-meter-label"><span>Wage a worker-day{floor ? <> against living wage <Src kind={floor.match === 'district' ? 'public' : 'estimated'} title={floor.source} /></> : ''}</span><b>{inr(terms.labour.wagePerWorkerDay)}</b></div>
                 {floor && (
                   <>
-                    <div className="meter nr-wage"><span style={{ width: `${Math.min(100, (terms.labour.wagePerWorkerDay / floor) * 80)}%`, background: 'var(--ready)' }} /><i title="Living-wage floor" /></div>
-                    <div className="tiny" style={{ marginTop: 4 }}>The mark is the floor for {terms.labour.district}: {inr(floor)} a worker-day</div>
+                    <div className="meter nr-wage"><span style={{ width: `${Math.min(100, (terms.labour.wagePerWorkerDay / floor.perDayInr) * 80)}%`, background: 'var(--ready)' }} /><i title="Living-wage floor" /></div>
+                    <div className="tiny" style={{ marginTop: 4 }}>The mark is the floor for {terms.labour.district}: {inr(floor.perDayInr)} a worker-day ({floor.region})</div>
                   </>
                 )}
               </>
