@@ -3,7 +3,7 @@
 Read `AGENTS.md` first, then this file. Owner of: `server/**` (except `server/credentials.ts`, `impact.ts`, `grievances.ts`, `bhashini.ts`), `src/api.ts`, `src/contracts.ts`, `src/store.tsx`, `package.json` + lock, `.github/`, `.env.example`, `vite.config.ts`.
 
 ## Current state (2026-10-24)
-- On `main`: contracts, Hono server (:8787, run with `vite-node` so the engine's `import.meta.glob` works), SQLite store, RFQ / negotiation / SSE / scorecard / workforce routes, Buyer / Supplier / Auditor agents, code-run orchestrator, certificate reading + checks, swappable LLM client, CI.
+- On `main`: contracts, Hono server (:8790, run with `vite-node` so the engine's `import.meta.glob` works), SQLite store, RFQ / negotiation / SSE / scorecard / workforce routes, Buyer / Supplier / Auditor agents, code-run orchestrator, certificate reading + checks, swappable LLM client, CI.
 - Branch `agents/use-fairwork` (PR open or about to be): agents now grade with P3's `scoreFairWork()` and `livingWageFor()` instead of my temporary stubs; flag wording fix in the Auditor.
 - Not on `main` yet: P2 `feat/buyer`, P4 `feat/ecosystem` (contains P2's work).
 
