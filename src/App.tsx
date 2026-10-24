@@ -43,13 +43,13 @@ import GrievancePage from './ecosystem/GrievancePage';
 import DataSourcesPage from './ecosystem/DataSourcesPage';
 import { useLedger } from './ecosystem/ledger';
 import SupplierDrawer from './components/SupplierDrawer';
-import AskSangam from './components/AskSangam';
 import RiverBackdrop from './components/RiverBackdrop';
 import NavRiver from './components/NavRiver';
 import SmoothScroll from './components/SmoothScroll';
 import ScrollProgress from './components/ScrollProgress';
 import useScrollReveal from './components/ScrollReveal';
 import type { Lang } from './seller/i18n';
+import { UiLangProvider, useUiLang, tr, UI_LANGS, NAV_LABELS, GROUP_TITLES, WORKSPACE_LABELS } from './i18n';
 
 function Logo() {
   // Two streams meeting: the "sangam" (confluence)
@@ -66,10 +66,10 @@ interface NavGroup { title: string; items: NavItem[] }
 
 function Shell() {
   const { state, update, dataVersion } = useStore();
+  const { lang: uiLang, setLang: setUiLang } = useUiLang();
   const [workspace, setWorkspace] = useState<Workspace>('buyer');
   const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: 'today', supplier: 'overview', ecosystem: 'verify' });
   const [drawer, setDrawer] = useState<string | null>(null);
-  const [ask, setAsk] = useState<{ open: boolean; q?: string }>({ open: false });
   const [acting, setActing] = useState('s13');
   const [lang, setLang] = useState<Lang>('en');
   const [home, setHome] = useState(true);
@@ -122,7 +122,7 @@ function Shell() {
   };
 
   return (
-    <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
+    <UiContext.Provider value={{ openSupplier: setDrawer, go, actingSeller, setActingSeller: setActing }}>
       <RiverBackdrop where={home ? 'home' : workspace} />
       <SmoothScroll pageKey={pageKey} />
       <ScrollProgress pageKey={`${pageKey}:${dataVersion}`} />
@@ -138,10 +138,14 @@ function Shell() {
         </select>
         <div className="segmented" role="tablist" aria-label="Workspace">
           {(['buyer', 'supplier', 'ecosystem'] as Workspace[]).map((w) => (
-            <button key={w} className={!home && workspace === w ? 'on' : ''} onClick={() => { setHome(false); setWorkspace(w); }}>{{ buyer: 'Buyer', supplier: 'Supplier', ecosystem: 'Ecosystem' }[w]}</button>
+            <button key={w} className={!home && workspace === w ? 'on' : ''} onClick={() => { setHome(false); setWorkspace(w); }}>{tr(uiLang, WORKSPACE_LABELS, w)}</button>
           ))}
         </div>
-        <button className="btn small" onClick={() => setAsk({ open: true })}>Ask Sangam</button>
+        <div className="segmented" role="group" aria-label="Language">
+          {UI_LANGS.map((l) => (
+            <button key={l.code} className={uiLang === l.code ? 'pill on' : 'pill'} onClick={() => setUiLang(l.code)}>{l.native}</button>
+          ))}
+        </div>
         <NavRiver pageKey={pageKey} />
       </header>
 
@@ -166,10 +170,10 @@ function Shell() {
           )}
           {nav[workspace].map((g) => (
             <div key={g.title} className="group">
-              <div className="group-title">{g.title}</div>
+              <div className="group-title">{tr(uiLang, GROUP_TITLES, g.title)}</div>
               {g.items.map((it) => (
                 <button key={it.id} className={`item ${!home && page === it.id ? 'on' : ''}`} onClick={() => go(workspace, it.id)}>
-                  <span>{it.label}</span>
+                  <span>{tr(uiLang, NAV_LABELS, it.id)}</span>
                   {!!it.count && <span className="count">{it.count}</span>}
                 </button>
               ))}
@@ -183,17 +187,18 @@ function Shell() {
       </div>
 
       {drawer && <SupplierDrawer id={drawer} onClose={() => setDrawer(null)} />}
-      {ask.open && <AskSangam initial={ask.q} onClose={() => setAsk({ open: false })} context={{ workspace, page }} />}
     </UiContext.Provider>
   );
 }
 
 export default function App() {
   return (
-    <StoreProvider>
-      <BuyerProvider>
-        <Shell />
-      </BuyerProvider>
-    </StoreProvider>
+    <UiLangProvider>
+      <StoreProvider>
+        <BuyerProvider>
+          <Shell />
+        </BuyerProvider>
+      </StoreProvider>
+    </UiLangProvider>
   );
 }
