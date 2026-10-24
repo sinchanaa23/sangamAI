@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import type { Workspace } from '../ui';
 import Confluence from '../components/Confluence';
+import WaveDivider from '../components/WaveDivider';
 import { gsap, MOTION_OK, NO_MOTION, ScrollTrigger, useGSAP } from '../gsapSetup';
 
 const DOORS: { w: Workspace; page: string; title: string; who: string; does: string; shortcuts?: { page: string; label: string }[] }[] = [
@@ -71,6 +72,8 @@ export default function HomePage({ go }: { go: (w: Workspace, page: string) => v
         ))}
       </section>
 
+      <WaveDivider />
+
       <section className="home-steps" ref={stepsRef}>
         <div className="home-steps-left">
           <h2>How the rivers meet</h2>
@@ -81,6 +84,8 @@ export default function HomePage({ go }: { go: (w: Workspace, page: string) => v
           {STEPS.map((s) => <li key={s.name}><div><b>{s.name}</b><span>{s.text}</span></div></li>)}
         </ol>
       </section>
+
+      <WaveDivider />
 
       <section className="home-sdg">
         <div>
