@@ -4,6 +4,7 @@
 import { useSyncExternalStore } from 'react';
 import { generateIssuerKey, signCredential, verifyCredential } from './vc';
 import type { Credential, CredentialKind, IssuerKey } from './vc';
+import type { DealRecord } from './impact';
 
 export type GrievanceCategory = 'wages' | 'hours' | 'safety' | 'harassment' | 'child-or-forced' | 'other';
 
@@ -34,6 +35,8 @@ interface Ledger {
   credentials: Credential[];
   grievances: Grievance[];
   flags: AuditFlag[];
+  /** deals the agents confirmed in this browser (see negotiation.ts) */
+  deals: DealRecord[];
   browserKey?: { key: IssuerKey; privateJwk: JsonWebKey };
 }
 
@@ -48,7 +51,7 @@ export const CATEGORY_LABEL: Record<GrievanceCategory, string> = {
 
 const KEY = 'sangam-ecosystem-v1';
 const load = (): Ledger => {
-  try { return { credentials: [], grievances: [], flags: [], ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { return { credentials: [], grievances: [], flags: [] }; }
+  try { return { credentials: [], grievances: [], flags: [], deals: [], ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { return { credentials: [], grievances: [], flags: [], deals: [] }; }
 };
 let ledger: Ledger = load();
 const listeners = new Set<() => void>();
@@ -103,6 +106,13 @@ export async function issue(type: CredentialKind, subject: Record<string, unknow
 }
 
 export const verify = async (c: unknown) => verifyCredential(c, await trustedKeys());
+
+/** Adds the records of one confirmed deal; a deal already recorded is left as it is. */
+export function addDeal(records: DealRecord[]) {
+  if (!records.length || ledger.deals.some((d) => d.reqId === records[0].reqId)) return false;
+  set((l) => ({ ...l, deals: [...records, ...l.deals] }));
+  return true;
+}
 
 export function credentialsFor(sellerId: string) {
   return ledger.credentials.filter((c) => c.subject.supplierId === sellerId);

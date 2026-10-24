@@ -8,7 +8,7 @@ import { useUi } from '../ui';
 import { useBuyer } from '../buyer/context';
 import Src from '../components/Src';
 import type { Provenance } from '../types';
-import { computeImpact } from './impact';
+import { computeImpact, weakest } from './impact';
 import type { DealRecord } from './impact';
 import { localDeals } from './deals';
 import { useLedger } from './ledger';
@@ -29,17 +29,22 @@ export default function ImpactPage() {
       .then((d: { deals?: DealRecord[] } | null) => setServerDeals(d?.deals ?? [])).catch(() => setServerDeals([]));
   }, []);
 
-  const deals = [...serverDeals, ...localDeals(state)];
+  // Server deals win over the same deal recorded in this browser
+  const seen = new Set(serverDeals.map((d) => d.reqId));
+  const deals = [...serverDeals, ...ledger.deals.filter((d) => !seen.has(d.reqId)), ...localDeals(state)];
   const { totals, byDistrict } = computeImpact(deals);
   const arch = architectures(scenario, weights).find((a) => a.id === (state.chosen[state.sector]?.archId ?? 'corridor'));
   const open = ledger.grievances.filter((g) => g.status === 'open').length;
+  // Workforce figures are only as real as the deals that carry them
+  const wageSrc = weakest(deals.filter((d) => d.wagePerDay !== undefined).map((d) => d.source));
+  const womenSrc = weakest(deals.filter((d) => d.womenShare !== undefined).map((d) => d.source));
 
   const tiles: { label: string; value: string; note: string; sdg?: string; src: Provenance }[] = [
     { label: 'Jobs on confirmed deals', value: totals.jobs.toLocaleString('en-IN'), note: `${totals.deals} deals`, sdg: '8.5', src: totals.jobsSource },
-    { label: 'Wages against the living wage', value: share(totals.wageVsLiving.value), note: totals.wageVsLiving.covered ? `average across ${totals.wageVsLiving.covered} supplier shares with workforce data` : 'shows once suppliers add workforce profiles', sdg: '8.5', src: totals.wageVsLiving.covered ? 'declared' : 'estimated' },
-    { label: 'Women among workers', value: share(totals.womenShare.value), note: totals.womenShare.covered ? `${totals.womenShare.covered} supplier shares reporting` : 'shows once suppliers add workforce profiles', sdg: '8.5', src: totals.womenShare.covered ? 'declared' : 'estimated' },
+    { label: 'Wages against the living wage', value: share(totals.wageVsLiving.value), note: totals.wageVsLiving.covered ? `average across ${totals.wageVsLiving.covered} supplier shares with workforce data` : 'shows once suppliers add workforce profiles', sdg: '8.5', src: wageSrc },
+    { label: 'Women among workers', value: share(totals.womenShare.value), note: totals.womenShare.covered ? `${totals.womenShare.covered} supplier shares reporting` : 'shows once suppliers add workforce profiles', sdg: '8.5', src: womenSrc },
     { label: 'Contract value with rural suppliers', value: deals.length ? share(totals.ruralShare) : '—', note: 'SHG federations, FPOs and cooperatives', sdg: '8.3', src: totals.source },
-    { label: 'Imports replaced per year', value: cr(totals.importReplacedInr), note: `of ${cr(totals.valueInr)} confirmed contract value`, sdg: '8.2', src: totals.source },
+    { label: 'Imports replaced', value: cr(totals.importReplacedInr), note: `of ${cr(totals.valueInr)} confirmed contract value`, sdg: '8.2', src: totals.source },
     { label: 'Worker grievances', value: `${open} open`, note: `${ledger.grievances.length - open} resolved`, sdg: '8.8', src: 'declared' },
     { label: 'Signed credentials', value: String(ledger.credentials.length), note: `${ledger.credentials.filter((c) => c.type === 'SkillCredential').length} skill, ${ledger.credentials.filter((c) => c.type === 'AuditCredential').length} audit, ${ledger.credentials.filter((c) => c.type === 'ContractCredential').length} contract`, src: 'verified' },
   ];
@@ -87,7 +92,7 @@ export default function ImpactPage() {
             </div>
             <div className="table-wrap">
               <table>
-                <thead><tr><th>District</th><th>State</th><th>Area</th><th>Deals</th><th>Jobs</th><th>Contract value a year</th><th>Imports replaced</th></tr></thead>
+                <thead><tr><th>District</th><th>State</th><th>Area</th><th>Deals</th><th>Jobs</th><th>Contract value</th><th>Imports replaced</th></tr></thead>
                 <tbody>
                   {byDistrict.map((d) => {
                     const x = district(d.districtId);
@@ -96,7 +101,7 @@ export default function ImpactPage() {
                 </tbody>
               </table>
             </div>
-            <p className="tiny">Jobs are estimated from each supplier's workforce and the share of its capacity the order uses, until the supplier's workforce profile gives the real number.</p>
+            <p className="tiny">Agent deals count the workers and value in their labour plan and order. Awarded quotes count one year of supply, with jobs estimated from the supplier's workforce and the share of its capacity the order uses.</p>
           </>
         )}
       </div>

@@ -12,6 +12,7 @@ const show = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('en-IN') 
 const LABELS: Record<string, string> = {
   supplierName: 'Supplier', workerId: 'Worker ID', skill: 'Skill', level: 'Level', trainingHours: 'Training hours',
   district: 'District', part: 'Part', buyer: 'Buyer', unitPrice: 'Unit price (₹)', monthlyVolume: 'Monthly volume', outcome: 'Outcome', reviewNote: 'Review note', grade: 'Fair Work grade',
+  orderValueInr: 'Order value (₹)', leadTimeDays: 'Lead time (days)', workers: 'Workers', wagePerWorkerDay: 'Wage a worker-day (₹)', benchmark: 'Living-wage benchmark',
 };
 
 export default function CredentialCard({ c }: { c: Credential }) {
