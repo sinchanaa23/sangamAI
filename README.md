@@ -1,8 +1,10 @@
 # Sangam
 
-**Where Indian demand meets Indian capability.**
+**Atmanirbhar Bharat · Viksit Bharat** (आत्मनिर्भर भारत · विकसित भारत)
 
-Sangam is an AI supply-chain intelligence and domestic localization platform, built as a prototype for SAP Hackfest 2026. It designs the Indian supply chain a company will need in the future, shows MSMEs, cooperatives, FPOs and SHGs exactly what they need to build to be part of it, and gives states and industry clusters a map of where the gaps are.
+From an import-dependent India to a self-sufficient one, with rural India growing alongside urban India.
+
+Sangam is an agentic marketplace built for HACK4SDG on **UN SDG 8, decent work and economic growth**: it connects skilled workers and suppliers in India's districts with buyers in India and abroad, at fair wages and in decent conditions. It designs the Indian supply chain a company will need, shows MSMEs, cooperatives, FPOs and SHGs what they need to build to be part of it, lets AI agents negotiate deals that never go below a living wage, and signs the skills, audits and contracts so anyone can check them.
 
 Every number carries a tag saying where it comes from: **Live**, **Public data**, **Verified**, **Self-declared**, **Estimate** or **Simulated**.
 
@@ -33,10 +35,11 @@ Pick a sector in the top bar: **EV components** (wiring harness), **Construction
 | | **Future network** | Four designs generated from suppliers and possible new sites (map and network diagram), and a 5-20 year comparison of **keep importing, diversify abroad, hybrid and build in India** |
 | | **Location planner** | Ranks 32 districts for a new unit on real climate history, OpenStreetMap infrastructure, port distance, supplier ecosystem and distance to plant; propose a unit and the network designs consider it |
 | Act | **Requirements and quotes** | Publish current and future needs with firmness and confidentiality (anonymous, named, invite-only; target price and exact volume optional); see who viewed, who is interested; compare quotes on **total cost of ownership** (price, freight, tooling, defects, trust-based risk) and award |
+| | **Agent negotiation** | The Buyer, Supplier and Auditor agents negotiate a deal live, round by round, inside hard limits (budget, living-wage floor, free capacity) |
 | | **Switch-over plan** | Timeline per part: close gaps, samples, qualification (PPAP), 10% pilot, 50% ramp, full switch, each with a go/no-go gate, criteria, owner and budget |
 | | **Supplier development** | Co-funded upgrade projects; milestones verified by the Sangam team |
 | Set up | **Company and parts** | Edit the company, parts list (or upload CSV); everything recalculates |
-| | **SAP integration** | Import an IBP demand export; export Ariba sourcing-event items and awards; export the network as a HANA graph |
+| | **Integrations** | Import a demand forecast (CSV); export sourcing items, awards and the network graph as CSV or JSON for any planning, procurement or graph tool |
 
 ### Supplier: a company or cooperative looking for business
 
@@ -47,6 +50,7 @@ Pick a sector in the top bar: **EV components** (wiring harness), **Construction
 | **Consortia** | Invite nearby suppliers to bid together; partners accept or decline |
 | **Development projects** | Start milestones and upload evidence for the Sangam team |
 | **Future diversification** | Adjacent products with fit, investment, payback and 5/10-year return |
+| **Workforce and fair work** | Skills, wages, hours and safety, filled in by voice in Hindi, Kannada or Tamil; the Fair Work grade (A to E) buyers see |
 | **Profile and documents** | Onboard a new company; upload a certificate and have AI read its number, issuer and expiry |
 | **Reviews** | Reviews from buyers and partners, published only after the Sangam team matches them to a real order; write reviews of partners |
 
@@ -56,10 +60,17 @@ English and Hindi.
 
 | Page | What it does |
 |---|---|
-| **Verification desk** | Check identity, capacity and certificates of new companies; match reviews to orders; verify development milestones |
+| **Verification desk** | Decide on Auditor flags (approving signs an audit credential); resolve worker grievances; check identity, capacity and certificates of new companies; match reviews to orders; verify development milestones |
+| **Skill Passports** | Sign a worker's skill (pseudonymous ID only) and a supplier's won contracts as tamper-proof credentials |
+| **Check a credential** | Paste or open a credential to see whether it is genuine; "Change one character" shows a forgery being caught |
+| **SDG 8 impact** | Jobs, wages against the living wage, women's share, rural share of contract value, imports replaced, grievances and credentials, by district, each tagged with its source |
 | **District dashboard** | Unmet demand vs local capability within 300 km, investment and jobs to close it, with real climate and connectivity; CSV export |
-| **Platform metrics** | The proposal's success measures, computed from activity |
+| **Report a problem** | Anonymous form for workers; an open report lowers the supplier's grade, and reports of child or forced labour go straight to the desk |
 | **Data sources** | Every source, its licence, date and what it powers |
+
+## Signed credentials
+
+`src/ecosystem/vc.ts` signs and checks credentials shaped like a [W3C Verifiable Credential](https://www.w3.org/TR/vc-data-model-2.0/), with Ed25519 (ECDSA P-256 on browsers without it) through Web Crypto, so the same code runs on the server and in the browser. The server's key (`server/credentials.ts`) is created on first run in `.sangam-issuer.local`, which git ignores. Until the shared server is running, the app signs with a demo key kept in the browser, and says so.
 
 ## Trust score
 
@@ -96,13 +107,15 @@ Everything numeric comes from deterministic code; Ask Sangam only explains it.
 | `server/ai.ts` | Ask Sangam and certificate reading on Claude (`claude-opus-5-5`), served by the Vite dev server |
 | `scripts/fetch-real-data.mjs` | Downloads the public datasets |
 
-## Path to the SAP build
+## Path to production
 
-| Prototype | SAP target |
+| Today | Next step |
 |---|---|
-| TypeScript engine and optimiser | Python services on SAP AI Core |
-| `src/real`, sector templates, browser storage | SAP HANA Cloud (graph, spatial, vector) and SAP Business Data Cloud |
-| Requirements, quotes, awards | SAP Ariba sourcing events and contracts (CSV export works today) |
-| Demand plan | SAP IBP (CSV import works today) |
-| Supplier profiles and verification | SAP Business Network |
-| Ask Sangam | Joule / Generative AI Hub |
+| SQLite in a Node server | Postgres, with pgvector for matching |
+| Agents on the Anthropic SDK with a deterministic orchestrator | LangGraph or the Claude Agent SDK if the flow grows branches |
+| Beckn-shaped agent messages | A Beckn gateway on the ONDC network |
+| Credentials checked in the app | A DID-based issuer and DigiLocker or a wallet app |
+| Browser speech recognition | Bhashini for speech, translation and text-to-speech |
+| In-memory supply network graph | Neo4j once there are thousands of suppliers |
+
+The SAP Hackfest version of this prototype is tagged `sap-hackfest-v1`.
