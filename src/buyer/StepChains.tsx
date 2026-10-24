@@ -12,6 +12,7 @@ import type { Gap, Option, Weights } from '../types';
 import Slider from '../components/Slider';
 import ChainMap from '../components/ChainMap';
 import { useBuyer } from './context';
+import SupplierGrade from './negotiation/SupplierGrade';
 
 const PRIORITIES: { key: keyof Weights; label: string }[] = [
   { key: 'cost', label: 'Lower cost' },
@@ -54,7 +55,7 @@ export default function StepChains() {
     <span key={s.id}>
       {i > 0 && ' + '}
       <button className="linkish" onClick={() => openSupplier(s.id)}>{s.name}</button>, {district(s.districtId).name}
-      <span className="tiny"> · trust {trustScore(s, state).score}</span>
+      <span className="tiny"> · trust {trustScore(s, state).score}</span> <SupplierGrade supplierId={s.id} />
       {isRural(s) && <> <span className="chip rural">{s.type}</span></>}
     </span>
   ));

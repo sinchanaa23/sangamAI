@@ -12,6 +12,8 @@ import { exportRoute } from '../routes';
 import GlobalBuyerPanel from './global/GlobalBuyerPanel';
 import { buildPack, downloadPack } from './global/pack';
 import { countryOf, fmt, laneFor, useGlobalBuyer } from './global/settings';
+import NegotiateButton from './negotiation/NegotiateButton';
+import SupplierGrade from './negotiation/SupplierGrade';
 
 export const FIRMNESS: Record<Firmness, { label: string; cls: string; help: string }> = {
   exploring: { label: 'Exploring', cls: 'plain', help: 'Looking at options; no commitment yet' },
@@ -113,6 +115,10 @@ function QuoteCompare({ req }: { req: Requirement }) {
                     {q.bidder.kind === 'seller' ? <button className="linkish" onClick={() => openSupplier(q.bidder.id)}>{name}</button> : name}
                     {q === best.q && <> <span className="chip ready">{lane ? 'Lowest landed cost' : 'Lowest total cost'}</span></>}
                   </div>
+                  <div className="row" style={{ gap: 6, margin: '4px 0', flexWrap: 'wrap' }}>
+                    <span className="tiny">Fair Work</span>
+                    {bidderSellers(q.bidder, state).map((m) => <SupplierGrade key={m.seller.id} supplierId={m.seller.id} />)}
+                  </div>
                   <div className="tiny">{bidderSellers(q.bidder, state).map((m) => district(m.seller.districtId).name).join(' + ')} · {q.notes || 'No notes'} {q.sample && <Src kind="simulated" />}</div>
                   <div className="tiny"><button className="link-btn" title="Supplier verification, Fair Work Scorecard, credentials and route, as a printable page" onClick={() => pack(q, 'html')}>Due-diligence pack</button> · <button className="link-btn" title="The same pack as JSON" onClick={() => pack(q, 'json')}>JSON</button></div>
                   {!t.capacityOk && <div className="tiny up">Capacity {q.capacity.toLocaleString('en-IN')} is below the {req.monthlyVolume.toLocaleString('en-IN')} needed</div>}
@@ -127,6 +133,7 @@ function QuoteCompare({ req }: { req: Requirement }) {
                 <td style={{ whiteSpace: 'nowrap' }}>
                   {q.status === 'awarded' ? <span className="chip ready">Awarded</span> : req.status === 'awarded' ? null : (
                     <>
+                      <NegotiateButton req={req} supplierIds={bidderSellers(q.bidder, state).map((m) => m.seller.id)} label="Negotiate" />{' '}
                       <button className="btn small" onClick={() => setStatus(q.id, 'awarded')}>Award</button>{' '}
                       {q.status !== 'shortlisted' && <button className="btn small ghost" onClick={() => setStatus(q.id, 'shortlisted')}>Shortlist</button>}
                       {q.status === 'shortlisted' && <span className="chip plain">Shortlisted</span>}{' '}
@@ -170,6 +177,13 @@ function QuoteCompare({ req }: { req: Requirement }) {
 export default function RequirementsPage() {
   const { state, update } = useStore();
   const { openSupplier } = useUi();
+  /** Who the agents talk to: suppliers who quoted, else those invited, else every supplier with the process. */
+  const negotiationSuppliers = (r: Requirement) => {
+    const quoted = state.quotes.filter((q) => q.reqId === r.id && q.status !== 'declined').flatMap((q) => bidderSellers(q.bidder, state).map((m) => m.seller.id));
+    if (quoted.length) return [...new Set(quoted)];
+    if (r.invited.length) return r.invited;
+    return sellers.filter((s) => s.process === r.process).map((s) => s.id);
+  };
   const [creating, setCreating] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const reqs = state.requirements.filter((r) => r.sector === state.sector);
@@ -234,6 +248,12 @@ export default function RequirementsPage() {
                   <span className="small muted">Stage:</span>
                   {(Object.keys(FIRMNESS) as Firmness[]).map((f) => <button key={f} className={`pill ${r.firmness === f ? 'on' : ''}`} onClick={() => update((s) => ({ ...s, requirements: s.requirements.map((x) => (x.id === r.id ? { ...x, firmness: f } : x)) }))}>{FIRMNESS[f].label}</button>)}
                 </div>
+                {r.status !== 'awarded' && (
+                  <div className="note row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                    <span>Let a Buyer Agent negotiate this with {negotiationSuppliers(r).length} supplier{negotiationSuppliers(r).length === 1 ? '' : 's'}. No offer below the living wage gets through.</span>
+                    <NegotiateButton req={r} supplierIds={negotiationSuppliers(r)} primary />
+                  </div>
+                )}
                 {interests.length > 0 && (
                   <div>
                     <div className="small" style={{ fontWeight: 600, marginBottom: 6 }}>Interested</div>

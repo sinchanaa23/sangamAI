@@ -1,14 +1,15 @@
 // F3: the negotiation room. Shows each agent message in order, the offer behind it, what the
 // orchestrator refused and why, and the Auditor's Fair Work Scorecard at the end.
-// For now it replays a local fixture; it will switch to P1's SSE stream (src/api.ts) in hours 10-14.
+// It follows a negotiation's server-sent events; with none started it plays the recorded demo (offline copy if the server is down).
 import { Fragment, useEffect, useRef } from 'react';
-import { sellers } from '../data';
+import { buyer, sellers } from '../data';
 import { inr, lakh, pct } from '../engine';
 import { useUi } from '../ui';
 import Src from '../components/Src';
 import GradeBadge from './negotiation/GradeBadge';
-import { DEMO_EVENTS, DEMO_RFQ, LIVING_WAGE_PER_DAY } from './negotiation/demoFixture';
-import { useReplay } from './negotiation/useReplay';
+import { DEMO_RFQ, LIVING_WAGE_PER_DAY } from './negotiation/demoFixture';
+import { openRoom, useRoomSession } from './negotiation/live';
+import { useFeed } from './negotiation/useFeed';
 import type { FairWorkScore, Money, NegotiationEvent, Offer, Side } from './negotiation/types';
 import './negotiation/room.css';
 
@@ -16,7 +17,9 @@ const MAX_ROUNDS = 4;
 const STEPS = ['search', 'select', 'init', 'confirm'] as const;
 const STEP_LABEL: Record<(typeof STEPS)[number], string> = { search: 'Search', select: 'Quote', init: 'Negotiate', confirm: 'Confirm' };
 const SIDE_LABEL: Record<Side, string> = { buyer: 'Buyer Agent', supplier: 'Supplier Agent', auditor: 'Auditor Agent' };
-const SIDE_FOR: Record<Side, string> = { buyer: 'for Veer Electric Mobility', supplier: 'for the supplier', auditor: 'for the Sangam ecosystem' };
+const SIDE_FOR: Record<Side, string> = { buyer: 'for the buying company', supplier: 'for the supplier', auditor: 'for the Sangam ecosystem' };
+/** Living-wage floor a worker-day by district, where we have one; P3's fairwork.ts will supply these. */
+const FLOORS: Record<string, number> = { Krishnagiri: LIVING_WAGE_PER_DAY };
 const STATUS_CHIP: Record<Offer['status'], { cls: string; label: string }> = {
   proposed: { cls: 'plain', label: 'Proposed' },
   countered: { cls: 'potential', label: 'Counter-offer' },
@@ -26,18 +29,18 @@ const STATUS_CHIP: Record<Offer['status'], { cls: string; label: string }> = {
 
 const money = (m: Money) => (m.currency === 'INR' ? (m.amount >= 1e5 ? lakh(m.amount / 1e5) : inr(m.amount)) : `${m.currency} ${Math.round(m.amount).toLocaleString('en-IN')}`);
 const perUnit = (m: Money, qty: number) => (m.currency === 'INR' ? inr(m.amount / qty) : `${m.currency} ${(m.amount / qty).toFixed(2)}`);
-const supplierName = (id: string) => sellers.find((s) => s.id === id)?.name ?? 'Krishnagiri Mahila Harness Collective';
+const supplierName = (id: string) => sellers.find((s) => s.id === id)?.name ?? id;
 
 function OfferCard({ offer, qty }: { offer: Offer; qty: number }) {
   const chip = STATUS_CHIP[offer.status];
   const l = offer.labour;
-  const belowFloor = l.wagePerWorkerDay < LIVING_WAGE_PER_DAY;
+  const belowFloor = l.wagePerWorkerDay < (FLOORS[l.district] ?? 0);
   return (
     <div className={`nr-offer ${offer.status}`}>
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <div>
           <span className="nr-price">{money(offer.price)}</span>
-          <span className="tiny"> · {perUnit(offer.price, qty)} a harness · {offer.leadTimeDays} days</span>
+          <span className="tiny"> · {perUnit(offer.price, qty)} a {buyer.unitLabel} · {offer.leadTimeDays} days</span>
         </div>
         <span className={`chip ${chip.cls}`}>{chip.label}</span>
       </div>
@@ -53,7 +56,7 @@ function OfferCard({ offer, qty }: { offer: Offer; qty: number }) {
   );
 }
 
-function Message({ e }: { e: Extract<NegotiationEvent, { from: Side }> }) {
+function Message({ e, qty }: { e: Extract<NegotiationEvent, { from: Side }>; qty: number }) {
   return (
     <li className={`nr-msg ${e.from}`}>
       <div className="nr-who">
@@ -62,7 +65,7 @@ function Message({ e }: { e: Extract<NegotiationEvent, { from: Side }> }) {
       </div>
       <div className="nr-bubble">
         <p>{e.text}</p>
-        {e.offer && <OfferCard offer={e.offer} qty={DEMO_RFQ.quantity} />}
+        {e.offer && <OfferCard offer={e.offer} qty={qty} />}
       </div>
     </li>
   );
@@ -95,11 +98,15 @@ function Scorecard({ score, decision }: { score: FairWorkScore; decision: 'pass'
   );
 }
 
+const SOURCE_LABEL = { live: 'live', 'server-replay': 'recorded demo', offline: 'recorded demo, offline copy' } as const;
+
 export default function NegotiationRoom() {
   const { go } = useUi();
-  const replay = useReplay(DEMO_EVENTS);
+  const session = useRoomSession();
+  const feed = useFeed(session?.id ?? null);
+  const rfq = session?.rfq ?? DEMO_RFQ;
   const listEnd = useRef<HTMLLIElement>(null);
-  const shown = replay.shown;
+  const shown = feed.events;
 
   const offers = shown.flatMap((e) => ('offer' in e && e.offer ? [e.offer] : []));
   const terms = [...offers].reverse().find((o) => o.status !== 'rejected');
@@ -109,17 +116,23 @@ export default function NegotiationRoom() {
   const end = shown.find((e): e is Extract<NegotiationEvent, { type: 'end' }> => e.type === 'end');
   const lastStep = [...shown].reverse().find((e) => e.type !== 'audit' && e.type !== 'end')?.type;
   const stepIdx = end ? STEPS.length : lastStep ? STEPS.indexOf(lastStep as (typeof STEPS)[number]) : -1;
+  const supplierIds = [...new Set(offers.map((o) => o.supplierId))];
+  const floor = terms ? FLOORS[terms.labour.district] : undefined;
 
   useEffect(() => { listEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [shown.length]);
 
-  const budget = DEMO_RFQ.budget.amount;
+  const budget = rfq.budget.amount;
+  const status = feed.error ? 'Lost the connection to the server' : end ? 'Finished' : feed.playing ? 'Agents are talking' : 'Paused';
   return (
     <div className="stack">
       <div className="card">
-        <div className="eyebrow">Negotiation room · {DEMO_RFQ.id} <Src kind="simulated" title="Replay of a recorded demo negotiation; companies and prices are simulated" /></div>
-        <h1 className="lead" style={{ marginTop: 6 }}>{DEMO_RFQ.quantity.toLocaleString('en-IN')} wiring harnesses, negotiated by agents under a living-wage floor.</h1>
+        <div className="eyebrow">
+          Negotiation room · {rfq.id}{' '}
+          {session ? <Src kind="live" title="Streamed from the Sangam server as the agents negotiate" /> : <Src kind="simulated" title="Replay of a recorded demo negotiation; companies and prices are simulated" />}
+        </div>
+        <h1 className="lead" style={{ marginTop: 6 }}>{rfq.quantity.toLocaleString('en-IN')} × {rfq.part}, negotiated by agents under a living-wage floor.</h1>
         <p className="muted" style={{ marginTop: 8 }}>
-          The Buyer Agent bargains for Veer Electric Mobility, the Supplier Agent for {supplierName('s13')}. Plain code checks every offer before the other side sees it: at most {MAX_ROUNDS} rounds, the budget, free capacity and a wage of at least {inr(LIVING_WAGE_PER_DAY)} a worker-day.
+          The Buyer Agent bargains for {session ? buyer.name : 'Veer Electric Mobility'}, the Supplier Agent for {supplierIds.length ? supplierIds.map(supplierName).join(' and ') : 'each invited supplier'}. Plain code checks every offer before the other side sees it: at most {MAX_ROUNDS} rounds, the budget, free capacity and a wage no lower than the district&apos;s living wage.
         </p>
         <div className="nr-steps" aria-label="Negotiation steps">
           {STEPS.map((s, i) => (
@@ -127,17 +140,18 @@ export default function NegotiationRoom() {
           ))}
         </div>
         <div className="row" style={{ marginTop: 14, gap: 8, flexWrap: 'wrap' }}>
-          {!replay.done && <button className="btn small" onClick={replay.toggle}>{replay.playing ? 'Pause' : 'Resume'}</button>}
-          {!replay.done && <button className="btn small ghost" onClick={replay.skip}>Skip to the end</button>}
-          {replay.done && <button className="btn small" onClick={replay.restart}>Replay negotiation</button>}
-          <span className="feed" style={{ marginLeft: 'auto' }}><span className={`d ${end ? 'ok' : 'load'}`} />{end ? 'Finished' : replay.playing ? 'Agents are talking' : 'Paused'} · replay</span>
+          {feed.toggle && !feed.done && <button className="btn small" onClick={feed.toggle}>{feed.playing ? 'Pause' : 'Resume'}</button>}
+          {feed.skip && !feed.done && <button className="btn small ghost" onClick={feed.skip}>Skip to the end</button>}
+          {(feed.done || feed.error) && <button className="btn small" onClick={feed.restart}>{feed.error ? 'Reconnect' : 'Replay negotiation'}</button>}
+          {session && <button className="btn small ghost" onClick={() => openRoom(null)}>Watch the recorded demo</button>}
+          <span className="feed" style={{ marginLeft: 'auto' }}><span className={`d ${feed.error ? 'err' : end ? 'ok' : 'load'}`} />{status} · {SOURCE_LABEL[feed.source]}</span>
         </div>
       </div>
 
       <div className="nr-grid">
         <div className="card">
           <div className="section-title">What each agent said</div>
-          {shown.length === 0 ? <div className="empty">Starting the agents…</div> : (
+          {shown.length === 0 ? <div className="empty">{feed.error ? 'Could not reach the negotiation. Is the server running (npm run server)?' : 'Starting the agents…'}</div> : (
             <ol className="nr-timeline">
               {shown.map((e, i) => {
                 if (e.type === 'audit') return null;
@@ -148,9 +162,9 @@ export default function NegotiationRoom() {
                     </li>
                   );
                 }
-                return <Message key={i} e={e} />;
+                return <Message key={i} e={e} qty={rfq.quantity} />;
               })}
-              {!end && <li ref={listEnd} className="nr-typing" aria-hidden="true"><span /><span /><span /></li>}
+              {!end && !feed.error && <li ref={listEnd} className="nr-typing" aria-hidden="true"><span /><span /><span /></li>}
             </ol>
           )}
         </div>
@@ -161,15 +175,19 @@ export default function NegotiationRoom() {
             {terms ? (
               <>
                 <div className="nr-price" style={{ fontSize: 26 }}>{money(terms.price)}</div>
-                <div className="tiny">{perUnit(terms.price, DEMO_RFQ.quantity)} a harness · {terms.leadTimeDays} days · round {round} of {MAX_ROUNDS}</div>
-                <div className="nr-meter-label"><span>Against budget {money(DEMO_RFQ.budget)}</span><b>{Math.round((terms.price.amount / budget) * 100)}%</b></div>
+                <div className="tiny">{perUnit(terms.price, rfq.quantity)} a {buyer.unitLabel} · {terms.leadTimeDays} days · round {round} of {MAX_ROUNDS}</div>
+                <div className="nr-meter-label"><span>Against budget {money(rfq.budget)}</span><b>{Math.round((terms.price.amount / budget) * 100)}%</b></div>
                 <div className="meter"><span style={{ width: `${Math.min(100, (terms.price.amount / budget) * 100)}%`, background: terms.price.amount > budget ? 'var(--potential)' : 'var(--accent)' }} /></div>
-                <div className="nr-meter-label"><span>Wage against living wage <Src kind="estimated" /></span><b>{inr(terms.labour.wagePerWorkerDay)}</b></div>
-                <div className="meter nr-wage"><span style={{ width: `${Math.min(100, (terms.labour.wagePerWorkerDay / LIVING_WAGE_PER_DAY) * 80)}%`, background: 'var(--ready)' }} /><i title="Living-wage floor" /></div>
-                <div className="tiny" style={{ marginTop: 4 }}>The mark is the floor: {inr(LIVING_WAGE_PER_DAY)} a worker-day</div>
+                <div className="nr-meter-label"><span>Wage a worker-day{floor ? <> against living wage <Src kind="estimated" /></> : ''}</span><b>{inr(terms.labour.wagePerWorkerDay)}</b></div>
+                {floor && (
+                  <>
+                    <div className="meter nr-wage"><span style={{ width: `${Math.min(100, (terms.labour.wagePerWorkerDay / floor) * 80)}%`, background: 'var(--ready)' }} /><i title="Living-wage floor" /></div>
+                    <div className="tiny" style={{ marginTop: 4 }}>The mark is the floor for {terms.labour.district}: {inr(floor)} a worker-day</div>
+                  </>
+                )}
               </>
             ) : <div className="tiny">No offer yet.</div>}
-            {blocked > 0 && <div className="note warn" style={{ marginTop: 14 }}>{blocked} offer{blocked > 1 ? 's' : ''} blocked for paying below the living wage.</div>}
+            {blocked > 0 && <div className="note warn" style={{ marginTop: 14 }}>{blocked} offer{blocked > 1 ? 's' : ''} blocked by the orchestrator before the other side saw {blocked > 1 ? 'them' : 'it'}.</div>}
           </div>
 
           {audit ? <Scorecard score={audit.score} decision={audit.decision} /> : (
