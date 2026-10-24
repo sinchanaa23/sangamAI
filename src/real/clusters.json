@@ -1,0 +1,39 @@
+{
+  "about": "Skilled-worker clusters shown on the buyer's cluster map. Each cluster's skills are the district's products exactly as written in the cited row of the official One District One Product (ODOP) list, unless another source is given. Coordinates: the app's district point where the district is in districts.json, otherwise the approximate district headquarters. No worker counts or wages are included because none were sourced.",
+  "sources": {
+    "odop": {
+      "title": "ODOP Product List, V33, 31 December 2025 (DPIIT and Invest India)",
+      "url": "https://static.investindia.gov.in/s3fs-public/2026-02/odop_product_list.pdf",
+      "page": "https://www.investindia.gov.in/one-district-one-product"
+    },
+    "iob": {
+      "title": "Indian Overseas Bank, cluster-based financing: Auto Components Cluster in Hosur and Krishnagiri, Tamil Nadu",
+      "url": "https://www.iob.bank.in/en/cluster-based-financing"
+    },
+    "gi-bhadohi": {
+      "title": "SpicyIP, GIs to Bhadohi Carpets and Paithani Sarees (September 2010)",
+      "url": "https://spicyip.com/2010/09/spicyip-tidbitsgis-to-bhadohi-carpets.html"
+    }
+  },
+  "clusters": [
+    { "id": "bhadohi-carpet", "name": "Bhadohi carpet weaving", "district": "Bhadohi (Sant Ravidas Nagar)", "state": "Uttar Pradesh", "lat": 25.4, "lon": 82.57, "kind": "Handicraft", "skills": ["Carpet (Dari)"], "refs": [{ "source": "odop", "row": 1088 }, { "source": "gi-bhadohi", "note": "Handmade carpet of Bhadohi holds a Geographical Indication (2010)" }] },
+    { "id": "tiruppur-knitwear", "name": "Tiruppur knitwear", "district": "Tiruppur", "state": "Tamil Nadu", "districtId": "tiruppur", "kind": "Textile", "skills": ["Hosiery Garments"], "refs": [{ "source": "odop", "row": 1009 }] },
+    { "id": "ludhiana", "name": "Ludhiana garments and engineering", "district": "Ludhiana", "state": "Punjab", "districtId": "ludhiana", "kind": "Textile", "skills": ["Readymade Garments", "Engineering Goods"], "refs": [{ "source": "odop", "row": 879 }, { "source": "odop", "row": 880 }] },
+    { "id": "varanasi-silk", "name": "Varanasi silk", "district": "Varanasi", "state": "Uttar Pradesh", "lat": 25.32, "lon": 82.97, "kind": "Textile", "skills": ["Silk Products"], "refs": [{ "source": "odop", "row": 1169 }] },
+    { "id": "lucknow-chikankari", "name": "Lucknow chikankari", "district": "Lucknow", "state": "Uttar Pradesh", "districtId": "lucknow", "kind": "Textile", "skills": ["Chikankari & Zari Zardozi"], "refs": [{ "source": "odop", "row": 1134 }] },
+    { "id": "madurai-garments", "name": "Madurai garments", "district": "Madurai", "state": "Tamil Nadu", "districtId": "madurai", "kind": "Textile", "skills": ["Readymade Garments"], "refs": [{ "source": "odop", "row": 980 }] },
+    { "id": "pochampally-ikat", "name": "Pochampally ikat weaving", "district": "Yadadri Bhuvanagiri", "state": "Telangana", "lat": 17.51, "lon": 78.89, "kind": "Handloom", "skills": ["Handloom Ikkat Products"], "refs": [{ "source": "odop", "row": 1052 }] },
+    { "id": "moradabad-metal", "name": "Moradabad metal craft", "district": "Moradabad", "state": "Uttar Pradesh", "lat": 28.84, "lon": 78.77, "kind": "Manufacturing", "skills": ["Metal Craft"], "refs": [{ "source": "odop", "row": 1147 }] },
+    { "id": "khurda-crafts", "name": "Khurda stone carving and pattachitra", "district": "Khurda", "state": "Odisha", "districtId": "khordha", "kind": "Handicraft", "skills": ["Handicrafts (Stone Carving)", "Handicrafts (Pattachitra)"], "refs": [{ "source": "odop", "row": 828 }, { "source": "odop", "row": 829 }] },
+    { "id": "ramanagara-ev", "name": "Ramanagara EV and Channapatna toys", "district": "Ramanagara", "state": "Karnataka", "lat": 12.72, "lon": 77.28, "kind": "Manufacturing", "skills": ["EV Cluster", "Channapatna toys"], "refs": [{ "source": "odop", "row": 553 }, { "source": "odop", "row": 552 }] },
+    { "id": "hosur-auto", "name": "Hosur and Krishnagiri auto components", "district": "Krishnagiri", "state": "Tamil Nadu", "districtId": "hosur", "moreDistrictIds": ["krishnagiri"], "kind": "Manufacturing", "skills": ["Auto components"], "refs": [{ "source": "iob" }] },
+    { "id": "coimbatore-pumps", "name": "Coimbatore pumps", "district": "Coimbatore", "state": "Tamil Nadu", "districtId": "coimbatore", "kind": "Manufacturing", "skills": ["Motor Pumps"], "refs": [{ "source": "odop", "row": 964 }] },
+    { "id": "pune-engineering", "name": "Pune engineering", "district": "Pune", "state": "Maharashtra", "districtId": "pune", "kind": "Manufacturing", "skills": ["Engineering Goods"], "refs": [{ "source": "odop", "row": 689 }] },
+    { "id": "aurangabad-auto", "name": "Chhatrapati Sambhajinagar auto components", "district": "Aurangabad", "state": "Maharashtra", "districtId": "aurangabad", "kind": "Manufacturing", "skills": ["Auto components"], "refs": [{ "source": "odop", "row": 646 }] },
+    { "id": "rajkot-engineering", "name": "Rajkot engineering", "district": "Rajkot", "state": "Gujarat", "districtId": "rajkot", "kind": "Manufacturing", "skills": ["Engineering Goods/Machine products"], "refs": [{ "source": "odop", "row": 388 }] },
+    { "id": "tumakuru-machine-tools", "name": "Tumakuru machine tools", "district": "Tumakuru", "state": "Karnataka", "districtId": "tumakuru", "kind": "Manufacturing", "skills": ["Machine Tool"], "refs": [{ "source": "odop", "row": 556 }] },
+    { "id": "mysuru-esdm", "name": "Mysuru electronics", "district": "Mysore", "state": "Karnataka", "districtId": "mysuru", "kind": "Manufacturing", "skills": ["ESDM"], "refs": [{ "source": "odop", "row": 548 }] },
+    { "id": "nagpur-engineering", "name": "Nagpur engineering", "district": "Nagpur", "state": "Maharashtra", "districtId": "nagpur", "kind": "Manufacturing", "skills": ["Engineering"], "refs": [{ "source": "odop", "row": 676 }] },
+    { "id": "howrah", "name": "Howrah jewellery and engineering", "district": "Howrah", "state": "West Bengal", "districtId": "howrah", "kind": "Handicraft", "skills": ["Gems & Jewellery", "Engineering Goods"], "refs": [{ "source": "odop", "row": 1204 }, { "source": "odop", "row": 1205 }] }
+  ]
+}
