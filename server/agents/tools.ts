@@ -3,6 +3,7 @@
 import type { BomLine, Seller } from '../../src/types';
 import { bom, loadDataset, sellers } from '../../src/data';
 import { district, isRural } from '../../src/engine';
+import { fxRate } from '../../src/realdata';
 import { partRoute } from '../../src/chainRoute';
 import { EMPTY } from '../../src/model';
 import { trustScore } from '../../src/trust';
@@ -16,8 +17,8 @@ import { openGrievances } from '../grievances';
 const FALLBACK_FLOOR_PER_DAY = Math.round(14926 / 26); // GLWC rural Nilgiris, estimated
 /** Share of the price that is wages, by process. A modelling assumption (estimated), not a measured figure. */
 const LABOUR_SHARE = { assembly: 0.6, other: 0.3 };
-/** Rupees per unit of currency: a fixed table, same values as the buyer's global mode (estimated, 2026-10-24). */
-export const FX_INR: Record<'INR' | 'USD' | 'EUR', number> = { INR: 1, USD: 94.5, EUR: 108 };
+/** Rupees per unit of currency, from the ECB reference rates in src/real/fx.json (refresh with `npm run data:refresh fx`). */
+export const FX_INR: Record<'INR' | 'USD' | 'EUR', number> = { INR: 1, USD: fxRate('USD').inrPer, EUR: fxRate('EUR').inrPer };
 
 /** The living-wage floor per worker-day for a district (id or name). */
 export const wageFloorPerDay = (district: string) => livingWageFor(district)?.perDayInr ?? FALLBACK_FLOOR_PER_DAY;

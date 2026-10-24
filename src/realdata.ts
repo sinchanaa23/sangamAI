@@ -1,6 +1,8 @@
 // Real public data fetched by scripts/fetch-real-data.mjs, and the district scores derived from it.
 import comtradeFile from './real/comtrade.json';
 import lpiFile from './real/lpi.json';
+import tariffsFile from './real/tariffs.json';
+import fxFile from './real/fx.json';
 import districtList from './geo/districts.json';
 import type { District, Provenance } from './types';
 
@@ -11,13 +13,19 @@ interface OsmRow { industrialAreas: number; railStations: number; airports: numb
 const climateFile = optional['./real/climate.json'] as { source: string; fetched: string; districts: Record<string, ClimateRow> } | undefined;
 const osmFile = optional['./real/osm.json'] as { source: string; fetched: string; districts: Record<string, OsmRow> } | undefined;
 
-export interface TradePartner { code: number; iso3: string; name: string; usd: number; share: number }
-export interface TradeStat { hs: string; label: string; year: number | null; totalUsd: number; hhi: number; partners: TradePartner[] }
+export interface TradePartner { code: number; iso3: string; name: string; usd: number; share: number; netKg?: number | null; usdPerKg?: number | null; weightEstimated?: boolean | null }
+export interface TradeStat {
+  hs: string; label: string; year: number | null; totalUsd: number; hhi: number; partners: TradePartner[];
+  /** net weight imported and the average import price, when Comtrade reports a weight */
+  netKg?: number | null; usdPerKg?: number | null; weightEstimated?: boolean | null;
+}
 
 export const SOURCES = {
   comtrade: { name: 'UN Comtrade', detail: comtradeFile.source, fetched: comtradeFile.fetched, url: 'https://comtradeplus.un.org' },
   lpi: { name: 'World Bank LPI', detail: lpiFile.source, fetched: lpiFile.fetched, url: 'https://lpi.worldbank.org' },
   climate: { name: 'Open-Meteo', detail: climateFile?.source ?? 'Not fetched yet', fetched: climateFile?.fetched ?? '', url: 'https://open-meteo.com' },
+  tariffs: { name: 'World Bank WITS (UNCTAD TRAINS)', detail: tariffsFile.source, fetched: tariffsFile.fetched, url: 'https://wits.worldbank.org' },
+  fx: { name: 'ECB reference rates (Frankfurter)', detail: fxFile.source, fetched: fxFile.fetched, url: 'https://www.frankfurter.app' },
   osm: { name: 'OpenStreetMap', detail: osmFile?.source ?? 'Not fetched yet', fetched: osmFile?.fetched ?? '', url: 'https://www.openstreetmap.org/copyright' },
 };
 
@@ -25,6 +33,27 @@ export function trade(hs?: string): TradeStat | null {
   if (!hs) return null;
   const t = (comtradeFile.codes as Record<string, TradeStat>)[hs];
   return t && t.year ? t : null;
+}
+
+/** What India actually paid per kg for imports of this product (Comtrade value / net weight), from one partner or the world. */
+export function unitValueUsdPerKg(hs?: string, iso3?: string): { usdPerKg: number; year: number; estimated: boolean; source: string } | null {
+  const t = trade(hs);
+  if (!t) return null;
+  const row = iso3 ? t.partners.find((p) => p.iso3 === iso3) : t;
+  if (!row?.usdPerKg || !t.year) return null;
+  return { usdPerKg: row.usdPerKg, year: t.year, estimated: Boolean(row.weightEstimated), source: `UN Comtrade ${t.year}: India imports of HS ${t.hs}, value / net weight${row.weightEstimated ? ' (weight estimated by Comtrade)' : ''}` };
+}
+
+/** India's applied MFN customs duty for an HS code, as a fraction (0.15 = 15%). Basic duty only. */
+export function importDuty(hs?: string): { rate: number; year: number; source: string } | null {
+  const t = hs ? (tariffsFile.codes as Record<string, { mfnPct: number; year: number }>)[hs] : undefined;
+  return t ? { rate: t.mfnPct / 100, year: t.year, source: `World Bank WITS (UNCTAD TRAINS) ${t.year}: India MFN applied duty for HS ${hs}, basic duty only` } : null;
+}
+
+/** Rupees per unit of a currency, from the ECB reference rate on the date in fx.json. */
+export function fxRate(ccy: 'INR' | 'USD' | 'EUR'): { inrPer: number; date: string; source: string } {
+  const inrPer = ccy === 'INR' ? 1 : ccy === 'USD' ? fxFile.inrPerUsd : fxFile.inrPerEur;
+  return { inrPer, date: fxFile.date, source: `${fxFile.source}, ${fxFile.date}` };
 }
 
 export function lpi(iso3: string): { score: number; year: number } | null {

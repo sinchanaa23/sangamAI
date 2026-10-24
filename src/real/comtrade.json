@@ -1,13 +1,16 @@
 {
  "source": "UN Comtrade public API (preview), reporter India (699), imports",
- "fetched": "2026-10-22",
+ "fetched": "2026-10-24",
  "codes": {
   "100829": {
    "hs": "100829",
    "label": "Millet",
    "year": 2024,
    "totalUsd": 534943,
+   "schema": 2,
    "netKg": 1295780,
+   "usdPerKg": 0.413,
+   "weightEstimated": false,
    "hhi": 8238,
    "partners": [
     {
@@ -15,21 +18,30 @@
      "iso3": "IND",
      "name": "India",
      "usd": 483550,
-     "share": 0.9039
+     "share": 0.9039,
+     "netKg": 1131780,
+     "usdPerKg": 0.427,
+     "weightEstimated": false
     },
     {
      "code": 643,
      "iso3": "RUS",
      "name": "Russian Federation",
      "usd": 43210,
-     "share": 0.0808
+     "share": 0.0808,
+     "netKg": 140000,
+     "usdPerKg": 0.309,
+     "weightEstimated": false
     },
     {
      "code": 784,
      "iso3": "ARE",
      "name": "United Arab Emirates",
      "usd": 8184,
-     "share": 0.0153
+     "share": 0.0153,
+     "netKg": 24000,
+     "usdPerKg": 0.341,
+     "weightEstimated": false
     }
    ]
   },
@@ -38,7 +50,10 @@
    "label": "Cereal flakes and puffed products",
    "year": 2024,
    "totalUsd": 598809,
+   "schema": 2,
    "netKg": 132674,
+   "usdPerKg": 4.513,
+   "weightEstimated": false,
    "hhi": 2569,
    "partners": [
     {
@@ -46,70 +61,100 @@
      "iso3": "THA",
      "name": "Thailand",
      "usd": 257789,
-     "share": 0.4305
+     "share": 0.4305,
+     "netKg": 37578,
+     "usdPerKg": 6.86,
+     "weightEstimated": false
     },
     {
      "code": 458,
      "iso3": "MYS",
      "name": "Malaysia",
      "usd": 137549,
-     "share": 0.2297
+     "share": 0.2297,
+     "netKg": 20399,
+     "usdPerKg": 6.743,
+     "weightEstimated": false
     },
     {
      "code": 156,
      "iso3": "CHN",
      "name": "China",
      "usd": 64110,
-     "share": 0.1071
+     "share": 0.1071,
+     "netKg": 21600,
+     "usdPerKg": 2.968,
+     "weightEstimated": false
     },
     {
      "code": 724,
      "iso3": "ESP",
      "name": "Spain",
      "usd": 31316,
-     "share": 0.0523
+     "share": 0.0523,
+     "netKg": 8099,
+     "usdPerKg": 3.867,
+     "weightEstimated": false
     },
     {
      "code": 100,
      "iso3": "BGR",
      "name": "Bulgaria",
      "usd": 19651,
-     "share": 0.0328
+     "share": 0.0328,
+     "netKg": 3034,
+     "usdPerKg": 6.477,
+     "weightEstimated": false
     },
     {
      "code": 251,
      "iso3": "FRA",
      "name": "France",
      "usd": 19025,
-     "share": 0.0318
+     "share": 0.0318,
+     "netKg": 1152,
+     "usdPerKg": 16.515,
+     "weightEstimated": false
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 18329,
-     "share": 0.0306
+     "share": 0.0306,
+     "netKg": 7755,
+     "usdPerKg": 2.364,
+     "weightEstimated": false
     },
     {
      "code": 380,
      "iso3": "ITA",
      "name": "Italy",
      "usd": 16356,
-     "share": 0.0273
+     "share": 0.0273,
+     "netKg": 9568,
+     "usdPerKg": 1.709,
+     "weightEstimated": false
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 12144,
-     "share": 0.0203
+     "share": 0.0203,
+     "netKg": 10265,
+     "usdPerKg": 1.183,
+     "weightEstimated": false
     },
     {
      "code": 699,
      "iso3": "IND",
      "name": "India",
      "usd": 10106,
-     "share": 0.0169
+     "share": 0.0169,
+     "netKg": 4810,
+     "usdPerKg": 2.101,
+     "weightEstimated": false
     }
    ]
   },
@@ -118,7 +163,10 @@
    "label": "Portland cement",
    "year": 2024,
    "totalUsd": 45898514,
+   "schema": 2,
    "netKg": 731512093,
+   "usdPerKg": 0.063,
+   "weightEstimated": false,
    "hhi": 3105,
    "partners": [
     {
@@ -126,70 +174,100 @@
      "iso3": "BTN",
      "name": "Bhutan",
      "usd": 15110574,
-     "share": 0.3292
+     "share": 0.3292,
+     "netKg": 241726500,
+     "usdPerKg": 0.063,
+     "weightEstimated": false
     },
     {
      "code": 50,
      "iso3": "BGD",
      "name": "Bangladesh",
      "usd": 14761517,
-     "share": 0.3216
+     "share": 0.3216,
+     "netKg": 188603000,
+     "usdPerKg": 0.078,
+     "weightEstimated": false
     },
     {
      "code": 524,
      "iso3": "NPL",
      "name": "Nepal",
      "usd": 14319531,
-     "share": 0.312
+     "share": 0.312,
+     "netKg": 272834000,
+     "usdPerKg": 0.052,
+     "weightEstimated": false
     },
     {
      "code": 784,
      "iso3": "ARE",
      "name": "United Arab Emirates",
      "usd": 1670944,
-     "share": 0.0364
+     "share": 0.0364,
+     "netKg": 27727500,
+     "usdPerKg": 0.06,
+     "weightEstimated": false
     },
     {
      "code": 512,
      "iso3": "OMN",
      "name": "Oman",
      "usd": 33283,
-     "share": 0.0007
+     "share": 0.0007,
+     "netKg": 560000,
+     "usdPerKg": 0.059,
+     "weightEstimated": false
     },
     {
      "code": 490,
      "iso3": "S19",
      "name": "Other Asia, nes",
      "usd": 987,
-     "share": 0
+     "share": 0,
+     "netKg": 40000,
+     "usdPerKg": 0.025,
+     "weightEstimated": false
     },
     {
      "code": 96,
      "iso3": "BRN",
      "name": "Brunei Darussalam",
      "usd": 963,
-     "share": 0
+     "share": 0,
+     "netKg": 20000,
+     "usdPerKg": 0.048,
+     "weightEstimated": false
     },
     {
      "code": 48,
      "iso3": "BHR",
      "name": "Bahrain",
      "usd": 575,
-     "share": 0
+     "share": 0,
+     "netKg": 1000,
+     "usdPerKg": 0.575,
+     "weightEstimated": false
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 80,
-     "share": 0
+     "share": 0,
+     "netKg": 43,
+     "usdPerKg": 1.851,
+     "weightEstimated": false
     },
     {
      "code": 300,
      "iso3": "GRC",
      "name": "Greece",
      "usd": 61,
-     "share": 0
+     "share": 0,
+     "netKg": 50,
+     "usdPerKg": 1.211,
+     "weightEstimated": false
     }
    ]
   },
@@ -198,7 +276,10 @@
    "label": "PVC, not mixed",
    "year": 2024,
    "totalUsd": 2589606753,
+   "schema": 2,
    "netKg": null,
+   "usdPerKg": null,
+   "weightEstimated": false,
    "hhi": 2133,
    "partners": [
     {
@@ -206,70 +287,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 1009370043,
-     "share": 0.3898
+     "share": 0.3898,
+     "netKg": null,
+     "usdPerKg": null,
+     "weightEstimated": false
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 370551926,
-     "share": 0.1431
+     "share": 0.1431,
+     "netKg": 446157570,
+     "usdPerKg": 0.831,
+     "weightEstimated": false
     },
     {
      "code": 490,
      "iso3": "S19",
      "name": "Other Asia, nes",
      "usd": 348908228,
-     "share": 0.1347
+     "share": 0.1347,
+     "netKg": 415726450,
+     "usdPerKg": 0.839,
+     "weightEstimated": false
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 285607013,
-     "share": 0.1103
+     "share": 0.1103,
+     "netKg": 356132300,
+     "usdPerKg": 0.802,
+     "weightEstimated": false
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 238327707,
-     "share": 0.092
+     "share": 0.092,
+     "netKg": 313001908,
+     "usdPerKg": 0.761,
+     "weightEstimated": false
     },
     {
      "code": 360,
      "iso3": "IDN",
      "name": "Indonesia",
      "usd": 84722628,
-     "share": 0.0327
+     "share": 0.0327,
+     "netKg": 104821420,
+     "usdPerKg": 0.808,
+     "weightEstimated": false
     },
     {
      "code": 764,
      "iso3": "THA",
      "name": "Thailand",
      "usd": 62793704,
-     "share": 0.0242
+     "share": 0.0242,
+     "netKg": 74311330,
+     "usdPerKg": 0.845,
+     "weightEstimated": false
     },
     {
      "code": 484,
      "iso3": "MEX",
      "name": "Mexico",
      "usd": 30017386,
-     "share": 0.0116
+     "share": 0.0116,
+     "netKg": 38270500,
+     "usdPerKg": 0.784,
+     "weightEstimated": false
     },
     {
      "code": 251,
      "iso3": "FRA",
      "name": "France",
      "usd": 27527571,
-     "share": 0.0106
+     "share": 0.0106,
+     "netKg": 27029405,
+     "usdPerKg": 1.018,
+     "weightEstimated": false
     },
     {
      "code": 50,
      "iso3": "BGD",
      "name": "Bangladesh",
      "usd": 26568597,
-     "share": 0.0103
+     "share": 0.0103,
+     "netKg": 30201000,
+     "usdPerKg": 0.88,
+     "weightEstimated": false
     }
    ]
   },
@@ -278,7 +389,10 @@
    "label": "Polyamides (nylon 6, 6-6 and others)",
    "year": 2024,
    "totalUsd": 699965766,
+   "schema": 2,
    "netKg": 318296953.028,
+   "usdPerKg": 2.199,
+   "weightEstimated": true,
    "hhi": 2555,
    "partners": [
     {
@@ -286,70 +400,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 323504147,
-     "share": 0.4622
+     "share": 0.4622,
+     "netKg": 158659045,
+     "usdPerKg": 2.039,
+     "weightEstimated": false
     },
     {
      "code": 490,
      "iso3": "S19",
      "name": "Other Asia, nes",
      "usd": 94181366,
-     "share": 0.1346
+     "share": 0.1346,
+     "netKg": 49452640,
+     "usdPerKg": 1.904,
+     "weightEstimated": false
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 62546077,
-     "share": 0.0894
+     "share": 0.0894,
+     "netKg": 23670020,
+     "usdPerKg": 2.642,
+     "weightEstimated": false
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 50374903,
-     "share": 0.072
+     "share": 0.072,
+     "netKg": 17019365,
+     "usdPerKg": 2.96,
+     "weightEstimated": false
     },
     {
      "code": 764,
      "iso3": "THA",
      "name": "Thailand",
      "usd": 48293347,
-     "share": 0.069
+     "share": 0.069,
+     "netKg": 22399968,
+     "usdPerKg": 2.156,
+     "weightEstimated": false
     },
     {
      "code": 643,
      "iso3": "RUS",
      "name": "Russian Federation",
      "usd": 47145478,
-     "share": 0.0674
+     "share": 0.0674,
+     "netKg": 26604060,
+     "usdPerKg": 1.772,
+     "weightEstimated": false
     },
     {
      "code": 56,
      "iso3": "BEL",
      "name": "Belgium",
      "usd": 14475970,
-     "share": 0.0207
+     "share": 0.0207,
+     "netKg": 5877001.116,
+     "usdPerKg": 2.463,
+     "weightEstimated": true
     },
     {
      "code": 702,
      "iso3": "SGP",
      "name": "Singapore",
      "usd": 13191021,
-     "share": 0.0188
+     "share": 0.0188,
+     "netKg": 3996121,
+     "usdPerKg": 3.301,
+     "weightEstimated": false
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 8318297,
-     "share": 0.0119
+     "share": 0.0119,
+     "netKg": 1597323,
+     "usdPerKg": 5.208,
+     "weightEstimated": false
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 8088756,
-     "share": 0.0116
+     "share": 0.0116,
+     "netKg": 1204737,
+     "usdPerKg": 6.714,
+     "weightEstimated": false
     }
    ]
   },
@@ -358,7 +502,10 @@
    "label": "Polyethylene sacks and bags",
    "year": 2024,
    "totalUsd": 19785420,
+   "schema": 2,
    "netKg": null,
+   "usdPerKg": null,
+   "weightEstimated": false,
    "hhi": 1320,
    "partners": [
     {
@@ -366,70 +513,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 4395333,
-     "share": 0.2222
+     "share": 0.2222,
+     "netKg": 799820.327,
+     "usdPerKg": 5.495,
+     "weightEstimated": true
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 4364685,
-     "share": 0.2206
+     "share": 0.2206,
+     "netKg": 259636,
+     "usdPerKg": 16.811,
+     "weightEstimated": false
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 2340597,
-     "share": 0.1183
+     "share": 0.1183,
+     "netKg": 355089,
+     "usdPerKg": 6.592,
+     "weightEstimated": false
     },
     {
      "code": 380,
      "iso3": "ITA",
      "name": "Italy",
      "usd": 1678581,
-     "share": 0.0848
+     "share": 0.0848,
+     "netKg": 86073,
+     "usdPerKg": 19.502,
+     "weightEstimated": false
     },
     {
      "code": 616,
      "iso3": "POL",
      "name": "Poland",
      "usd": 1209265,
-     "share": 0.0611
+     "share": 0.0611,
+     "netKg": 16890,
+     "usdPerKg": 71.596,
+     "weightEstimated": false
     },
     {
      "code": 704,
      "iso3": "VNM",
      "name": "Viet Nam",
      "usd": 1160655,
-     "share": 0.0587
+     "share": 0.0587,
+     "netKg": 133468,
+     "usdPerKg": 8.696,
+     "weightEstimated": false
     },
     {
      "code": 699,
      "iso3": "IND",
      "name": "India",
      "usd": 906559,
-     "share": 0.0458
+     "share": 0.0458,
+     "netKg": 385921,
+     "usdPerKg": 2.349,
+     "weightEstimated": false
     },
     {
      "code": 56,
      "iso3": "BEL",
      "name": "Belgium",
      "usd": 803290,
-     "share": 0.0406
+     "share": 0.0406,
+     "netKg": 101299,
+     "usdPerKg": 7.93,
+     "weightEstimated": false
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 478455,
-     "share": 0.0242
+     "share": 0.0242,
+     "netKg": 27449.032,
+     "usdPerKg": 17.431,
+     "weightEstimated": true
     },
     {
      "code": 458,
      "iso3": "MYS",
      "name": "Malaysia",
      "usd": 402445,
-     "share": 0.0203
+     "share": 0.0203,
+     "netKg": 79927,
+     "usdPerKg": 5.035,
+     "weightEstimated": false
     }
    ]
   },
@@ -438,7 +615,10 @@
    "label": "Other plastic articles (clips, grommets)",
    "year": 2024,
    "totalUsd": 1133401796,
+   "schema": 2,
    "netKg": 200235687.573,
+   "usdPerKg": 5.66,
+   "weightEstimated": true,
    "hhi": 2105,
    "partners": [
     {
@@ -446,70 +626,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 487257029,
-     "share": 0.4299
+     "share": 0.4299,
+     "netKg": 132439885.149,
+     "usdPerKg": 3.679,
+     "weightEstimated": true
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 102984392,
-     "share": 0.0909
+     "share": 0.0909,
+     "netKg": 3536286.702,
+     "usdPerKg": 29.122,
+     "weightEstimated": true
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 84169835,
-     "share": 0.0743
+     "share": 0.0743,
+     "netKg": 3434264.518,
+     "usdPerKg": 24.509,
+     "weightEstimated": true
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 77394770,
-     "share": 0.0683
+     "share": 0.0683,
+     "netKg": 8261414.586,
+     "usdPerKg": 9.368,
+     "weightEstimated": true
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 66208852,
-     "share": 0.0584
+     "share": 0.0584,
+     "netKg": 8307443.686,
+     "usdPerKg": 7.97,
+     "weightEstimated": true
     },
     {
      "code": 251,
      "iso3": "FRA",
      "name": "France",
      "usd": 34575327,
-     "share": 0.0305
+     "share": 0.0305,
+     "netKg": 1409388.957,
+     "usdPerKg": 24.532,
+     "weightEstimated": true
     },
     {
      "code": 380,
      "iso3": "ITA",
      "name": "Italy",
      "usd": 29012178,
-     "share": 0.0256
+     "share": 0.0256,
+     "netKg": 3692102.249,
+     "usdPerKg": 7.858,
+     "weightEstimated": true
     },
     {
      "code": 490,
      "iso3": "S19",
      "name": "Other Asia, nes",
      "usd": 21928446,
-     "share": 0.0193
+     "share": 0.0193,
+     "netKg": 1400868.819,
+     "usdPerKg": 15.653,
+     "weightEstimated": true
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 21857760,
-     "share": 0.0193
+     "share": 0.0193,
+     "netKg": 829087.088,
+     "usdPerKg": 26.364,
+     "weightEstimated": true
     },
     {
      "code": 524,
      "iso3": "NPL",
      "name": "Nepal",
      "usd": 19044882,
-     "share": 0.0168
+     "share": 0.0168,
+     "netKg": 16605007,
+     "usdPerKg": 1.147,
+     "weightEstimated": false
     }
    ]
   },
@@ -518,7 +728,10 @@
    "label": "Bamboo assembled panels and flooring",
    "year": 2024,
    "totalUsd": 176018,
+   "schema": 2,
    "netKg": 117541,
+   "usdPerKg": 1.498,
+   "weightEstimated": false,
    "hhi": 10000,
    "partners": [
     {
@@ -526,7 +739,10 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 176018,
-     "share": 1
+     "share": 1,
+     "netKg": 117541,
+     "usdPerKg": 1.498,
+     "weightEstimated": false
     }
    ]
   },
@@ -535,7 +751,10 @@
    "label": "Corrugated paper cartons and boxes",
    "year": 2024,
    "totalUsd": 32952907,
+   "schema": 2,
    "netKg": 10810037.067,
+   "usdPerKg": 3.048,
+   "weightEstimated": true,
    "hhi": 3001,
    "partners": [
     {
@@ -543,70 +762,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 16529347,
-     "share": 0.5016
+     "share": 0.5016,
+     "netKg": 6223517,
+     "usdPerKg": 2.656,
+     "weightEstimated": false
     },
     {
      "code": 144,
      "iso3": "LKA",
      "name": "Sri Lanka",
      "usd": 5332300,
-     "share": 0.1618
+     "share": 0.1618,
+     "netKg": 899196,
+     "usdPerKg": 5.93,
+     "weightEstimated": false
     },
     {
      "code": 704,
      "iso3": "VNM",
      "name": "Viet Nam",
      "usd": 4380967,
-     "share": 0.1329
+     "share": 0.1329,
+     "netKg": 1413124,
+     "usdPerKg": 3.1,
+     "weightEstimated": false
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 1404577,
-     "share": 0.0426
+     "share": 0.0426,
+     "netKg": 196884.895,
+     "usdPerKg": 7.134,
+     "weightEstimated": true
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 1166048,
-     "share": 0.0354
+     "share": 0.0354,
+     "netKg": 186968,
+     "usdPerKg": 6.237,
+     "weightEstimated": false
     },
     {
      "code": 344,
      "iso3": "HKG",
      "name": "China, Hong Kong SAR",
      "usd": 705238,
-     "share": 0.0214
+     "share": 0.0214,
+     "netKg": 74521,
+     "usdPerKg": 9.464,
+     "weightEstimated": false
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 639106,
-     "share": 0.0194
+     "share": 0.0194,
+     "netKg": 67135,
+     "usdPerKg": 9.52,
+     "weightEstimated": false
     },
     {
      "code": 699,
      "iso3": "IND",
      "name": "India",
      "usd": 541861,
-     "share": 0.0164
+     "share": 0.0164,
+     "netKg": 1030051.077,
+     "usdPerKg": 0.526,
+     "weightEstimated": true
     },
     {
      "code": 490,
      "iso3": "S19",
      "name": "Other Asia, nes",
      "usd": 417205,
-     "share": 0.0127
+     "share": 0.0127,
+     "netKg": 146728,
+     "usdPerKg": 2.843,
+     "weightEstimated": false
     },
     {
      "code": 528,
      "iso3": "NLD",
      "name": "Netherlands",
      "usd": 320668,
-     "share": 0.0097
+     "share": 0.0097,
+     "netKg": 208528,
+     "usdPerKg": 1.538,
+     "weightEstimated": false
     }
    ]
   },
@@ -615,7 +864,10 @@
    "label": "Ceramic tiles, low water absorption",
    "year": 2024,
    "totalUsd": 20889923,
+   "schema": 2,
    "netKg": 37517623.958,
+   "usdPerKg": 0.557,
+   "weightEstimated": true,
    "hhi": 4116,
    "partners": [
     {
@@ -623,70 +875,100 @@
      "iso3": "ITA",
      "name": "Italy",
      "usd": 12446140,
-     "share": 0.5958
+     "share": 0.5958,
+     "netKg": 22352864.322,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 724,
      "iso3": "ESP",
      "name": "Spain",
      "usd": 4648471,
-     "share": 0.2225
+     "share": 0.2225,
+     "netKg": 8348503.988,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 156,
      "iso3": "CHN",
      "name": "China",
      "usd": 1558844,
-     "share": 0.0746
+     "share": 0.0746,
+     "netKg": 2799634.094,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 784,
      "iso3": "ARE",
      "name": "United Arab Emirates",
      "usd": 569283,
-     "share": 0.0273
+     "share": 0.0273,
+     "netKg": 1022414.485,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 699,
      "iso3": "IND",
      "name": "India",
      "usd": 355868,
-     "share": 0.017
+     "share": 0.017,
+     "netKg": 639128.227,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 248386,
-     "share": 0.0119
+     "share": 0.0119,
+     "netKg": 446093.357,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 620,
      "iso3": "PRT",
      "name": "Portugal",
      "usd": 207500,
-     "share": 0.0099
+     "share": 0.0099,
+     "netKg": 372663.103,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 792,
      "iso3": "TUR",
      "name": "Türkiye",
      "usd": 184517,
-     "share": 0.0088
+     "share": 0.0088,
+     "netKg": 331386.462,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 458,
      "iso3": "MYS",
      "name": "Malaysia",
      "usd": 163020,
-     "share": 0.0078
+     "share": 0.0078,
+     "netKg": 292777.899,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     },
     {
      "code": 524,
      "iso3": "NPL",
      "name": "Nepal",
      "usd": 133487,
-     "share": 0.0064
+     "share": 0.0064,
+     "netKg": 239738.134,
+     "usdPerKg": 0.557,
+     "weightEstimated": true
     }
    ]
   },
@@ -695,7 +977,10 @@
    "label": "Steel reinforcing bars (rebar)",
    "year": 2024,
    "totalUsd": 37227580,
+   "schema": 2,
    "netKg": null,
+   "usdPerKg": null,
+   "weightEstimated": false,
    "hhi": 9715,
    "partners": [
     {
@@ -703,70 +988,100 @@
      "iso3": "THA",
      "name": "Thailand",
      "usd": 36691928,
-     "share": 0.9856
+     "share": 0.9856,
+     "netKg": 55402000,
+     "usdPerKg": 0.662,
+     "weightEstimated": false
     },
     {
      "code": 50,
      "iso3": "BGD",
      "name": "Bangladesh",
      "usd": 355834,
-     "share": 0.0096
+     "share": 0.0096,
+     "netKg": 520000,
+     "usdPerKg": 0.684,
+     "weightEstimated": false
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 104860,
-     "share": 0.0028
+     "share": 0.0028,
+     "netKg": 49207,
+     "usdPerKg": 2.131,
+     "weightEstimated": false
     },
     {
      "code": 724,
      "iso3": "ESP",
      "name": "Spain",
      "usd": 39203,
-     "share": 0.0011
+     "share": 0.0011,
+     "netKg": 18217,
+     "usdPerKg": 2.152,
+     "weightEstimated": false
     },
     {
      "code": 156,
      "iso3": "CHN",
      "name": "China",
      "usd": 16028,
-     "share": 0.0004
+     "share": 0.0004,
+     "netKg": 14098,
+     "usdPerKg": 1.137,
+     "weightEstimated": false
     },
     {
      "code": 380,
      "iso3": "ITA",
      "name": "Italy",
      "usd": 7268,
-     "share": 0.0002
+     "share": 0.0002,
+     "netKg": 266,
+     "usdPerKg": 27.324,
+     "weightEstimated": false
     },
     {
      "code": 36,
      "iso3": "AUS",
      "name": "Australia",
      "usd": 5479,
-     "share": 0.0001
+     "share": 0.0001,
+     "netKg": 72,
+     "usdPerKg": 76.101,
+     "weightEstimated": false
     },
     {
      "code": 702,
      "iso3": "SGP",
      "name": "Singapore",
      "usd": 4103,
-     "share": 0.0001
+     "share": 0.0001,
+     "netKg": null,
+     "usdPerKg": null,
+     "weightEstimated": false
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 1444,
-     "share": 0
+     "share": 0,
+     "netKg": 707,
+     "usdPerKg": 2.043,
+     "weightEstimated": false
     },
     {
      "code": 512,
      "iso3": "OMN",
      "name": "Oman",
      "usd": 1433,
-     "share": 0
+     "share": 0,
+     "netKg": 77,
+     "usdPerKg": 18.607,
+     "weightEstimated": false
     }
    ]
   },
@@ -775,7 +1090,10 @@
    "label": "Refined copper cathodes",
    "year": 2024,
    "totalUsd": 2671625978,
+   "schema": 2,
    "netKg": 291902154.454,
+   "usdPerKg": 9.152,
+   "weightEstimated": true,
    "hhi": 5653,
    "partners": [
     {
@@ -783,70 +1101,100 @@
      "iso3": "JPN",
      "name": "Japan",
      "usd": 1949283606,
-     "share": 0.7296
+     "share": 0.7296,
+     "netKg": 213003374,
+     "usdPerKg": 9.151,
+     "weightEstimated": false
     },
     {
      "code": 178,
      "iso3": "COG",
      "name": "Congo",
      "usd": 440000491,
-     "share": 0.1647
+     "share": 0.1647,
+     "netKg": 47784891,
+     "usdPerKg": 9.208,
+     "weightEstimated": false
     },
     {
      "code": 180,
      "iso3": "COD",
      "name": "Dem. Rep. of the Congo",
      "usd": 173914042,
-     "share": 0.0651
+     "share": 0.0651,
+     "netKg": 19054001,
+     "usdPerKg": 9.127,
+     "weightEstimated": false
     },
     {
      "code": 894,
      "iso3": "ZMB",
      "name": "Zambia",
      "usd": 106966727,
-     "share": 0.04
+     "share": 0.04,
+     "netKg": 11896956,
+     "usdPerKg": 8.991,
+     "weightEstimated": false
     },
     {
      "code": 608,
      "iso3": "PHL",
      "name": "Philippines",
      "usd": 834991,
-     "share": 0.0003
+     "share": 0.0003,
+     "netKg": 98088,
+     "usdPerKg": 8.513,
+     "weightEstimated": false
     },
     {
      "code": 152,
      "iso3": "CHL",
      "name": "Chile",
      "usd": 399635,
-     "share": 0.0001
+     "share": 0.0001,
+     "netKg": 48068,
+     "usdPerKg": 8.314,
+     "weightEstimated": false
     },
     {
      "code": 458,
      "iso3": "MYS",
      "name": "Malaysia",
      "usd": 94812,
-     "share": 0
+     "share": 0,
+     "netKg": 11578,
+     "usdPerKg": 8.189,
+     "weightEstimated": false
     },
     {
      "code": 156,
      "iso3": "CHN",
      "name": "China",
      "usd": 42173,
-     "share": 0
+     "share": 0,
+     "netKg": 1675,
+     "usdPerKg": 25.178,
+     "weightEstimated": false
     },
     {
      "code": 380,
      "iso3": "ITA",
      "name": "Italy",
      "usd": 27463,
-     "share": 0
+     "share": 0,
+     "netKg": 34,
+     "usdPerKg": 807.725,
+     "weightEstimated": false
     },
     {
      "code": 528,
      "iso3": "NLD",
      "name": "Netherlands",
      "usd": 21288,
-     "share": 0
+     "share": 0,
+     "netKg": 987,
+     "usdPerKg": 21.568,
+     "weightEstimated": false
     }
    ]
   },
@@ -855,7 +1203,10 @@
    "label": "Refined copper wire, over 6 mm",
    "year": 2024,
    "totalUsd": 898086772,
+   "schema": 2,
    "netKg": 99484333,
+   "usdPerKg": 9.027,
+   "weightEstimated": false,
    "hhi": 7840,
    "partners": [
     {
@@ -863,70 +1214,100 @@
      "iso3": "ARE",
      "name": "United Arab Emirates",
      "usd": 789437693,
-     "share": 0.879
+     "share": 0.879,
+     "netKg": 88024800,
+     "usdPerKg": 8.968,
+     "weightEstimated": false
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 95205272,
-     "share": 0.106
+     "share": 0.106,
+     "netKg": 10078445,
+     "usdPerKg": 9.446,
+     "weightEstimated": false
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 9622413,
-     "share": 0.0107
+     "share": 0.0107,
+     "netKg": 946035,
+     "usdPerKg": 10.171,
+     "weightEstimated": false
     },
     {
      "code": 156,
      "iso3": "CHN",
      "name": "China",
      "usd": 1729408,
-     "share": 0.0019
+     "share": 0.0019,
+     "netKg": 249509,
+     "usdPerKg": 6.931,
+     "weightEstimated": false
     },
     {
      "code": 490,
      "iso3": "S19",
      "name": "Other Asia, nes",
      "usd": 1015912,
-     "share": 0.0011
+     "share": 0.0011,
+     "netKg": 103588,
+     "usdPerKg": 9.807,
+     "weightEstimated": false
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 944009,
-     "share": 0.0011
+     "share": 0.0011,
+     "netKg": 74873,
+     "usdPerKg": 12.608,
+     "weightEstimated": false
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 45459,
-     "share": 0.0001
+     "share": 0.0001,
+     "netKg": 678,
+     "usdPerKg": 67.048,
+     "weightEstimated": false
     },
     {
      "code": 528,
      "iso3": "NLD",
      "name": "Netherlands",
      "usd": 23547,
-     "share": 0
+     "share": 0,
+     "netKg": 1659,
+     "usdPerKg": 14.193,
+     "weightEstimated": false
     },
     {
      "code": 458,
      "iso3": "MYS",
      "name": "Malaysia",
      "usd": 22238,
-     "share": 0
+     "share": 0,
+     "netKg": 2522,
+     "usdPerKg": 8.817,
+     "weightEstimated": false
     },
     {
      "code": 246,
      "iso3": "FIN",
      "name": "Finland",
      "usd": 17499,
-     "share": 0
+     "share": 0,
+     "netKg": 1029,
+     "usdPerKg": 17.006,
+     "weightEstimated": false
     }
    ]
   },
@@ -935,7 +1316,10 @@
    "label": "Aluminium doors and windows",
    "year": 2024,
    "totalUsd": 24065833,
+   "schema": 2,
    "netKg": 3852190,
+   "usdPerKg": 6.247,
+   "weightEstimated": false,
    "hhi": 3611,
    "partners": [
     {
@@ -943,70 +1327,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 12124250,
-     "share": 0.5038
+     "share": 0.5038,
+     "netKg": 2676277,
+     "usdPerKg": 4.53,
+     "weightEstimated": false
     },
     {
      "code": 764,
      "iso3": "THA",
      "name": "Thailand",
      "usd": 7751009,
-     "share": 0.3221
+     "share": 0.3221,
+     "netKg": 896015,
+     "usdPerKg": 8.651,
+     "weightEstimated": false
     },
     {
      "code": 528,
      "iso3": "NLD",
      "name": "Netherlands",
      "usd": 1161986,
-     "share": 0.0483
+     "share": 0.0483,
+     "netKg": 48077,
+     "usdPerKg": 24.169,
+     "weightEstimated": false
     },
     {
      "code": 380,
      "iso3": "ITA",
      "name": "Italy",
      "usd": 443567,
-     "share": 0.0184
+     "share": 0.0184,
+     "netKg": 21392,
+     "usdPerKg": 20.735,
+     "weightEstimated": false
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 348013,
-     "share": 0.0145
+     "share": 0.0145,
+     "netKg": 14010,
+     "usdPerKg": 24.84,
+     "weightEstimated": false
     },
     {
      "code": 458,
      "iso3": "MYS",
      "name": "Malaysia",
      "usd": 340345,
-     "share": 0.0141
+     "share": 0.0141,
+     "netKg": 17808,
+     "usdPerKg": 19.112,
+     "weightEstimated": false
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 258673,
-     "share": 0.0107
+     "share": 0.0107,
+     "netKg": 12325,
+     "usdPerKg": 20.988,
+     "weightEstimated": false
     },
     {
      "code": 705,
      "iso3": "SVN",
      "name": "Slovenia",
      "usd": 230598,
-     "share": 0.0096
+     "share": 0.0096,
+     "netKg": 9565,
+     "usdPerKg": 24.109,
+     "weightEstimated": false
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 195707,
-     "share": 0.0081
+     "share": 0.0081,
+     "netKg": 9779,
+     "usdPerKg": 20.013,
+     "weightEstimated": false
     },
     {
      "code": 36,
      "iso3": "AUS",
      "name": "Australia",
      "usd": 183131,
-     "share": 0.0076
+     "share": 0.0076,
+     "netKg": 35486,
+     "usdPerKg": 5.161,
+     "weightEstimated": false
     }
    ]
   },
@@ -1015,7 +1429,10 @@
    "label": "Dryers for agricultural products",
    "year": null,
    "totalUsd": 0,
+   "schema": 2,
    "netKg": null,
+   "usdPerKg": null,
+   "weightEstimated": null,
    "hhi": 0,
    "partners": []
   },
@@ -1024,7 +1441,10 @@
    "label": "Taps, cocks and valves",
    "year": 2024,
    "totalUsd": 1319129230,
+   "schema": 2,
    "netKg": 64037183.221,
+   "usdPerKg": 20.599,
+   "weightEstimated": true,
    "hhi": 1059,
    "partners": [
     {
@@ -1032,70 +1452,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 294086949,
-     "share": 0.2229
+     "share": 0.2229,
+     "netKg": 35778054.504,
+     "usdPerKg": 8.22,
+     "weightEstimated": true
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 188582239,
-     "share": 0.143
+     "share": 0.143,
+     "netKg": 5113932.908,
+     "usdPerKg": 36.876,
+     "weightEstimated": true
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 154476773,
-     "share": 0.1171
+     "share": 0.1171,
+     "netKg": 1597162.925,
+     "usdPerKg": 96.719,
+     "weightEstimated": true
     },
     {
      "code": 251,
      "iso3": "FRA",
      "name": "France",
      "usd": 98606820,
-     "share": 0.0748
+     "share": 0.0748,
+     "netKg": 417536.822,
+     "usdPerKg": 236.163,
+     "weightEstimated": true
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 80691506,
-     "share": 0.0612
+     "share": 0.0612,
+     "netKg": 917303.625,
+     "usdPerKg": 87.966,
+     "weightEstimated": true
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 74784191,
-     "share": 0.0567
+     "share": 0.0567,
+     "netKg": 2347378.875,
+     "usdPerKg": 31.859,
+     "weightEstimated": true
     },
     {
      "code": 380,
      "iso3": "ITA",
      "name": "Italy",
      "usd": 73369286,
-     "share": 0.0556
+     "share": 0.0556,
+     "netKg": 1605348.608,
+     "usdPerKg": 45.703,
+     "weightEstimated": true
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 64993638,
-     "share": 0.0493
+     "share": 0.0493,
+     "netKg": 5351290.623,
+     "usdPerKg": 12.145,
+     "weightEstimated": true
     },
     {
      "code": 704,
      "iso3": "VNM",
      "name": "Viet Nam",
      "usd": 52561449,
-     "share": 0.0398
+     "share": 0.0398,
+     "netKg": 2865787.109,
+     "usdPerKg": 18.341,
+     "weightEstimated": true
     },
     {
      "code": 764,
      "iso3": "THA",
      "name": "Thailand",
      "usd": 42926700,
-     "share": 0.0325
+     "share": 0.0325,
+     "netKg": 3466230.402,
+     "usdPerKg": 12.384,
+     "weightEstimated": true
     }
    ]
   },
@@ -1104,7 +1554,10 @@
    "label": "Connectors and other electrical apparatus, up to 1,000 V",
    "year": 2024,
    "totalUsd": 1035245765,
+   "schema": 2,
    "netKg": 20464908.235,
+   "usdPerKg": 50.586,
+   "weightEstimated": true,
    "hhi": 1964,
    "partners": [
     {
@@ -1112,70 +1565,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 409952350,
-     "share": 0.396
+     "share": 0.396,
+     "netKg": 8104005.357,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 134259991,
-     "share": 0.1297
+     "share": 0.1297,
+     "netKg": 2654073.536,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 107675233,
-     "share": 0.104
+     "share": 0.104,
+     "netKg": 2128541.688,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 73790416,
-     "share": 0.0713
+     "share": 0.0713,
+     "netKg": 1458701.055,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 58348150,
-     "share": 0.0564
+     "share": 0.0564,
+     "netKg": 1153435.806,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 764,
      "iso3": "THA",
      "name": "Thailand",
      "usd": 33268819,
-     "share": 0.0321
+     "share": 0.0321,
+     "netKg": 657663.476,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 251,
      "iso3": "FRA",
      "name": "France",
      "usd": 29764196,
-     "share": 0.0288
+     "share": 0.0288,
+     "netKg": 588383.511,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 22826604,
-     "share": 0.022
+     "share": 0.022,
+     "netKg": 451240.058,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 702,
      "iso3": "SGP",
      "name": "Singapore",
      "usd": 15176503,
-     "share": 0.0147
+     "share": 0.0147,
+     "netKg": 300011.599,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     },
     {
      "code": 490,
      "iso3": "S19",
      "name": "Other Asia, nes",
      "usd": 13894829,
-     "share": 0.0134
+     "share": 0.0134,
+     "netKg": 274675.261,
+     "usdPerKg": 50.586,
+     "weightEstimated": true
     }
    ]
   },
@@ -1184,7 +1667,10 @@
    "label": "Wiring sets for vehicles",
    "year": 2024,
    "totalUsd": 118186757,
+   "schema": 2,
    "netKg": 4278964.113,
+   "usdPerKg": 27.62,
+   "weightEstimated": true,
    "hhi": 821,
    "partners": [
     {
@@ -1192,70 +1678,100 @@
      "iso3": "LKA",
      "name": "Sri Lanka",
      "usd": 17943020,
-     "share": 0.1518
+     "share": 0.1518,
+     "netKg": 649628.937,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 13347543,
-     "share": 0.1129
+     "share": 0.1129,
+     "netKg": 483249.205,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 11267570,
-     "share": 0.0953
+     "share": 0.0953,
+     "netKg": 407943.564,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 10527450,
-     "share": 0.0891
+     "share": 0.0891,
+     "netKg": 381147.457,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 9692432,
-     "share": 0.082
+     "share": 0.082,
+     "netKg": 350915.543,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 764,
      "iso3": "THA",
      "name": "Thailand",
      "usd": 9126853,
-     "share": 0.0772
+     "share": 0.0772,
+     "netKg": 330438.701,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 704,
      "iso3": "VNM",
      "name": "Viet Nam",
      "usd": 8702628,
-     "share": 0.0736
+     "share": 0.0736,
+     "netKg": 315079.581,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 156,
      "iso3": "CHN",
      "name": "China",
      "usd": 7935703,
-     "share": 0.0671
+     "share": 0.0671,
+     "netKg": 287312.954,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 6478714,
-     "share": 0.0548
+     "share": 0.0548,
+     "netKg": 234562.536,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     },
     {
      "code": 752,
      "iso3": "SWE",
      "name": "Sweden",
      "usd": 3933588,
-     "share": 0.0333
+     "share": 0.0333,
+     "netKg": 142415.975,
+     "usdPerKg": 27.62,
+     "weightEstimated": true
     }
    ]
   },
@@ -1264,7 +1780,10 @@
    "label": "Insulated conductors fitted with connectors, up to 1,000 V",
    "year": 2024,
    "totalUsd": 500197241,
+   "schema": 2,
    "netKg": 9387765.919,
+   "usdPerKg": 53.282,
+   "weightEstimated": true,
    "hhi": 2362,
    "partners": [
     {
@@ -1272,70 +1791,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 223178905,
-     "share": 0.4462
+     "share": 0.4462,
+     "netKg": 4188650.289,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 704,
      "iso3": "VNM",
      "name": "Viet Nam",
      "usd": 75273650,
-     "share": 0.1505
+     "share": 0.1505,
+     "netKg": 1412745.517,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 842,
      "iso3": "USA",
      "name": "USA",
      "usd": 39515919,
-     "share": 0.079
+     "share": 0.079,
+     "netKg": 741639.823,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 30240102,
-     "share": 0.0605
+     "share": 0.0605,
+     "netKg": 567550.104,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 484,
      "iso3": "MEX",
      "name": "Mexico",
      "usd": 19421013,
-     "share": 0.0388
+     "share": 0.0388,
+     "netKg": 364496.063,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 360,
      "iso3": "IDN",
      "name": "Indonesia",
      "usd": 14874218,
-     "share": 0.0297
+     "share": 0.0297,
+     "netKg": 279161.229,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 410,
      "iso3": "KOR",
      "name": "Rep. of Korea",
      "usd": 11421176,
-     "share": 0.0228
+     "share": 0.0228,
+     "netKg": 214354.088,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 11151549,
-     "share": 0.0223
+     "share": 0.0223,
+     "netKg": 209293.7,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 616,
      "iso3": "POL",
      "name": "Poland",
      "usd": 8173115,
-     "share": 0.0163
+     "share": 0.0163,
+     "netKg": 153394.065,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     },
     {
      "code": 392,
      "iso3": "JPN",
      "name": "Japan",
      "usd": 8024946,
-     "share": 0.016
+     "share": 0.016,
+     "netKg": 150613.224,
+     "usdPerKg": 53.282,
+     "weightEstimated": true
     }
    ]
   },
@@ -1344,7 +1893,10 @@
    "label": "Dried vegetables",
    "year": 2024,
    "totalUsd": 6228572,
+   "schema": 2,
    "netKg": 2352496.62,
+   "usdPerKg": 2.648,
+   "weightEstimated": true,
    "hhi": 2066,
    "partners": [
     {
@@ -1352,70 +1904,100 @@
      "iso3": "CHN",
      "name": "China",
      "usd": 2363510,
-     "share": 0.3795
+     "share": 0.3795,
+     "netKg": 725755,
+     "usdPerKg": 3.257,
+     "weightEstimated": false
     },
     {
      "code": 792,
      "iso3": "TUR",
      "name": "Türkiye",
      "usd": 1076139,
-     "share": 0.1728
+     "share": 0.1728,
+     "netKg": 771545,
+     "usdPerKg": 1.395,
+     "weightEstimated": false
     },
     {
      "code": 276,
      "iso3": "DEU",
      "name": "Germany",
      "usd": 741726,
-     "share": 0.1191
+     "share": 0.1191,
+     "netKg": 113059.937,
+     "usdPerKg": 6.56,
+     "weightEstimated": true
     },
     {
      "code": 376,
      "iso3": "ISR",
      "name": "Israel",
      "usd": 535282,
-     "share": 0.0859
+     "share": 0.0859,
+     "netKg": 78500,
+     "usdPerKg": 6.819,
+     "weightEstimated": false
     },
     {
      "code": 818,
      "iso3": "EGY",
      "name": "Egypt",
      "usd": 464801,
-     "share": 0.0746
+     "share": 0.0746,
+     "netKg": 170205,
+     "usdPerKg": 2.731,
+     "weightEstimated": false
     },
     {
      "code": 699,
      "iso3": "IND",
      "name": "India",
      "usd": 301214,
-     "share": 0.0484
+     "share": 0.0484,
+     "netKg": 126930,
+     "usdPerKg": 2.373,
+     "weightEstimated": false
     },
     {
      "code": 826,
      "iso3": "GBR",
      "name": "United Kingdom",
      "usd": 299533,
-     "share": 0.0481
+     "share": 0.0481,
+     "netKg": 38760,
+     "usdPerKg": 7.728,
+     "weightEstimated": false
     },
     {
      "code": 724,
      "iso3": "ESP",
      "name": "Spain",
      "usd": 152904,
-     "share": 0.0245
+     "share": 0.0245,
+     "netKg": 20000,
+     "usdPerKg": 7.645,
+     "weightEstimated": false
     },
     {
      "code": 364,
      "iso3": "IRN",
      "name": "Iran",
      "usd": 81096,
-     "share": 0.013
+     "share": 0.013,
+     "netKg": 254711,
+     "usdPerKg": 0.318,
+     "weightEstimated": false
     },
     {
      "code": 348,
      "iso3": "HUN",
      "name": "Hungary",
      "usd": 58314,
-     "share": 0.0094
+     "share": 0.0094,
+     "netKg": 13925,
+     "usdPerKg": 4.188,
+     "weightEstimated": false
     }
    ]
   }

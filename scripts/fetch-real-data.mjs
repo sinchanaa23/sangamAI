@@ -2,6 +2,8 @@
 // Run with: npm run data:refresh
 //   - UN Comtrade (public preview API): India's imports by partner for each tracked HS code
 //   - World Bank: Logistics Performance Index for the lane countries
+//   - World Bank WITS (TRAINS): India's MFN import duty for each tracked HS code
+//   - Frankfurter (ECB reference rates): INR per USD and per EUR
 //   - Open-Meteo archive: 10 years of daily rain and heat per district -> climate exposure
 //   - OpenStreetMap Overpass: industrial areas, rail stations and airports around each district
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -11,7 +13,7 @@ const OUT = new URL('../src/real/', import.meta.url);
 const UA = { 'User-Agent': 'Sangam-prototype/0.2 (SAP Hackfest; contact via GitHub sohini-d/Sangam)' };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const today = new Date().toISOString().slice(0, 10);
-const only = process.argv[2]; // optional: comtrade | lpi | climate | osm
+const only = process.argv[2]; // optional: comtrade | lpi | tariffs | fx | climate | osm
 
 async function get(url, init = {}, tries = 3) {
   for (let i = 0; i < tries; i++) {
@@ -44,7 +46,7 @@ async function comtrade() {
     if (!process.argv.includes('--all')) out = JSON.parse(await readFile(new URL('comtrade.json', OUT), 'utf8')).codes;
   } catch { /* first run */ }
   for (const [hs, label] of HS_CODES) {
-    if (out[hs]?.year) continue;
+    if (out[hs]?.year && out[hs].schema === 2) continue; // schema 2 keeps weights and unit values
     let rows = [], year = null;
     for (const y of [2024, 2023, 2022]) {
       const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=699&period=${y}&cmdCode=${hs}&flowCode=M&partner2Code=0&customsCode=C00&motCode=0`;
@@ -63,9 +65,13 @@ async function comtrade() {
     out[hs] = {
       hs, label, year,
       totalUsd: Math.round(total),
+      schema: 2,
       netKg: world?.netWgt ?? null,
+      // USD per kg of what India imported (value / net weight). Comtrade flags weights it estimated itself.
+      usdPerKg: world?.netWgt > 0 ? +(total / world.netWgt).toFixed(3) : null,
+      weightEstimated: world?.isNetWgtEstimated ?? null,
       hhi: Math.round(shares.reduce((s, x) => s + (x * 100) ** 2, 0)),
-      partners: byPartner.slice(0, 10).map((d) => ({ code: d.partnerCode, iso3: iso3Of[d.partnerCode], name: nameOf[d.partnerCode] ?? String(d.partnerCode), usd: Math.round(d.primaryValue), share: +(d.primaryValue / total).toFixed(4) })),
+      partners: byPartner.slice(0, 10).map((d) => ({ code: d.partnerCode, iso3: iso3Of[d.partnerCode], name: nameOf[d.partnerCode] ?? String(d.partnerCode), usd: Math.round(d.primaryValue), share: +(d.primaryValue / total).toFixed(4), netKg: d.netWgt ?? null, usdPerKg: d.netWgt > 0 ? +(d.primaryValue / d.netWgt).toFixed(3) : null, weightEstimated: d.isNetWgtEstimated ?? null })),
     };
     console.log(`  ${hs} ${label}: ${year}, $${(total / 1e6).toFixed(1)}M, top ${out[hs].partners[0]?.name}`);
   }
@@ -137,7 +143,37 @@ way["highway"~"^(motorway|trunk)$"](around:20000,${d.lat},${d.lon});out count;`;
   }
 }
 
-const jobs = { comtrade, lpi, climate, osm };
+// India's applied MFN duty (simple average of the tariff lines under the HS6 code), from the World Bank WITS / UNCTAD TRAINS API.
+// WITS has no partner-specific (FTA) rates for India, so preferential duties stay estimates in the app. Excludes surcharge and IGST.
+async function tariffs() {
+  const out = {};
+  for (const [hs, label] of HS_CODES) {
+    for (const y of [2024, 2023, 2022, 2021]) {
+      try {
+        const r = await fetch(`https://wits.worldbank.org/API/V1/SDMX/V21/datasource/TRN/reporter/356/partner/000/product/${hs}/year/${y}/datatype/reported`, { headers: UA, signal: AbortSignal.timeout(60000) });
+        if (!r.ok) continue;
+        const obs = /<Obs [^>]*>/.exec(await r.text())?.[0];
+        const rate = obs && /OBS_VALUE="([\d.]+)"/.exec(obs)?.[1];
+        if (!rate) continue;
+        out[hs] = { hs, label, mfnPct: +rate, year: y, lines: +(/TOTALNOOFLINES="(\d+)"/.exec(obs)?.[1] ?? 0), maxPct: +(/MAX_RATE="([\d.]+)"/.exec(obs)?.[1] ?? rate) };
+        console.log(`  ${hs}: MFN ${rate}% (${y})`);
+        break;
+      } catch { /* try the previous year */ }
+      await sleep(300);
+    }
+    if (!out[hs]) console.warn(`  no WITS rate for ${hs}`);
+    await sleep(300);
+  }
+  await save('tariffs.json', { source: "World Bank WITS (UNCTAD TRAINS), India applied MFN duty, simple average of tariff lines at HS6; basic duty only (no surcharge or IGST)", fetched: today, codes: out });
+}
+
+// ECB euro foreign exchange reference rates through Frankfurter. One dated snapshot so the app and the agents agree on a rate.
+async function fx() {
+  const j = await (await get('https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR,EUR')).json();
+  await save('fx.json', { source: 'ECB euro foreign exchange reference rates via Frankfurter', fetched: today, date: j.date, inrPerUsd: j.rates.INR, inrPerEur: +(j.rates.INR / j.rates.EUR).toFixed(4) });
+}
+
+const jobs = { comtrade, lpi, tariffs, fx, climate, osm };
 for (const [k, f] of Object.entries(jobs)) {
   if (only && only !== k) continue;
   console.log(k);
