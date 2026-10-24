@@ -34,6 +34,12 @@ const settings = () => ({
   model: process.env.LLM_MODEL ?? 'openai/gpt-oss-120b',
   auditModel: process.env.LLM_AUDITOR_MODEL || process.env.LLM_MODEL || 'openai/gpt-oss-120b',
   visionModel: process.env.LLM_VISION_MODEL || process.env.LLM_MODEL || 'openai/gpt-oss-120b',
+  // Image reading may live on a different provider than the agents (e.g. agents on Groq, certificates on Gemini)
+  visionBase: (process.env.LLM_VISION_BASE_URL || process.env.LLM_BASE_URL || 'https://api.groq.com/openai/v1').replace(/\/$/, ''),
+  visionKey: process.env.LLM_VISION_API_KEY || process.env.LLM_API_KEY || '',
+  /** requests per minute the provider allows; calls are spaced to stay under it (0 = no limit) */
+  rpm: Number(process.env.LLM_RPM ?? 0),
+  visionRpm: Number(process.env.LLM_VISION_RPM ?? process.env.LLM_RPM ?? 0),
 });
 
 type Message = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null | unknown[]; tool_calls?: unknown[]; tool_call_id?: string };
@@ -41,17 +47,34 @@ interface ToolCall { id: string; function: { name: string; arguments: string } }
 
 const MAX_TOOL_ROUNDS = 3;
 
-async function post(url: string, key: string, body: unknown, signal: AbortSignal) {
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const nextSlot = new Map<string, number>();
+
+/** Spaces calls to one provider so a free tier's requests-per-minute limit is not hit; later callers queue behind earlier ones. */
+async function slot(base: string, rpm: number) {
+  if (!rpm) return;
+  const now = Date.now();
+  const at = Math.max(now, nextSlot.get(base) ?? 0);
+  nextSlot.set(base, at + 60_000 / rpm);
+  if (at > now) await sleep(at - now);
+}
+
+/** How long a 429 asks us to wait: the Retry-After header, or "retry in 10.9s" in the body. */
+function retryDelayMs(r: Response, body: string): number {
+  const header = Number(r.headers.get('retry-after'));
+  const text = Number(/retry in ([\d.]+)s/i.exec(body)?.[1]);
+  return (Number.isFinite(header) && header > 0 ? header : Number.isFinite(text) ? text + 0.5 : 2) * 1000;
+}
+
+async function post(base: string, rpm: number, key: string, body: unknown, signal: AbortSignal) {
   for (let attempt = 0; ; attempt++) {
-    const r = await fetch(url, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(body) });
-    // Free tiers rate-limit hard: wait the few seconds the provider asks for, once
-    if (r.status === 429 && attempt === 0) {
-      const wait = Math.min(Number(r.headers.get('retry-after') ?? 2), 5) * 1000;
-      await new Promise((res) => setTimeout(res, wait));
-      continue;
-    }
-    if (!r.ok) throw new Error(`LLM ${r.status}: ${(await r.text()).slice(0, 200)}`);
-    return (await r.json()) as { choices: { message: { content: string | null; tool_calls?: ToolCall[] } }[] };
+    await slot(base, rpm);
+    const r = await fetch(`${base}/chat/completions`, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(body) });
+    if (r.ok) return (await r.json()) as { choices: { message: { content: string | null; tool_calls?: ToolCall[] } }[] };
+    const text = await r.text();
+    // Free tiers rate-limit hard: wait as long as the provider asks (up to 15 s), at most twice
+    if (r.status === 429 && attempt < 2 && retryDelayMs(r, text) <= 15_000) { await sleep(retryDelayMs(r, text)); continue; }
+    throw new Error(`LLM ${r.status}: ${text.slice(0, 200)}`);
   }
 }
 
@@ -64,7 +87,7 @@ export function extractJson(text: string): unknown {
 
 export const ask: Ask = async <T>({ role, system, user, tools = [], files = [], schema, timeoutMs = 20_000 }: AskOptions<T>) => {
   const cfg = settings();
-  if (!cfg.key) throw new Error('LLM_API_KEY is not set');
+  if (!(role === 'vision' ? cfg.visionKey : cfg.key)) throw new Error('LLM_API_KEY is not set');
   const signal = AbortSignal.timeout(timeoutMs); // one deadline for the whole turn, tool calls included
   // Images go as image_url data URIs and a PDF as a file part. Both are OpenAI-style and accepted by Gemini and OpenRouter.
   const part = (f: { mediaType: string; data: string; filename?: string }) => f.mediaType === 'application/pdf'
@@ -75,7 +98,8 @@ export const ask: Ask = async <T>({ role, system, user, tools = [], files = [], 
 
   for (let step = 0, repaired = false; ; step++) {
     const allowTools = toolDefs.length > 0 && step < MAX_TOOL_ROUNDS;
-    const res = await post(`${cfg.base}/chat/completions`, cfg.key, {
+    const vision = role === 'vision';
+    const res = await post(vision ? cfg.visionBase : cfg.base, vision ? cfg.visionRpm : cfg.rpm, vision ? cfg.visionKey : cfg.key, {
       model: role === 'audit' ? cfg.auditModel : role === 'vision' ? cfg.visionModel : cfg.model,
       messages,
       temperature: 0.3,
@@ -110,6 +134,6 @@ export const ask: Ask = async <T>({ role, system, user, tools = [], files = [], 
 export async function chatText({ system, messages, timeoutMs = 30_000 }: { system: string; messages: { role: 'user' | 'assistant'; content: string }[]; timeoutMs?: number }): Promise<string> {
   const cfg = settings();
   if (!cfg.key) throw new Error('LLM_API_KEY is not set');
-  const res = await post(`${cfg.base}/chat/completions`, cfg.key, { model: cfg.model, temperature: 0.3, messages: [{ role: 'system', content: system }, ...messages] }, AbortSignal.timeout(timeoutMs));
+  const res = await post(cfg.base, cfg.rpm, cfg.key, { model: cfg.model, temperature: 0.3, messages: [{ role: 'system', content: system }, ...messages] }, AbortSignal.timeout(timeoutMs));
   return (res.choices[0]?.message.content ?? '').trim();
 }
