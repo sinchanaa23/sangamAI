@@ -85,6 +85,21 @@ export function findCandidates(rfq: Rfq, line: BomLine, supplierIds: string[], m
   return [...pool].sort((a, b) => Number(b.verification === 'verified') - Number(a.verification === 'verified') || a.priceIndex - b.priceIndex).slice(0, max);
 }
 
+/**
+ * Certificates the part needs that the supplier cannot prove: not held, expired, or not yet verified by the Sangam team.
+ * Certificate checking is compulsory: while any gap is open the Auditor cannot pass the deal, only flag it for the Verification desk.
+ */
+export function certificateGaps(c: DealContext): string[] {
+  const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+  return c.line.requiredCerts.flatMap((req) => {
+    if (!c.seller.certs.some((h) => same(h, req))) return [`${req}: not held`];
+    const detail = c.seller.details.certDetails.find((d) => same(d.name, req));
+    if (detail && Date.parse(detail.expires) < Date.now()) return [`${req}: expired on ${detail.expires}`];
+    if (c.seller.verification !== 'verified') return [`${req}: held but not yet verified by the Sangam team`];
+    return [];
+  });
+}
+
 /** What a supplier proposes. The orchestrator turns it into an Offer and checks it against the hard limits. */
 export interface Terms { pricePerUnit: number; workers: number; productionDays: number }
 

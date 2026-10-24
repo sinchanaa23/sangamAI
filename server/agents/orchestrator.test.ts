@@ -54,6 +54,18 @@ describe('orchestrator', () => {
     offers(events).filter((o) => o.status !== 'rejected').forEach((o) => expect(o.labour.wagePerWorkerDay).toBeGreaterThanOrEqual(wageFloorPerDay('krishnagiri')));
   });
 
+  it('cannot pass a supplier that lacks the required certificates, only flag it', async () => {
+    const events = await run(scripted); // s13 holds no certificates; the scripted Auditor tries to pass
+    expect(events.find((e) => e.type === 'audit')).toMatchObject({ decision: 'flag' });
+    const last = events.filter((e) => e.type === 'confirm').at(-1) as { text: string };
+    expect(last.text).toContain('Held for the Sangam team');
+  });
+
+  it('passes a verified supplier that holds every required certificate', async () => {
+    const events = await run(scripted, rfq(), ['s12']);
+    expect(events.find((e) => e.type === 'audit')).toMatchObject({ decision: 'pass' });
+  });
+
   it('ends with no deal when the budget cannot cover a living wage', async () => {
     const events = await run(noModel, rfq({ budget: { amount: 1_000_000, currency: 'INR' } }));
     expect(events.at(-1)).toMatchObject({ type: 'end', outcome: 'no-deal' });

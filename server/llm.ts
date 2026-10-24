@@ -12,11 +12,13 @@ export interface Tool {
 }
 
 export interface AskOptions<T> {
-  /** 'audit' uses LLM_AUDITOR_MODEL when set */
-  role: 'turn' | 'audit';
+  /** 'audit' uses LLM_AUDITOR_MODEL when set; 'vision' uses LLM_VISION_MODEL (it must accept images) */
+  role: 'turn' | 'audit' | 'vision';
   system: string;
   user: string;
   tools?: Tool[];
+  /** images or PDFs sent with the user message, base64 */
+  files?: { mediaType: string; data: string; filename?: string }[];
   schema: z.ZodType<T>;
   timeoutMs?: number;
 }
@@ -31,9 +33,10 @@ const settings = () => ({
   base: (process.env.LLM_BASE_URL ?? 'https://api.groq.com/openai/v1').replace(/\/$/, ''),
   model: process.env.LLM_MODEL ?? 'openai/gpt-oss-120b',
   auditModel: process.env.LLM_AUDITOR_MODEL || process.env.LLM_MODEL || 'openai/gpt-oss-120b',
+  visionModel: process.env.LLM_VISION_MODEL || process.env.LLM_MODEL || 'openai/gpt-oss-120b',
 });
 
-type Message = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null; tool_calls?: unknown[]; tool_call_id?: string };
+type Message = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null | unknown[]; tool_calls?: unknown[]; tool_call_id?: string };
 interface ToolCall { id: string; function: { name: string; arguments: string } }
 
 const MAX_TOOL_ROUNDS = 3;
@@ -59,17 +62,21 @@ export function extractJson(text: string): unknown {
   return JSON.parse(text.slice(start, end + 1));
 }
 
-export const ask: Ask = async <T>({ role, system, user, tools = [], schema, timeoutMs = 20_000 }: AskOptions<T>) => {
+export const ask: Ask = async <T>({ role, system, user, tools = [], files = [], schema, timeoutMs = 20_000 }: AskOptions<T>) => {
   const cfg = settings();
   if (!cfg.key) throw new Error('LLM_API_KEY is not set');
   const signal = AbortSignal.timeout(timeoutMs); // one deadline for the whole turn, tool calls included
-  const messages: Message[] = [{ role: 'system', content: system }, { role: 'user', content: user }];
+  // Images go as image_url data URIs and a PDF as a file part. Both are OpenAI-style and accepted by Gemini and OpenRouter.
+  const part = (f: { mediaType: string; data: string; filename?: string }) => f.mediaType === 'application/pdf'
+    ? { type: 'file', file: { filename: f.filename ?? 'document.pdf', file_data: `data:application/pdf;base64,${f.data}` } }
+    : { type: 'image_url', image_url: { url: `data:${f.mediaType};base64,${f.data}` } };
+  const messages: Message[] = [{ role: 'system', content: system }, { role: 'user', content: files.length ? [...files.map(part), { type: 'text', text: user }] : user }];
   const toolDefs = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }));
 
   for (let step = 0, repaired = false; ; step++) {
     const allowTools = toolDefs.length > 0 && step < MAX_TOOL_ROUNDS;
     const res = await post(`${cfg.base}/chat/completions`, cfg.key, {
-      model: role === 'audit' ? cfg.auditModel : cfg.model,
+      model: role === 'audit' ? cfg.auditModel : role === 'vision' ? cfg.visionModel : cfg.model,
       messages,
       temperature: 0.3,
       ...(allowTools ? { tools: toolDefs, tool_choice: 'auto' } : {}),

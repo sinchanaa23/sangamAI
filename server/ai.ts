@@ -1,12 +1,7 @@
 // AI endpoints served by the Hono server (server/index.ts). API keys stay here; the browser never sees them.
-// Ask Sangam uses the configured free LLM (server/llm.ts). Certificate reading needs a vision model with structured
-// output, so it still uses the Anthropic API and is available only when ANTHROPIC_API_KEY is set.
-import Anthropic from '@anthropic-ai/sdk';
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
-import { z } from 'zod';
-import { chatText, llmConfigured } from './llm';
-
-const MODEL = 'claude-opus-5-5';
+// Ask Sangam and certificate reading both use the configured LLM (server/llm.ts); certificate reading needs a model that accepts images.
+import { readCertificate } from './certificates';
+import { ask, chatText, llmConfigured } from './llm';
 
 const SYSTEM = `You are Ask Sangam, the assistant inside Sangam, a platform that helps Indian companies localise supply chains and helps MSMEs, cooperatives, FPOs and SHGs win that business.
 
@@ -19,20 +14,6 @@ Answer using the context block the app sends with each question. It holds the pa
 
 export interface Reply { status: number; body: unknown }
 const reply = (status: number, body: unknown): Reply => ({ status, body });
-
-let client: Anthropic | null = null;
-const getClient = () => (client ??= new Anthropic());
-
-function explainError(e: unknown): { status: number; error: string } {
-  if (e instanceof Anthropic.AuthenticationError) return { status: 401, error: 'The Anthropic API key was rejected. Check ANTHROPIC_API_KEY.' };
-  if (e instanceof Anthropic.RateLimitError) return { status: 429, error: 'Rate limited by the Anthropic API. Try again in a minute.' };
-  if (e instanceof Anthropic.APIError) return { status: e.status ?? 502, error: `Anthropic API error: ${e.message}` };
-  const msg = String((e as Error)?.message ?? e);
-  if (/api key|apiKey|credentials|authentication/i.test(msg)) {
-    return { status: 503, error: 'Certificate reading is not configured. It needs ANTHROPIC_API_KEY in .env.local; everything else works without it.' };
-  }
-  return { status: 500, error: msg };
-}
 
 export interface AskBody { question: string; context: string; history?: { role: 'user' | 'assistant'; content: string }[] }
 
@@ -55,42 +36,21 @@ ${body.question}` }] });
   }
 }
 
-const Certificate = z.object({
-  documentType: z.string().describe('For example: ISO 9001 certificate, BIS licence, FSSAI licence, Udyam registration'),
-  standard: z.string().describe('Standard or scheme named on the document, or empty'),
-  holderName: z.string(),
-  certificateNumber: z.string(),
-  issuer: z.string(),
-  issueDate: z.string().describe('YYYY-MM-DD if visible, else empty'),
-  expiryDate: z.string().describe('YYYY-MM-DD if visible, else empty'),
-  scope: z.string().describe('Products or processes covered, or empty'),
-  confidence: z.enum(['low', 'medium', 'high']),
-  notes: z.string().describe('Anything that looks unclear, altered or inconsistent'),
-});
+export interface ExtractBody { mediaType: string; data: string; filename: string; holderName?: string }
 
-export interface ExtractBody { mediaType: string; data: string; filename: string }
-
+/** Read an uploaded certificate with the vision model, then check what was read. The page may ignore `checks`; the Verification desk should not. */
 export async function handleExtract(body: ExtractBody): Promise<Reply> {
+  const isPdf = body.mediaType === 'application/pdf';
+  const isImage = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(body.mediaType);
+  if (!isPdf && !isImage) return reply(400, { error: 'Upload a PDF, PNG, JPEG, WebP or GIF.' });
+  if (!llmConfigured()) return reply(503, { error: 'Certificate reading is not configured. Set LLM_API_KEY in .env.local (see .env.example) and restart `npm run dev`.' });
   try {
-    const isPdf = body.mediaType === 'application/pdf';
-    const isImage = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(body.mediaType);
-    if (!isPdf && !isImage) return reply(400, { error: 'Upload a PDF, PNG, JPEG, WebP or GIF.' });
-    const file: Anthropic.ContentBlockParam = isPdf
-      ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: body.data } }
-      : { type: 'image', source: { type: 'base64', media_type: body.mediaType as 'image/png', data: body.data } };
-    const response = await getClient().messages.parse({
-      model: MODEL,
-      max_tokens: 16000,
-      output_config: { effort: 'low', format: zodOutputFormat(Certificate) },
-      messages: [{
-        role: 'user',
-        content: [file, { type: 'text', text: `Read this document uploaded to a supplier profile (${body.filename}). Extract the fields exactly as printed; leave a field empty if it is not on the document. Do not guess.` }],
-      }],
-    });
-    if (response.stop_reason === 'refusal' || !response.parsed_output) return reply(422, { error: 'Could not read this document.' });
-    return reply(200, { fields: response.parsed_output });
+    return reply(200, await readCertificate(ask, { mediaType: body.mediaType, data: body.data, filename: body.filename }, body.holderName));
   } catch (e) {
-    const { status, error } = explainError(e);
-    return reply(status, { error });
+    const msg = String((e as Error).message);
+    if (/LLM 401|LLM 403/.test(msg)) return reply(401, { error: 'The LLM API key was rejected. Check LLM_API_KEY.' });
+    if (/LLM 429/.test(msg)) return reply(429, { error: 'The free model is rate limited. Try again in a minute.' });
+    if (/LLM 400/.test(msg) && isPdf) return reply(422, { error: 'This model could not read the PDF. Upload a photo or scan (PNG or JPEG) of the certificate, or set LLM_VISION_MODEL to a model that reads PDFs.' });
+    return reply(422, { error: `Could not read this document: ${msg}` });
   }
 }

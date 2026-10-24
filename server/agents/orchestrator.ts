@@ -7,7 +7,7 @@ import type { Ask } from '../llm';
 import { audit } from './auditor';
 import { buyerMove, buyerRuleMove } from './buyer';
 import { supplierMove, supplierRuleMove } from './supplier';
-import { buildContext, buyerLimit, ensureDataset, findCandidates, pickLine, scoreOffer, termsOf, toOffer, violation } from './tools';
+import { buildContext, buyerLimit, certificateGaps, ensureDataset, findCandidates, pickLine, scoreOffer, termsOf, toOffer, violation } from './tools';
 import type { DealContext, Terms } from './tools';
 
 export const MAX_ROUNDS = 4;
@@ -75,7 +75,8 @@ export async function runNegotiation(negId: string, rfq: Rfq, supplierIds: strin
   async function conclude(c: DealContext, accepted: Offer) {
     emit({ type: 'select', from: 'auditor', at: at(), text: `Checking the accepted offer against the Fair Work Scorecard: wage, hours, safety, child and forced labour.` });
     const score = scoreOffer(c, accepted);
-    const verdict = await audit(ask, c, accepted, score);
+    const gaps = certificateGaps(c);
+    const verdict = await audit(ask, c, accepted, score, gaps);
     emit({ type: 'audit', at: at(), score, decision: verdict.decision });
     if (verdict.decision === 'block') {
       emit({ type: 'confirm', from: 'auditor', at: at(), text: `${verdict.text} The deal is blocked and nothing is signed.` });
