@@ -1,0 +1,77 @@
+/* Confluence motion tokens. Extends src/styles.css — never renames its variables. */
+:root {
+  --fw-dur-fast: 180ms;      /* hovers, pops start */
+  --fw-dur: 350ms;           /* entrances — matches P2's nr-in precedent */
+  --fw-dur-slow: 600ms;      /* count-up easing */
+  --fw-ease: cubic-bezier(0.2, 0.6, 0.2, 1); /* ease-out, no overshoot */
+  --fw-rise: 6px;            /* entrance translate */
+  --fw-stagger: 45ms;        /* per-item delay in staggered lists */
+  --fw-grad: linear-gradient(100deg, #2dd4bf 0%, #fb923c 100%); /* brightened for dark */
+  --fw-spot: rgba(15, 118, 110, 0.08); /* spotlight tint on hover */
+}
+
+/* fw-rise — fade + settle entrance (translate only, no layout shift). */
+.fw-rise {
+  animation: fw-rise var(--fw-dur) var(--fw-ease) both;
+}
+
+/* fw-pop — grade-change pop: scale 1 -> 1.16 -> 1, with an optional one-shot
+   ring in the element's grade color via --fw-ring (defaults to transparent). */
+.fw-pop {
+  animation: fw-pop 320ms var(--fw-ease);
+}
+
+/* fw-grad-text — the brand gradient clipped to text, with a slow shimmer sweep.
+   Brand moments only (grade label, wordmark) — never body text or chrome. */
+.fw-grad-text {
+  background-image: var(--fw-grad);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: fw-shimmer 12s linear infinite;
+}
+
+@keyframes fw-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--fw-rise));
+    filter: blur(6px); /* dramatic blur-in on dark; final state is filter-free */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: none;
+  }
+}
+
+@keyframes fw-pop {
+  0% {
+    transform: scale(1);
+    box-shadow: inset 0 0 0 0 var(--fw-ring, transparent);
+  }
+  45% {
+    transform: scale(1.16);
+    box-shadow: inset 0 0 0 3px var(--fw-ring, transparent);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: inset 0 0 0 0 var(--fw-ring, transparent);
+  }
+}
+
+@keyframes fw-shimmer {
+  from {
+    background-position: 0% center;
+  }
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Every animation is optional — one block kills all of it. */
+@media (prefers-reduced-motion: reduce) {
+  .fw-anim, .fw-anim * { animation: none !important; transition-duration: 1ms !important; }
+  .fw-rise, .fw-pop, .fw-grad-text { animation: none !important; }
+}
