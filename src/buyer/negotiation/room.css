@@ -23,11 +23,11 @@
 .nr-avatar.auditor { background: var(--new); }
 .nr-bubble { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 14px; display: grid; gap: 10px; }
 .nr-msg.buyer .nr-bubble { background: var(--accent-soft); border-color: #cde8e4; border-top-left-radius: 4px; }
-.nr-msg.supplier .nr-bubble { background: var(--rural-soft); border-color: #f6dccb; border-top-right-radius: 4px; }
-.nr-msg.auditor .nr-bubble { background: var(--new-soft); border-color: #e2d6fb; }
+.nr-msg.supplier .nr-bubble { background: var(--rural-soft); border-color: #ecd9cd; border-top-right-radius: 4px; }
+.nr-msg.auditor .nr-bubble { background: var(--new-soft); border-color: #c9dcea; }
 
 .nr-offer { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; }
-.nr-offer.rejected { border-color: #f3c4c4; background: #fffafa; }
+.nr-offer.rejected { border-color: #ecc4c3; background: #fdf7f6; }
 .nr-offer.rejected .nr-price { text-decoration: line-through; color: var(--ink-3); }
 .nr-offer.accepted { border-color: #b7e0c3; box-shadow: 0 0 0 3px var(--ready-soft); }
 .nr-price { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }

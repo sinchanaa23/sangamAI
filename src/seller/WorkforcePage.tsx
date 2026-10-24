@@ -328,7 +328,7 @@ export default function WorkforcePage() {
           </div>
         </div>
 
-        <label className="row" style={{ gap: 8, alignItems: 'center', color: '#b91c1c', fontWeight: 500, cursor: 'pointer' }}>
+        <label className="row" style={{ gap: 8, alignItems: 'center', color: '#9f2f2d', fontWeight: 500, cursor: 'pointer' }}>
           <input type="checkbox" checked={profile.childOrForcedLabourFlag} onChange={(e) => set('childOrForcedLabourFlag', e.target.checked)} />
           <span>{t.childFlag}</span>
         </label>

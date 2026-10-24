@@ -149,16 +149,16 @@ function QuoteCompare({ req }: { req: Requirement }) {
       <div style={{ height: 60 + rows.length * 42 }}>
         <ResponsiveContainer>
           <BarChart data={chart} layout="vertical" margin={{ top: 4, right: 20, bottom: 0, left: 10 }}>
-            <CartesianGrid stroke="#eef0f3" horizontal={false} />
-            <XAxis type="number" tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 11, fill: '#5a6472' }} />
-            <YAxis type="category" dataKey="name" width={170} tick={{ fontSize: 11.5, fill: '#18202b' }} />
+            <CartesianGrid stroke="#efeeea" horizontal={false} />
+            <XAxis type="number" tickFormatter={(v) => `₹${v}`} tick={{ fontSize: 11, fill: '#6b6a66' }} />
+            <YAxis type="category" dataKey="name" width={170} tick={{ fontSize: 11.5, fill: '#111111' }} />
             <Tooltip formatter={(v: number) => inr(v)} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Price" stackId="a" fill="#0f766e" isAnimationActive={false} />
-            <Bar dataKey="Freight" stackId="a" fill="#475569" isAnimationActive={false} />
-            <Bar dataKey="Tooling" stackId="a" fill="#7c3aed" isAnimationActive={false} />
-            <Bar dataKey="Quality" stackId="a" fill="#b45309" isAnimationActive={false} />
-            <Bar dataKey="Risk" stackId="a" fill="#b91c1c" isAnimationActive={false} />
+            <Bar dataKey="Price" stackId="a" fill="#3d5a45" isAnimationActive={false} />
+            <Bar dataKey="Freight" stackId="a" fill="#5f5e5a" isAnimationActive={false} />
+            <Bar dataKey="Tooling" stackId="a" fill="#5b6f8f" isAnimationActive={false} />
+            <Bar dataKey="Quality" stackId="a" fill="#956400" isAnimationActive={false} />
+            <Bar dataKey="Risk" stackId="a" fill="#9f2f2d" isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>

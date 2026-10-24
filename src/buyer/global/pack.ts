@@ -72,11 +72,11 @@ export function packHtml(p: DueDiligencePack): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Due-diligence pack: ${esc(p.quote.bidder)}</title>
 <style>
-body{font-family:Inter,system-ui,sans-serif;color:#18202b;margin:32px auto;max-width:820px;padding:0 16px;line-height:1.5;font-size:14px}
-h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:28px 0 8px;border-bottom:1px solid #e5e8ec;padding-bottom:4px}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:6px 8px;border-top:1px solid #e5e8ec;vertical-align:top}th{width:34%;color:#5a6472;font-weight:500}
-.muted{color:#5a6472}.tag{font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;background:#f1f5f9;color:#475569}
-button{font:inherit;padding:8px 16px;border-radius:8px;border:1px solid #0f766e;background:#0f766e;color:#fff;cursor:pointer}
+body{font-family:Inter,system-ui,sans-serif;color:#111111;margin:32px auto;max-width:820px;padding:0 16px;line-height:1.5;font-size:14px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:28px 0 8px;border-bottom:1px solid #eaeaea;padding-bottom:4px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:6px 8px;border-top:1px solid #eaeaea;vertical-align:top}th{width:34%;color:#6b6a66;font-weight:500}
+.muted{color:#6b6a66}.tag{font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;background:#f1f0ec;color:#5f5e5a}
+button{font:inherit;padding:8px 16px;border-radius:8px;border:1px solid #3d5a45;background:#3d5a45;color:#fff;cursor:pointer}
 @media print{button{display:none}body{margin:0}}
 </style></head><body>
 <button onclick="print()">Print or save as PDF</button>

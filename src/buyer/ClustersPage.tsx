@@ -20,7 +20,7 @@ interface Ref { source: keyof typeof data.sources; row?: number; note?: string }
 interface Cluster { id: string; name: string; district: string; state: string; districtId?: string; moreDistrictIds?: string[]; lat?: number; lon?: number; kind: Kind; skills: string[]; refs: Ref[] }
 
 const CLUSTERS = data.clusters as Cluster[];
-const KIND_COLOR: Record<Kind, string> = { Textile: '#c2410c', Handloom: '#7c3aed', Handicraft: '#b45309', Manufacturing: '#0f766e' };
+const KIND_COLOR: Record<Kind, string> = { Textile: '#a4552c', Handloom: '#5b6f8f', Handicraft: '#956400', Manufacturing: '#3d5a45' };
 const KINDS = Object.keys(KIND_COLOR) as Kind[];
 
 const pointOf = (c: Cluster): LonLat => {

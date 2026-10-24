@@ -60,7 +60,7 @@ export default function NetworkPage() {
       id, at: [district(id).lon, district(id).lat] as [number, number], color: STATUS_COLOR[st as keyof typeof STATUS_COLOR], r: 5,
       label: district(id).name, side: (['vapi', 'rajkot', 'coimbatore', 'dharwad', 'satara', 'madurai', 'sanand', 'kochi'].includes(id) ? 'left' : 'right') as MapPoint['side'],
     })),
-    { id: 'plant', at: [plant.lon, plant.lat], color: '#0f766e', r: 6, ring: true, label: `Plant, ${plant.name}${seen.has(plant.id) ? ' + local sites' : ''}`, side: 'bottom', bold: true },
+    { id: 'plant', at: [plant.lon, plant.lat], color: '#3d5a45', r: 6, ring: true, label: `Plant, ${plant.name}${seen.has(plant.id) ? ' + local sites' : ''}`, side: 'bottom', bold: true },
   ];
 
   const pts = h.points.map((p) => ({ year: `Y${p.year}`, Import: Math.round(p.importCum), Diversify: Math.round(p.diversifyCum), Hybrid: Math.round(p.hybridCum), India: Math.round(p.indiaCum), net: Math.round(p.net) }));
@@ -178,26 +178,26 @@ export default function NetworkPage() {
           <ResponsiveContainer>
             {chart === 'cost' ? (
               <LineChart data={pts} margin={{ top: 10, right: 20, bottom: 0, left: 8 }}>
-                <CartesianGrid stroke="#eef0f3" vertical={false} />
-                <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#5a6472' }} axisLine={false} tickLine={false} />
-                <YAxis tickFormatter={(v) => `₹${v.toLocaleString('en-IN')}`} tick={{ fontSize: 12, fill: '#5a6472' }} axisLine={false} tickLine={false} width={74} unit=" Cr" />
+                <CartesianGrid stroke="#efeeea" vertical={false} />
+                <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(v) => `₹${v.toLocaleString('en-IN')}`} tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} width={74} unit=" Cr" />
                 <Tooltip formatter={(v: number) => `₹${v.toLocaleString('en-IN')} Cr`} />
                 <Legend iconType="plainline" wrapperStyle={{ fontSize: 13 }} />
-                {h.breakEvenYear && h.breakEvenYear > 1 && <ReferenceLine x={`Y${h.breakEvenYear}`} stroke="#0f766e" strokeDasharray="4 4" label={{ value: 'break-even', fontSize: 11, fill: '#0f766e', position: 'top' }} />}
-                <Line type="monotone" dataKey="Import" name="Keep importing" stroke="#94a3b8" strokeWidth={2} dot={false} isAnimationActive={false} />
+                {h.breakEvenYear && h.breakEvenYear > 1 && <ReferenceLine x={`Y${h.breakEvenYear}`} stroke="#3d5a45" strokeDasharray="4 4" label={{ value: 'break-even', fontSize: 11, fill: '#3d5a45', position: 'top' }} />}
+                <Line type="monotone" dataKey="Import" name="Keep importing" stroke="#b4b2ac" strokeWidth={2} dot={false} isAnimationActive={false} />
                 <Line type="monotone" dataKey="Diversify" name={`Diversify abroad (${div.lane.country.replace(' (EU)', '')})`} stroke="#6366f1" strokeWidth={2} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="Hybrid" name="Hybrid" stroke="#c2410c" strokeWidth={2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="India" name={`Build in India: ${arch.name}`} stroke="#0f766e" strokeWidth={3} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="Hybrid" name="Hybrid" stroke="#a4552c" strokeWidth={2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="India" name={`Build in India: ${arch.name}`} stroke="#3d5a45" strokeWidth={3} dot={false} isAnimationActive={false} />
               </LineChart>
             ) : (
               <BarChart data={pts} margin={{ top: 10, right: 20, bottom: 0, left: 8 }}>
-                <CartesianGrid stroke="#eef0f3" vertical={false} />
-                <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#5a6472' }} axisLine={false} tickLine={false} />
-                <YAxis tickFormatter={(v) => `₹${v.toLocaleString('en-IN')}`} tick={{ fontSize: 12, fill: '#5a6472' }} axisLine={false} tickLine={false} width={74} unit=" Cr" />
+                <CartesianGrid stroke="#efeeea" vertical={false} />
+                <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(v) => `₹${v.toLocaleString('en-IN')}`} tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} width={74} unit=" Cr" />
                 <Tooltip formatter={(v: number) => [`₹${v.toLocaleString('en-IN')} Cr`, 'Cumulative net return']} />
-                <ReferenceLine y={0} stroke="#8a93a0" />
+                <ReferenceLine y={0} stroke="#9a9892" />
                 <Bar dataKey="net" isAnimationActive={false} radius={[3, 3, 0, 0]}>
-                  {pts.map((p) => <Cell key={p.year} fill={p.net >= 0 ? '#15803d' : '#dc2626'} />)}
+                  {pts.map((p) => <Cell key={p.year} fill={p.net >= 0 ? '#346538' : '#9f2f2d'} />)}
                 </Bar>
               </BarChart>
             )}

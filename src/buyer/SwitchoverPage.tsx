@@ -23,8 +23,8 @@ function phasesFor(o: Option, toolingLakh: number): Phase[] {
   return out;
 }
 
-const COLORS: Record<string, string> = { gaps: '#b45309', samples: '#0369a1', qualify: '#7c3aed', pilot: '#0f766e', ramp: '#15803d', full: '#334155' };
-const STATE_COLOR = { pending: '#cbd5e1', passed: '#15803d', failed: '#b91c1c' } as const;
+const COLORS: Record<string, string> = { gaps: '#956400', samples: '#1f6c9f', qualify: '#5b6f8f', pilot: '#3d5a45', ramp: '#346538', full: '#2f3437' };
+const STATE_COLOR = { pending: '#cbd5e1', passed: '#346538', failed: '#9f2f2d' } as const;
 
 export default function SwitchoverPage() {
   const { chain } = useBuyer();
@@ -79,8 +79,8 @@ export default function SwitchoverPage() {
                 const xx = x(m * 4.33);
                 return xx <= W - 10 ? (
                   <g key={m}>
-                    <line x1={xx} x2={xx} y1={top - 6} y2={H} stroke="#eef0f3" />
-                    {m % 2 === 0 && <text x={xx + 2} y={16} fontSize={10.5} fill="#8a93a0">{d.toLocaleString('en-IN', { month: 'short', year: '2-digit' })}</text>}
+                    <line x1={xx} x2={xx} y1={top - 6} y2={H} stroke="#efeeea" />
+                    {m % 2 === 0 && <text x={xx + 2} y={16} fontSize={10.5} fill="#9a9892">{d.toLocaleString('en-IN', { month: 'short', year: '2-digit' })}</text>}
                   </g>
                 ) : null;
               })}
@@ -88,8 +88,8 @@ export default function SwitchoverPage() {
                 const y = top + i * ROWH;
                 return (
                   <g key={p.line.id} style={{ cursor: 'pointer' }} onClick={() => setSel(p.line.id)}>
-                    {(sel ?? parts[0].line.id) === p.line.id && <rect x={0} y={y - 2} width={W} height={ROWH} fill="#e6f4f2" rx={6} />}
-                    <text x={6} y={y + 18} fontSize={12} fontWeight={600} fill="#18202b">{p.line.name.length > 26 ? `${p.line.name.slice(0, 25)}…` : p.line.name}</text>
+                    {(sel ?? parts[0].line.id) === p.line.id && <rect x={0} y={y - 2} width={W} height={ROWH} fill="#edf3ec" rx={6} />}
+                    <text x={6} y={y + 18} fontSize={12} fontWeight={600} fill="#111111">{p.line.name.length > 26 ? `${p.line.name.slice(0, 25)}…` : p.line.name}</text>
                     {p.phases.map((ph) => (
                       <g key={ph.id}>
                         <rect x={x(ph.start)} y={y + 7} width={Math.max(3, x(ph.end) - x(ph.start) - 2)} height={16} rx={4} fill={COLORS[ph.id]} fillOpacity={0.85}>

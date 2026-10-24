@@ -3,14 +3,14 @@ import { inr } from '../engine';
 import Src from './Src';
 
 const MODE: Record<Leg['mode'], { color: string; glyph: string }> = {
-  make: { color: '#0f766e', glyph: '⚙' },
-  road: { color: '#475569', glyph: '▣' },
-  rail: { color: '#7c3aed', glyph: '═' },
-  sea: { color: '#0369a1', glyph: '≈' },
-  air: { color: '#0891b2', glyph: '✈' },
-  port: { color: '#334155', glyph: '⚓' },
-  customs: { color: '#b45309', glyph: '⚖' },
-  check: { color: '#15803d', glyph: '✓' },
+  make: { color: '#3d5a45', glyph: 'MK' },
+  road: { color: '#5f5e5a', glyph: 'RD' },
+  rail: { color: '#5b6f8f', glyph: 'RL' },
+  sea: { color: '#1f6c9f', glyph: 'SEA' },
+  air: { color: '#2f7f86', glyph: 'AIR' },
+  port: { color: '#2f3437', glyph: 'PRT' },
+  customs: { color: '#956400', glyph: 'CUS' },
+  check: { color: '#346538', glyph: 'OK' },
 };
 
 export interface RoadmapLeg extends Leg { onWho?: () => void }
@@ -56,7 +56,7 @@ export default function Roadmap({ legs, unit, compare }: { legs: RoadmapLeg[]; u
   );
 }
 
-const CAT_COLOR = ['#0f766e', '#b45309', '#0369a1', '#334155', '#475569', '#7c3aed', '#15803d', '#94a3b8', '#0891b2'];
+const CAT_COLOR = ['#3d5a45', '#956400', '#1f6c9f', '#2f3437', '#5f5e5a', '#5b6f8f', '#346538', '#b4b2ac', '#2f7f86'];
 
 /** Landed cost split by leg, as one stacked bar with a legend. */
 export function LandedCostBar({ legs }: { legs: Leg[] }) {

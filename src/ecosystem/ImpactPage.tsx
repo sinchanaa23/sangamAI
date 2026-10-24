@@ -92,11 +92,11 @@ export default function ImpactPage() {
             <div style={{ height: Math.max(160, chart.length * 34) }}>
               <ResponsiveContainer>
                 <BarChart data={chart} layout="vertical" margin={{ top: 4, right: 24, bottom: 0, left: 8 }}>
-                  <CartesianGrid stroke="#eef0f3" horizontal={false} />
-                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: '#5a6472' }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12, fill: '#5a6472' }} axisLine={false} tickLine={false} />
+                  <CartesianGrid stroke="#efeeea" horizontal={false} />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12, fill: '#6b6a66' }} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="jobs" name="Jobs" fill="#c2410c" radius={[0, 4, 4, 0]} isAnimationActive={false} />
+                  <Bar dataKey="jobs" name="Jobs" fill="#a4552c" radius={[0, 4, 4, 0]} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

@@ -96,11 +96,11 @@ export default function IntegrationsPage() {
           <div style={{ height: 200 }}>
             <ResponsiveContainer>
               <LineChart data={series} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-                <CartesianGrid stroke="#eef0f3" vertical={false} />
-                <XAxis dataKey="period" tick={{ fontSize: 11, fill: '#5a6472' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#5a6472' }} width={60} />
+                <CartesianGrid stroke="#efeeea" vertical={false} />
+                <XAxis dataKey="period" tick={{ fontSize: 11, fill: '#6b6a66' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#6b6a66' }} width={60} />
                 <Tooltip />
-                <Line dataKey="qty" name="Forecast demand" stroke="#0f766e" strokeWidth={2} dot={false} isAnimationActive={false} />
+                <Line dataKey="qty" name="Forecast demand" stroke="#3d5a45" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

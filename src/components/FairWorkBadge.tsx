@@ -5,7 +5,7 @@ import { GRADE_LABEL } from '../fairwork';
 import type { FairWorkScore } from '../fairwork';
 
 const COLOR: Record<FairWorkScore['grade'], string> = {
-  A: '#15803d', B: '#0f766e', C: '#b45309', D: '#c2410c', E: '#b91c1c',
+  A: '#346538', B: '#3d5a45', C: '#956400', D: '#a4552c', E: '#9f2f2d',
 };
 
 export default function FairWorkBadge({ score, showLabel = true, size = 'md' }: {

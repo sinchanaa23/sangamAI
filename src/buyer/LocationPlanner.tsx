@@ -21,7 +21,7 @@ const FACTORS: { id: Factor; label: string; src: Provenance; help: string }[] = 
   { id: 'ecosystem', label: 'Supplier ecosystem', src: 'simulated', help: 'Suppliers on Sangam with the same process within 250 km' },
   { id: 'rural', label: 'Rural development priority', src: 'estimated', help: 'Proxy: less existing industry means more uplift from a new unit' },
 ];
-const COLORS = ['#0f766e', '#0369a1', '#7c3aed', '#b45309', '#334155', '#c2410c', '#15803d'];
+const COLORS = ['#3d5a45', '#1f6c9f', '#5b6f8f', '#956400', '#2f3437', '#a4552c', '#346538'];
 
 export default function LocationPlanner() {
   const { update } = useStore();
@@ -60,9 +60,9 @@ export default function LocationPlanner() {
   const nearby = sellers.filter((s) => roadKm(district(s.districtId), sel.d) < 250 && s.process === process);
 
   const points: MapPoint[] = [
-    ...ranked.slice(10).map((r) => ({ id: r.d.id, at: [r.d.lon, r.d.lat] as [number, number], color: '#94a3b8', r: 3 })),
-    ...ranked.slice(0, 10).map((r, i) => ({ id: r.d.id, at: [r.d.lon, r.d.lat] as [number, number], color: r === sel ? '#c2410c' : '#0f766e', r: 4 + (10 - i) * 0.5, ring: r === sel, label: i < 6 || r === sel ? `${i + 1}. ${r.d.name}` : undefined, side: (r.d.lon < 75 ? 'left' : 'right') as MapPoint['side'], bold: r === sel })),
-    { id: 'plant', at: [plant.lon, plant.lat], color: '#334155', r: 4, hollow: true, label: 'Your plant', side: 'bottom' },
+    ...ranked.slice(10).map((r) => ({ id: r.d.id, at: [r.d.lon, r.d.lat] as [number, number], color: '#b4b2ac', r: 3 })),
+    ...ranked.slice(0, 10).map((r, i) => ({ id: r.d.id, at: [r.d.lon, r.d.lat] as [number, number], color: r === sel ? '#a4552c' : '#3d5a45', r: 4 + (10 - i) * 0.5, ring: r === sel, label: i < 6 || r === sel ? `${i + 1}. ${r.d.name}` : undefined, side: (r.d.lon < 75 ? 'left' : 'right') as MapPoint['side'], bold: r === sel })),
+    { id: 'plant', at: [plant.lon, plant.lat], color: '#2f3437', r: 4, hollow: true, label: 'Your plant', side: 'bottom' },
   ];
 
   const addSite = () => {

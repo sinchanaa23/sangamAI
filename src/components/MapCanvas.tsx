@@ -79,7 +79,7 @@ export default function MapCanvas({ view, lines, points, ariaLabel, onPick }: Pr
       <rect width={W} height={H} rx={10} fill="var(--sea)" />
       <g>
         {land.map((c: { id: string }, i: number) => (
-          <path key={c.id ?? `c${i}`} d={path(c as GeoPermissibleObjects) ?? ''} fill="var(--land)" stroke="#d3dbe3" strokeWidth={0.5} />
+          <path key={c.id ?? `c${i}`} d={path(c as GeoPermissibleObjects) ?? ''} fill="var(--land)" stroke="#dcdad4" strokeWidth={0.5} />
         ))}
         <path d={path(indiaShape) ?? ''} fill="var(--india)" stroke="var(--india-edge)" strokeWidth={0.8} />
       </g>

@@ -43,8 +43,8 @@ function Logo() {
   // Two streams meeting: the "sangam" (confluence)
   return (
     <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M4 4c0 10 12 10 12 18v6" fill="none" stroke="#0f766e" strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M28 4c0 10-12 10-12 18" fill="none" stroke="#c2410c" strokeWidth="3.2" strokeLinecap="round" />
+      <path d="M4 4c0 10 12 10 12 18v6" fill="none" stroke="#111111" strokeWidth="3.2" strokeLinecap="round" />
+      <path d="M28 4c0 10-12 10-12 18" fill="none" stroke="#a4552c" strokeWidth="3.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -107,6 +107,7 @@ function Shell() {
 
   return (
     <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
+      <a className="skip" href="#content">Skip to content</a>
       <header className="topbar">
         <button className="brand" onClick={() => { setHome(true); window.scrollTo(0, 0); }} style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', font: 'inherit', color: 'inherit' }} aria-label="Sangam home">
           <Logo />
@@ -153,7 +154,7 @@ function Shell() {
             <div className="tiny" style={{ margin: '0 8px' }}>Demo companies and figures are labelled <b>Simulated</b>; real data is labelled <b>Public data</b> or <b>Live</b>.</div>
           </div>
         </nav>
-        <main key={`${home ? 'home' : workspace}-${dataVersion}`}>{home ? <HomePage go={go} /> : content[`${workspace}:${page}`]}</main>
+        <main id="content" tabIndex={-1} key={`${home ? 'home' : workspace}-${dataVersion}`}>{home ? <HomePage go={go} /> : content[`${workspace}:${page}`]}</main>
       </div>
 
       {drawer && <SupplierDrawer id={drawer} onClose={() => setDrawer(null)} />}
