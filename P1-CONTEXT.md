@@ -34,3 +34,10 @@ Read `AGENTS.md` first, then this file. Owner of: `server/**` (except `server/cr
 
 ## Session log
 - 2026-10-24: built contracts, server, store, agents, orchestrator, certificate checks, LLM client; live-tested on Gemini; swapped in P3's scorecard.
+
+## Negotiation rules (2026-10-24, `agents/fair-negotiation`)
+- Wage floor = higher of the legal minimum and the living wage (`wageFloorFor`, `tools.ts`). A missing minimum wage (TN, AP, UP, Kerala) falls back to the living wage tagged estimated and holds the deal for review (`reviewReasons`).
+- Price floor (`priceFloor`, `minViablePrice`) = materials and overhead (estimated, from `LABOUR_SHARE`) + worker-days at the wage floor. A buyer counter below it is shown as refused, then raised to the floor in code.
+- Round-1 quotes are gated (`quoteGate`): grade E or under the notified legal minimum is shown as a rejected offer and never shortlisted. This uses `Offer.status`, not an `audit` event: P2's room and P4's ledger read the first `audit` event as the final result.
+- The buyer ranks all valid quotes with `rankOffers` (weights `RANK_WEIGHTS`: fair work .30, trust .25, cost .20, lead time .15, certificates .10) and negotiates with the best; if it walks away (only allowed within 5% of its floor) or cannot be met, the next on the shortlist is tried.
+- Fixtures recorded before this change (`demo-negotiation.json`, `recorded-*.json`) predate the shortlist event and the new floor; re-record with `npm run record -- india|germany` after merging.

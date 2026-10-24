@@ -6,19 +6,19 @@ import type { Ask } from '../llm';
 import { fastestPlan, minViablePrice, supplierFacts, termsOf } from './tools';
 import type { DealContext, Terms } from './tools';
 
-const Turn = z.object({ action: z.enum(['offer', 'accept']), pricePerUnit: z.number(), workers: z.number(), productionDays: z.number(), message: z.string() });
+const Turn = z.object({ action: z.enum(['offer', 'accept', 'walk']), pricePerUnit: z.number(), workers: z.number(), productionDays: z.number(), message: z.string() });
 
-export interface SupplierMove { action: 'offer' | 'accept'; terms: Terms; message: string; by: 'model' | 'rule' }
+export interface SupplierMove { action: 'offer' | 'accept' | 'walk'; terms: Terms; message: string; by: 'model' | 'rule' }
 
 const SYSTEM = `You are the Supplier Agent for a small Indian producer (an MSME, cooperative, SHG federation or FPO) negotiating a sale to a buyer.
 Your duties: get a fair price, and never pay your workers below the wage floor or commit more workers than you have free.
 Your real figures are given below; use them. Money is in rupees. Reply with ONE JSON object only:
-{"action":"offer"|"accept","pricePerUnit":number,"workers":number,"productionDays":number,"message":"one or two plain sentences to the buyer"}
-Use action "accept" only to take the buyer's last offer as it stands (repeat its numbers).`;
+{"action":"offer"|"accept"|"walk","pricePerUnit":number,"workers":number,"productionDays":number,"message":"one or two plain sentences to the buyer"}
+Use action "accept" only to take the buyer's last offer as it stands (repeat its numbers). Use "walk" only after a buyer counter that is within 5% of your price floor.`;
 
 const brief = (c: DealContext) =>
   `Buyer wants ${c.rfq.quantity} units of "${c.rfq.part}" by ${c.rfq.needBy}. You are ${c.seller.name} in ${c.districtName}. ` +
-  `Wage in the plan = pricePerUnit x ${c.rfq.quantity} x ${c.labourShare} / (workers x productionDays), and must be at least ${c.wageFloor}. ` +
+  `Wage in the plan = (pricePerUnit - ${c.nonLabourPerUnit} for materials and overhead) x ${c.rfq.quantity} / (workers x productionDays), and must be at least ${c.wageFloor}. ` +
   `Delivery takes productionDays + ${c.transitDays} days.`;
 
 const shows = (o: Offer, c: DealContext) => `₹${Math.round(termsOf(c, o).pricePerUnit)} a unit, ${o.labour.workers} workers for ${termsOf(c, o).productionDays} days (wage ₹${o.labour.wagePerWorkerDay} a day)`;
@@ -42,12 +42,12 @@ export async function supplierMove(ask: Ask, c: DealContext, last?: Offer, buyer
   const user = [
     brief(c),
     `Your figures: ${JSON.stringify(supplierFacts(c))}`,
-    last && buyer ? `Your last offer: ${shows(last, c)}. The buyer counters: ${shows(buyer, c)}.` : 'Make your opening quote.',
+    last && buyer ? `Your last offer: ${shows(last, c)}. The buyer counters: ${shows(buyer, c)}. Your price floor for this team and schedule is ₹${minViablePrice(c, { workers: last.labour.workers, productionDays: termsOf(c, last).productionDays })} a unit; you may walk away only if the buyer's price is within 5% of it.` : 'Make your opening quote.',
     feedback ? `Your previous answer was not allowed: ${feedback} Fix it.` : '',
   ].filter(Boolean).join('\n');
   try {
     const t = await ask({ role: 'turn', system: SYSTEM, user, schema: Turn });
-    return { action: buyer ? t.action : 'offer', terms: { pricePerUnit: t.pricePerUnit, workers: Math.round(t.workers), productionDays: Math.round(t.productionDays) }, message: t.message.slice(0, 300), by: 'model' };
+    return { action: buyer ? t.action : t.action === 'walk' ? 'offer' : t.action, terms: { pricePerUnit: t.pricePerUnit, workers: Math.round(t.workers), productionDays: Math.round(t.productionDays) }, message: t.message.slice(0, 300), by: 'model' };
   } catch (e) {
     logFallback('supplier', e);
     return ruleMove(c, last, buyer);
