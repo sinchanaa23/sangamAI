@@ -186,3 +186,41 @@ Overrides the app's `:root` tokens for dark (same names, never new ones). Loaded
 8. Dark visual pass on every P3 page: text contrast ≥ WCAG AA on --bg/--card, inputs/tables/chips readable, no white flash boxes.
 9. Buyer "Supply chain today" spot-check: token-flipped pages look intentional; note (not fix) teammates' hardcoded light colors.
 10. Badge glow + pop both visible on dark; Hindi still perfect; reduced-motion still kills everything.
+
+---
+
+# Delta 2: "Confluence Flow" — GSAP + Lenis (session 5)
+
+User direction: use GSAP and Lenis, waves background, better buttons, sliding tabs — "neat, fun and cool". **This delta adds real npm dependencies: `gsap@3.15` and `lenis@1.3`** (package.json + lockfile changes in this PR — P1's file, flagged for review; all GSAP plugins are free since 3.13). The no-new-deps rule is superseded BY THE USER for these two packages only.
+
+## F1. Smooth scroll — `src/components/motion/smooth.ts`
+
+`initSmoothScroll()` (idempotent, module-level singleton): creates `new Lenis({ autoRaf: true, lerp: 0.12 })`, integrates GSAP: `lenis.on('scroll', ScrollTrigger.update); gsap.ticker.add((t) => lenis.raf(t * 1000)); gsap.ticker.lagSmoothing(0);`. Skipped entirely under `prefers-reduced-motion` (native scroll). Called from `main.tsx` (the shared file, already carrying the theme import — +2 lines, flagged).
+
+## F2. New kit components (all original code; `.reactbits-tmp/Waves.jsx` and `Magnet.jsx` are behavioral reference only)
+
+| File | Component | Props | Behavior |
+|---|---|---|---|
+| `Waves.tsx` | `<Waves>` | `{ colors?: string[] (default teal/orange/violet); layers?: number (3); speed?: number; amplitude?: number; className?: string; opacity?: number }` | 2D-canvas layered sine waves drifting across the bottom of its container, gradient fills fading to transparent, gentle amplitude swell near the cursor. Absolute, pointer-events none, DPR-aware, pauses when hidden/offscreen; reduced-motion renders one static frame. |
+| `Magnetic.tsx` | `<Magnetic>` | `{ children: ReactNode; className?: string; strength?: number (px, default 10); radius?: number (px, default 60) }` | Wraps one child (a button); inside `radius`, the child is pulled toward the cursor via GSAP `quickTo` (x/y, power3 ease), springs back to 0 on leave (`elastic.out(1, 0.4)`, ~0.6s). Disabled for touch pointers and reduced-motion (plain static child). |
+| `SlideTabs.tsx` | `<SlideTabs<T extends string>>` | `{ items: { id: T; label: string }[]; value: T; onChange: (id: T) => void; className?: string }` | Tab row with an absolutely-positioned indicator pill that GSAP-animates (`x` + `width`, `back.out(1.6)`, ~0.45s) to the active tab on change; on mount it positions without animation. Replaces the safety pills pattern; offered to P2/P4 for their tab rows. Reduced-motion: indicator snaps. |
+| `Reveal.tsx` | `<Reveal>` | `{ children: ReactNode; delay?: number; stagger?: number; y?: number; className?: string; scroll?: boolean }` | GSAP `fromTo` (opacity 0 → 1, y 24 → 0, slight blur, `power3.out`, 0.7s) for its children (`stagger` distributes). With `scroll` (default true when below the fold — implemented as: ScrollTrigger `start: 'top 88%'`), reveals on scroll; otherwise on mount. Replaces `FadeContent` usage in P3 pages (FadeContent stays in the kit for adoption snippets). |
+
+## F3. Button polish — `src/components/motion/buttons.css`
+
+Global-but-gentle polish of the existing `.btn` classes (equal specificity, loaded after styles.css): `.btn.primary` gets a subtle gradient border + hover lift (translateY(-1px)) + teal glow shadow; `.btn` gets a 150ms transform/color transition; focus-visible ring in accent. No layout/sizing changes — the app's buttons keep their metrics.
+
+## F4. Wiring (agent C)
+
+- WorkforcePage: `<Waves opacity={0.28}>` behind the grade-card region (replacing the Aurora there — Aurora stays on SellerView); Save + Start-voice buttons wrapped `Magnetic > ClickSpark > button(ShinyText label)`; safety record pills → `<SlideTabs>` (complete/partial/none); the four cards' `FadeContent` wraps → `<Reveal stagger={0.08}>` (one Reveal around the card stack or per-card with delay).
+- Diversification: chart/detail card `FadeContent` → `Reveal` (scroll-triggered); h1 unchanged.
+- SellerView / ProfilePage: unchanged this round (already glass/glow/aurora).
+- KNOWN: `ScrollTrigger` + Lenis integration lives in smooth.ts; components just use gsap.
+
+## F5. Verification additions
+
+11. Smooth scroll: wheel/trackpad scrolling glides (no native steps); sticky topbar still sticks; sidebar's own scroll unaffected.
+12. Waves render and drift on the workforce page; static under reduced-motion.
+13. Save button: magnetic pull near cursor, spark on click, shine sweep on label.
+14. SlideTabs: indicator slides between the three safety options; switching safety updates the grade as before (E/D downgrade logic intact).
+15. All 51 tests still pass; tsc + build clean.
