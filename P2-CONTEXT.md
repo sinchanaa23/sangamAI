@@ -24,6 +24,10 @@ Read `AGENTS.md` first, then this file. Owner of: `src/buyer/**`, `src/component
 - Edits in others' files, one place each: `src/App.tsx`, `src/shared/HomePage.tsx` (P4), `src/main.tsx` (P1), `server/app.ts` and `server/db.ts` (P1: the mount and a table name).
 - Not tried: team-only tools (need `ECOSYSTEM_ALLOWLIST`), a real SMS or email sender, a real Udyam / GSTIN registry.
 
+## Navigation by section (branch `feat/nav-sections`)
+- The sidebar lists section names only (Understand, Design, Act, Set up / Today, Grow, Trust / Deal together, Build and grow, Fair work and trust, About the data, Sangam team). Each section has its own landing page (`SectionHub`, page id `@<groupId>`) with a card per page; the pages are navigated from inside the section (`SubNav`: back link plus sibling pills). Hovering or tabbing to a section name shows a quick list of its pages (`SideNav`, fixed-position so the sidebar scroll doesn't clip it; off on phones). A section with one page opens it directly.
+- Code in `src/nav/` (`catalog.ts` holds every section blurb and page description: edit text there). `src/App.tsx` (P4) only gains section ids, the three components and `groupOf`; page content and ids are unchanged, so every `go(workspace, page)` still works.
+
 ## Verified
 - `npm run build` and `npm test` (65 tests, 10 new in `tests/architect.test.ts`) pass.
 - In the browser: plan, graph, inspector, scenario switch, region choice, explore tab, idea matching and the AI-off message all work. AI with a real key not yet tried.

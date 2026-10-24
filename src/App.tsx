@@ -36,6 +36,12 @@ import SignInPanel from './access/SignInPanel';
 import { homeWorkspace, resolvePage, ROLE_LABEL } from './access/roles';
 import VerificationBadge from './auth/VerificationBadge';
 import './access/access.css';
+import SideNav from './nav/SideNav';
+import SectionHub from './nav/SectionHub';
+import SubNav from './nav/SubNav';
+import { groupOf, hubId, isHub } from './nav/catalog';
+import type { NavGroup } from './nav/catalog';
+import './nav/nav.css';
 import VerificationDesk from './ecosystem/VerificationDesk';
 import DistrictDashboard from './ecosystem/DistrictDashboard';
 import ImpactPage from './ecosystem/ImpactPage';
@@ -64,10 +70,8 @@ function Logo() {
 }
 
 /** Pages only a Sangam team account may open. */
-const TEAM_ONLY = ['ecosystem:verify', 'ecosystem:districts'];
+const TEAM_ONLY = ['ecosystem:verify', 'ecosystem:districts', 'ecosystem:@team'];
 
-interface NavItem { id: string; label: string; count?: number }
-interface NavGroup { title: string; items: NavItem[] }
 
 function Shell() {
   const { state, update, dataVersion } = useStore();
@@ -75,7 +79,7 @@ function Shell() {
   const signedIn = !!access.role;
   const [notice, setNotice] = useState('');
   const [workspace, setWorkspace] = useState<Workspace>('buyer');
-  const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: 'today', supplier: 'overview', ecosystem: 'negotiate' });
+  const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: '@understand', supplier: '@today', ecosystem: '@deal' });
   const [drawer, setDrawer] = useState<string | null>(null);
   const [ask, setAsk] = useState<{ open: boolean; q?: string }>({ open: false });
   const [acting, setActing] = useState('s13');
@@ -109,24 +113,27 @@ function Shell() {
 
   const nav: Record<Workspace, NavGroup[]> = {
     buyer: [
-      { title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
-      { title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'ranking', label: 'Find suppliers' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
-      { title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
-      { title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
+      { id: 'understand', title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
+      { id: 'design', title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'ranking', label: 'Find suppliers' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
+      { id: 'act', title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
+      { id: 'setup', title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
     ],
     supplier: [
-      { title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
-      { title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
-      { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }] },
+      { id: 'today', title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
+      { id: 'grow', title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
+      { id: 'trust', title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }] },
     ],
     ecosystem: [
-      { title: 'Deal together', items: [{ id: 'negotiate', label: 'Agent negotiation' }, { id: 'reviews', label: 'Reviews' }] },
-      { title: 'Build and grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'clusters', label: 'Skill clusters' }] },
-      { title: 'Fair work and trust', items: [{ id: 'impact', label: 'SDG 8 impact' }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }, { id: 'report', label: 'Report a problem' }] },
-      { title: 'About the data', items: [{ id: 'sources', label: 'Data sources' }] },
-      ...(access.isTeam ? [{ title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'districts', label: 'District dashboard' }] }] : []),
+      { id: 'deal', title: 'Deal together', items: [{ id: 'negotiate', label: 'Agent negotiation' }, { id: 'reviews', label: 'Reviews' }] },
+      { id: 'build', title: 'Build and grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'clusters', label: 'Skill clusters' }] },
+      { id: 'fair', title: 'Fair work and trust', items: [{ id: 'impact', label: 'SDG 8 impact' }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }, { id: 'report', label: 'Report a problem' }] },
+      { id: 'data', title: 'About the data', items: [{ id: 'sources', label: 'Data sources' }] },
+      ...(access.isTeam ? [{ id: 'team', title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'districts', label: 'District dashboard' }] }] : []),
     ],
   };
+
+  const groups: NavGroup[] = nav[workspace];
+  const group = groupOf(groups, page);
 
   useScrollReveal(mainRef, `${pageKey}:${dataVersion}`);
 
@@ -191,17 +198,7 @@ function Shell() {
               </div>
             </div>
           )}
-          {nav[workspace].map((g) => (
-            <div key={g.title} className="group">
-              <div className="group-title">{g.title}</div>
-              {g.items.map((it) => (
-                <button key={it.id} className={`item ${!showHome && page === it.id ? 'on' : ''}`} onClick={() => go(workspace, it.id)}>
-                  <span>{it.label}</span>
-                  {!!it.count && <span className="count">{it.count}</span>}
-                </button>
-              ))}
-            </div>
-          ))}
+          <SideNav groups={groups} activeGroup={showHome ? undefined : group?.id} page={showHome ? '' : page} onHub={(id) => go(workspace, hubId(id))} onPage={(id) => go(workspace, id)} />
           <div className="group" style={{ marginTop: 24 }}>
             <div className="tiny" style={{ margin: '0 8px' }}>Demo companies and figures are labelled <b>Simulated</b>; real data is labelled <b>Public data</b> or <b>Live</b>.</div>
           </div>
@@ -212,7 +209,14 @@ function Shell() {
               {signedIn && notice && <div className="note warn" role="status" style={{ marginBottom: 16 }}>{notice}</div>}
               <HomePage go={go} allowed={signedIn ? access.workspaces : undefined} signIn={signedIn ? undefined : <SignInPanel note={notice} />} />
             </>
-          ) : content[`${workspace}:${page}`]}
+          ) : isHub(page) ? (
+            <SectionHub workspace={workspace} group={group ?? groups[0]!} onPage={(id) => go(workspace, id)} />
+          ) : (
+            <>
+              {group && <SubNav group={group} page={page} onHub={() => go(workspace, hubId(group.id))} onPage={(id) => go(workspace, id)} />}
+              {content[`${workspace}:${page}`]}
+            </>
+          )}
         </main>
       </div>
 
