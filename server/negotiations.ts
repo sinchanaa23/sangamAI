@@ -14,7 +14,7 @@ interface Run { events: NegotiationEvent[]; done: boolean; listeners: Set<() => 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 export const replayDelayMs = () => Number(process.env.SANGAM_REPLAY_MS ?? 600);
 
-export function createNegotiations(db: Db, opts: { ask?: Ask; sign?: Parameters<typeof runNegotiation>[3]['sign'] } = {}) {
+export function createNegotiations(db: Db, opts: { ask?: Ask } = {}) {
   const runs = new Map<string, Run>();
 
   const emit = (id: string, event: NegotiationEvent) => {
@@ -42,7 +42,7 @@ export function createNegotiations(db: Db, opts: { ask?: Ask; sign?: Parameters<
         if (mode === 'replay') {
           for (const e of fixture.events) { await sleep(replayDelayMs()); emit(id, e); }
         } else {
-          await runNegotiation(id, rfq, supplierIds, { ask: opts.ask ?? defaultAsk, emit: (e) => emit(id, e), db, sign: opts.sign });
+          await runNegotiation(id, rfq, supplierIds, { ask: opts.ask ?? defaultAsk, emit: (e) => emit(id, e), db });
         }
       } catch (e) {
         // never leave a viewer waiting: say what happened and close the stream

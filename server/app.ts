@@ -3,11 +3,16 @@ import { Hono } from 'hono';
 import type { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { ROUTES } from '../src/contracts';
+import type { Grievance } from '../src/ecosystem/ledger';
 import type { FairWorkScore, NegotiationSummary, Rfq, WorkforceProfile } from '../src/contracts';
 import { handleAsk, handleExtract } from './ai';
 import type { AskBody, ExtractBody, Reply } from './ai';
 import { openDb } from './db';
 import type { Db, Doc } from './db';
+import { credentialRoutes, setCredentialStore } from './credentials';
+import { dealRecords } from './deals';
+import { grievanceRoutes, setGrievanceStore } from './grievances';
+import { impactRoutes, setDealSource } from './impact';
 import { createNegotiations, fixture } from './negotiations';
 import { NegotiationInput, RfqInput, WorkforceInput } from './schemas';
 
@@ -22,6 +27,16 @@ export function createApp(db: Db = openDb(), opts: Parameters<typeof createNegot
   const negotiations = createNegotiations(db, opts);
 
   app.get(ROUTES.health, (c) => c.json({ ok: true }));
+
+  // P4's credential, grievance and impact routes (framework-free Request/Response handlers), kept in the shared store
+  setCredentialStore({
+    save: (c) => { db.put('credentials', c as unknown as Doc); },
+    get: (id) => db.get<Doc>('credentials', id) as never,
+    list: () => db.list<Doc>('credentials') as never,
+  });
+  setGrievanceStore({ save: (g) => { db.put('grievances', g); }, list: () => db.list<Grievance & Doc>('grievances') });
+  setDealSource(() => dealRecords(db));
+  for (const r of [...credentialRoutes, ...impactRoutes, ...grievanceRoutes]) app.on(r.method, r.path, (c) => r.handler(c.req.raw, c.req.param()));
 
   app.post('/api/ask', async (c) => reply(c, await handleAsk((await body(c)) as AskBody)));
   app.post('/api/extract-certificate', async (c) => reply(c, await handleExtract((await body(c)) as ExtractBody)));
