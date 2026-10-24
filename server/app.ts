@@ -17,9 +17,9 @@ const bad = (c: Context, e: { issues: { path: PropertyKey[]; message: string }[]
   c.json({ error: e.issues.map((i) => `${i.path.join('.') || 'body'}: ${i.message}`).join('; ') }, 400);
 const rfqId = () => `rfq-${crypto.randomUUID().slice(0, 8)}`;
 
-export function createApp(db: Db = openDb()) {
+export function createApp(db: Db = openDb(), opts: Parameters<typeof createNegotiations>[1] = {}) {
   const app = new Hono();
-  const negotiations = createNegotiations(db);
+  const negotiations = createNegotiations(db, opts);
 
   app.get(ROUTES.health, (c) => c.json({ ok: true }));
 
@@ -45,7 +45,7 @@ export function createApp(db: Db = openDb()) {
     if (!p.success) return bad(c, p.error);
     const rfq = p.data.rfq ? db.put('rfqs', { ...p.data.rfq, id: p.data.rfq.id ?? rfqId() } as Rfq) : db.get<Rfq>('rfqs', p.data.rfqId!);
     if (!rfq) return c.json({ error: 'No such RFQ' }, 404);
-    return c.json(negotiations.start(rfq), 201);
+    return c.json(negotiations.start(rfq, p.data.supplierIds, p.data.mode), 201);
   });
   app.get(ROUTES.negotiations, (c) => c.json(db.list<NegotiationSummary>('negotiations')));
   app.get(ROUTES.negotiation, (c) => {

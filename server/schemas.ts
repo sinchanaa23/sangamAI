@@ -18,6 +18,8 @@ export const NegotiationInput = z.object({
   rfqId: z.string().min(1).optional(),
   rfq: RfqInput.optional(),
   supplierIds: z.array(z.string().min(1)).default([]),
+  /** force the recorded demo ("replay") even when a model is configured */
+  mode: z.enum(['live', 'replay']).optional(),
 }).refine((b) => b.rfqId || b.rfq, { message: 'Send rfqId or rfq' });
 
 // Workers are never stored individually: only skill groups with headcount and wage. Unknown keys (phone, Aadhaar, names) are dropped.

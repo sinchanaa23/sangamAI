@@ -2,7 +2,10 @@
 // The replay runner and (later) the agent orchestrator both write through `emit`, so the stream route does not care which one is running.
 import { readFileSync } from 'node:fs';
 import type { NegotiationEvent, NegotiationSummary, Rfq } from '../src/contracts';
+import { runNegotiation } from './agents/orchestrator';
 import type { Db } from './db';
+import { ask as defaultAsk, llmConfigured } from './llm';
+import type { Ask } from './llm';
 
 export const fixture = JSON.parse(readFileSync(new URL('./fixtures/demo-negotiation.json', import.meta.url), 'utf8')) as { rfq: Rfq; events: NegotiationEvent[] };
 
@@ -11,7 +14,7 @@ interface Run { events: NegotiationEvent[]; done: boolean; listeners: Set<() => 
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 export const replayDelayMs = () => Number(process.env.SANGAM_REPLAY_MS ?? 600);
 
-export function createNegotiations(db: Db) {
+export function createNegotiations(db: Db, opts: { ask?: Ask; sign?: Parameters<typeof runNegotiation>[3]['sign'] } = {}) {
   const runs = new Map<string, Run>();
 
   const emit = (id: string, event: NegotiationEvent) => {
@@ -27,16 +30,28 @@ export function createNegotiations(db: Db) {
     run.listeners.forEach((l) => l());
   };
 
-  const start = (rfq: Rfq, mode: NegotiationSummary['mode'] = 'replay'): NegotiationSummary => {
+  /** Live when a model is configured (or asked for); otherwise the recorded demo is replayed. */
+  const start = (rfq: Rfq, supplierIds: string[] = [], requested?: NegotiationSummary['mode']): NegotiationSummary => {
+    const mode = requested ?? (opts.ask || llmConfigured() ? 'live' : 'replay');
     const id = `neg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
     const summary: NegotiationSummary = { id, rfqId: rfq.id, status: 'running', mode };
     db.put('negotiations', summary);
     runs.set(id, { events: [], done: false, listeners: new Set() });
-    if (mode === 'replay') {
-      void (async () => {
-        for (const e of fixture.events) { await sleep(replayDelayMs()); emit(id, e); }
-      })();
-    }
+    void (async () => {
+      try {
+        if (mode === 'replay') {
+          for (const e of fixture.events) { await sleep(replayDelayMs()); emit(id, e); }
+        } else {
+          await runNegotiation(id, rfq, supplierIds, { ask: opts.ask ?? defaultAsk, emit: (e) => emit(id, e), db, sign: opts.sign });
+        }
+      } catch (e) {
+        // never leave a viewer waiting: say what happened and close the stream
+        emit(id, { type: 'confirm', from: 'auditor', at: new Date().toISOString(), text: `The negotiation stopped: ${(e as Error).message}` });
+        emit(id, { type: 'end', at: new Date().toISOString(), outcome: 'no-deal' });
+      }
+      const run = runs.get(id);
+      if (run && !run.done) emit(id, { type: 'end', at: new Date().toISOString(), outcome: 'no-deal' });
+    })();
     return summary;
   };
 

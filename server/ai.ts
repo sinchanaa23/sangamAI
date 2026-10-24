@@ -1,8 +1,10 @@
-// AI endpoints served by the Hono server (server/index.ts). The API key never reaches the browser:
-// the Anthropic client resolves credentials from ANTHROPIC_API_KEY (or an `ant auth login` profile).
+// AI endpoints served by the Hono server (server/index.ts). API keys stay here; the browser never sees them.
+// Ask Sangam uses the configured free LLM (server/llm.ts). Certificate reading needs a vision model with structured
+// output, so it still uses the Anthropic API and is available only when ANTHROPIC_API_KEY is set.
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
+import { chatText, llmConfigured } from './llm';
 
 const MODEL = 'claude-opus-5-5';
 
@@ -27,7 +29,7 @@ function explainError(e: unknown): { status: number; error: string } {
   if (e instanceof Anthropic.APIError) return { status: e.status ?? 502, error: `Anthropic API error: ${e.message}` };
   const msg = String((e as Error)?.message ?? e);
   if (/api key|apiKey|credentials|authentication/i.test(msg)) {
-    return { status: 503, error: 'Ask Sangam is not configured. Set ANTHROPIC_API_KEY in your environment (or run `ant auth login`) and restart `npm run dev`.' };
+    return { status: 503, error: 'Certificate reading is not configured. It needs ANTHROPIC_API_KEY in .env.local; everything else works without it.' };
   }
   return { status: 500, error: msg };
 }
@@ -35,28 +37,21 @@ function explainError(e: unknown): { status: number; error: string } {
 export interface AskBody { question: string; context: string; history?: { role: 'user' | 'assistant'; content: string }[] }
 
 export async function handleAsk(body: AskBody): Promise<Reply> {
+  if (!body.question?.trim()) return reply(400, { error: 'Empty question' });
+  if (!llmConfigured()) return reply(503, { error: 'Ask Sangam is not configured. Set LLM_API_KEY in .env.local (a free Groq or Gemini key works; see .env.example) and restart `npm run dev`.' });
   try {
-    if (!body.question?.trim()) return reply(400, { error: 'Empty question' });
-    const history: Anthropic.Beta.BetaMessageParam[] = (body.history ?? []).slice(-8).map((m) => ({ role: m.role, content: m.content }));
-    const response = await getClient().beta.messages.create({
-      model: MODEL,
-      max_tokens: 16000,
-      output_config: { effort: 'low' },
-      // Server-side fallback: if a safety classifier declines, the API retries on a fallback model in the same call
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-      messages: [
-        ...history,
-        { role: 'user', content: `<context>\n${body.context}\n</context>\n\n${body.question}` },
-      ],
-    } as Anthropic.Beta.MessageCreateParamsNonStreaming);
-    if (response.stop_reason === 'refusal') return reply(200, { answer: 'Sorry, I can’t help with that request.' });
-    const answer = response.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('\n').trim();
-    return reply(200, { answer, model: response.model });
+    const history = (body.history ?? []).slice(-8).map((m) => ({ role: m.role, content: m.content }));
+    const answer = await chatText({ system: SYSTEM, messages: [...history, { role: 'user', content: `<context>
+${body.context}
+</context>
+
+${body.question}` }] });
+    return reply(200, { answer: answer || 'Sorry, I could not produce an answer.' });
   } catch (e) {
-    const { status, error } = explainError(e);
-    return reply(status, { error });
+    const msg = String((e as Error).message);
+    if (/LLM 401|LLM 403/.test(msg)) return reply(401, { error: 'The LLM API key was rejected. Check LLM_API_KEY.' });
+    if (/LLM 429/.test(msg)) return reply(429, { error: 'The free model is rate limited. Try again in a minute.' });
+    return reply(502, { error: `Ask Sangam could not reach the model: ${msg}` });
   }
 }
 

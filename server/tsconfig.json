@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.json",
-  "compilerOptions": { "lib": ["ES2022"], "target": "ES2022", "types": ["node"], "allowImportingTsExtensions": true },
+  "compilerOptions": { "lib": ["ES2022"], "target": "ES2022", "types": ["node", "vite/client"], "allowImportingTsExtensions": true },
   "include": ["./**/*.ts", "../src/contracts.ts"]
 }

@@ -68,6 +68,16 @@ describe('server', () => {
     expect(done.events).toHaveLength(live.length);
   });
 
+  it('runs live agents when a model is available and streams them', async () => {
+    const ask = (async (o: { system: string }) => (o.system.includes('Auditor') ? { decision: 'pass', text: 'ok' } : (() => { throw new Error('no model'); })())) as never;
+    const live = createApp(openDb(':memory:'), { ask });
+    const n = await (await live.request('/api/negotiations', json('POST', { rfq: { ...rfq, buyerCountry: 'IN', budget: { amount: 6_000_000, currency: 'INR' }, part: 'EV scooter wiring harness (assembly and test)', quantity: 8000, needBy: '2099-01-01' }, supplierIds: ['s13'] }))).json() as { id: string; mode: string };
+    expect(n.mode).toBe('live');
+    const events = await readStream(await live.request(`/api/negotiations/${n.id}/stream`));
+    expect(events.at(-1)).toMatchObject({ type: 'end', outcome: 'deal' });
+    expect(events.some((e) => e.type === 'audit')).toBe(true);
+  });
+
   it('404s an unknown negotiation', async () => {
     expect((await app.request('/api/negotiations/nope/stream')).status).toBe(404);
   });
