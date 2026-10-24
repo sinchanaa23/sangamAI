@@ -1,0 +1,66 @@
+/* Confluence motion effects — Phase 1B.
+   Works standalone: every token owned by motion.css is referenced with a
+   local fallback in var(), so these classes are safe if motion.css is absent. */
+
+/* FadeContent: fade-rise entrance, revealed by .fw-in (JS adds it once). */
+.fw-fade {
+  opacity: 0;
+  transform: translateY(var(--fw-rise, 6px));
+  transition:
+    opacity var(--fw-dur, 350ms) var(--fw-ease, cubic-bezier(0.2, 0.6, 0.2, 1)),
+    transform var(--fw-dur, 350ms) var(--fw-ease, cubic-bezier(0.2, 0.6, 0.2, 1));
+}
+
+.fw-fade.fw-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* SpotlightCard: pure decoration — pointer highlight follows --mx/--my (px,
+   written by JS on mousemove); keyboard/touch users lose nothing. */
+.fw-spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.fw-spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    180px circle at var(--mx, 50%) var(--my, 50%),
+    var(--fw-spot-tint, var(--fw-spot, rgba(15, 118, 110, 0.08))),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--fw-dur-fast, 180ms) var(--fw-ease, cubic-bezier(0.2, 0.6, 0.2, 1));
+}
+
+.fw-spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* ClickSpark: one 6px line per particle, flying outward from the click point.
+   --fw-spark-dx/--fw-spark-dy/--fw-spark-angle/--fw-spark-color are set
+   inline by JS per particle. */
+.fw-spark-particle {
+  position: absolute;
+  width: 6px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--fw-spark-color, var(--accent, #0f766e));
+  pointer-events: none;
+  animation: fw-spark-fly 300ms var(--fw-ease, cubic-bezier(0.2, 0.6, 0.2, 1)) forwards;
+}
+
+@keyframes fw-spark-fly {
+  from {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--fw-spark-angle, 0deg));
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--fw-spark-dx, 0px), var(--fw-spark-dy, 0px)) rotate(var(--fw-spark-angle, 0deg));
+  }
+}
