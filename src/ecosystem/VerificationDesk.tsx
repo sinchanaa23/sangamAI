@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { bom, sellers } from '../data';
 import { district } from '../engine';
 import type { Check } from '../model';
+import { loadSustainability, saveSustainability } from '../seller/sustainability';
+import { CHECKLIST, scoreSustainability } from '../sustainability';
+import type { SustainabilityAnswers } from '../sustainability';
 import { useStore } from '../store';
 import { useUi } from '../ui';
 import Stars from '../components/Stars';
@@ -21,10 +24,36 @@ export default function VerificationDesk() {
   const reviews = state.reviews.filter((r) => r.status === 'pending' && sellers.some((s) => s.id === r.sellerId));
   const milestones = state.projects.filter((p) => p.sector === state.sector).flatMap((p) => p.milestones.filter((m) => m.status === 'submitted').map((m) => ({ p, m })));
 
+  // Sustainability evidence: each supplier's checklist answers, loaded from the server (seeds fill in demo sellers)
+  const [sus, setSus] = useState<Record<string, SustainabilityAnswers>>({});
+  useEffect(() => {
+    let alive = true;
+    for (const s of sellers) {
+      void loadSustainability(s.id, s.name).then((r) => {
+        const a = r.answers;
+        if (alive && a) setSus((prev) => ({ ...prev, [s.id]: a }));
+      });
+    }
+    return () => { alive = false; };
+  }, []);
+  const susQueue = sellers.flatMap((s) => {
+    const answers = sus[s.id];
+    if (!answers) return [];
+    const result = scoreSustainability(answers, state.sector);
+    return CHECKLIST.filter((it) => answers[it.id]?.evidence === 'document').map((it) => ({ s, it, result }));
+  });
+
   const setCheck = (id: string, field: 'identity' | 'capacity', v: Check) => update((s) => ({ ...s, verifications: { ...s.verifications, [id]: { ...s.verifications[id], [field]: v } } }));
   const setCert = (id: string, cert: string, v: Check) => update((s) => ({ ...s, verifications: { ...s.verifications, [id]: { ...s.verifications[id], certs: { ...s.verifications[id].certs, [cert]: v } } } }));
   const decideReview = (id: string, v: 'verified' | 'rejected') => update((s) => ({ ...s, reviews: s.reviews.map((r) => (r.id === id ? { ...r, status: v, verifierNote: notes[id] || (v === 'verified' ? 'Matched to purchase order and goods receipt.' : 'Could not match to an order.') } : r)) }));
   const decideMilestone = (pid: string, mid: string, ok: boolean) => update((s) => ({ ...s, projects: s.projects.map((p) => (p.id !== pid ? p : { ...p, milestones: p.milestones.map((m) => (m.id === mid ? { ...m, status: ok ? 'verified' : 'doing' } : m)) })) }));
+  const decideSustainability = (sellerId: string, itemId: string, ok: boolean) => {
+    const answers = sus[sellerId];
+    if (!answers) return;
+    const next: SustainabilityAnswers = { ...answers, [itemId]: { ...answers[itemId], evidence: ok ? 'verified' : 'document' } };
+    setSus({ ...sus, [sellerId]: next });
+    void saveSustainability(sellerId, next); // saved so the supplier page and the ranking see the verified evidence
+  };
 
   const Buttons = ({ value, onSet }: { value: Check; onSet: (v: Check) => void }) => (
     <span className="toggle-row" style={{ gap: 4 }}>
@@ -143,6 +172,24 @@ export default function VerificationDesk() {
             </div>
           );
         })}
+      </div>
+      <div className="card">
+        <div className="section-title">Sustainability evidence ({susQueue.length})</div>
+        <p className="tiny">Checklist items where the supplier uploaded a document. Verifying counts towards the Gold and Platinum evidence gates on their sustainability score.</p>
+        {susQueue.length === 0 && <p className="small muted">Nothing waiting. Suppliers upload documents from the Sustainability checklist.</p>}
+        {susQueue.map(({ s, it, result }) => (
+          <div key={`${s.id}:${it.id}`} style={{ borderTop: '1px solid var(--line)', padding: '12px 0' }} className="stack">
+            <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+              <span><button className="linkish" style={{ fontWeight: 600 }} onClick={() => openSupplier(s.id)}>{s.name}</button> <span className="tiny">{it.label}</span></span>
+              <span className="tiny">now {result.level}, {result.score}/100</span>
+            </div>
+            <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+              <input placeholder="Note (optional)" value={notes[`${s.id}:${it.id}`] ?? ''} onChange={(e) => setNotes({ ...notes, [`${s.id}:${it.id}`]: e.target.value })} style={{ flex: 1, minWidth: 200, font: 'inherit', fontSize: 13, padding: '6px 10px', border: '1px solid var(--line)', borderRadius: 8 }} />
+              <button className="btn small primary" onClick={() => decideSustainability(s.id, it.id, true)}>Verify</button>
+              <button className="btn small danger" onClick={() => decideSustainability(s.id, it.id, false)}>Reject</button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
