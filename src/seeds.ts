@@ -237,3 +237,73 @@ export function seedWorkforceFor(sellerName: string, supplierId = ''): Workforce
   const p = SEED_WORKFORCES[normName(sellerName)];
   return p ? { ...p, supplierId: supplierId || p.supplierId } : null;
 }
+
+// ---------- Sustainability seed answers (demo, tagged simulated) ----------
+// Demo checklist answers spread across the four levels so the buyer's Find-suppliers
+// ranking and the metal badges have a full ladder to show. Keyed by seller NAME (ids
+// repeat across sector templates); unmatched sellers are 'Not assessed' (no entry).
+import type { SustainabilityAnswers } from './sustainability';
+
+const sa = (
+  answers: Record<string, [SustainabilityAnswers[string]['value'], SustainabilityAnswers[string]['evidence']]>,
+): SustainabilityAnswers =>
+  Object.fromEntries(Object.entries(answers).map(([id, [value, evidence]]) => [id, { value, evidence }]));
+
+const SEED_SUSTAINABILITY: Record<string, SustainabilityAnswers> = {
+  // Platinum - the hero: rooftop solar, full waste discipline, consent + authorisation,
+  // ISO 14001 and ZED both verified. 4+ verified incl. a certificate.
+  'krishnagiri mahila harness collective': sa({
+    'energy-renewable': ['yes', 'verified'], 'energy-audit': ['yes', 'document'], 'energy-tracked': ['yes', 'verified'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['yes', 'document'],
+    'waste-hazardous-auth': ['yes', 'verified'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['partly', 'document'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['yes', 'declared'],
+    'cert-iso14001': ['yes', 'verified'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['yes', 'document'],
+  }),
+  // Gold - strong practice, 2-3 verified, no ISO yet
+  'satara gramin assembly co-op': sa({
+    'energy-renewable': ['partly', 'document'], 'energy-audit': ['yes', 'verified'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['partly', 'declared'], 'waste-segregation': ['yes', 'verified'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'verified'], 'sector-rohs': ['partly', 'declared'],
+    'water-consent': ['yes', 'verified'], 'water-effluent': ['yes', 'document'], 'water-reuse': ['partly', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['yes', 'verified'], 'disclosure-annual': ['partly', 'declared'],
+  }),
+  // Silver - decent basics, thin evidence
+  'hosur tool and die cluster': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['yes', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['yes', 'document'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['partly', 'declared'],
+    'waste-hazardous-auth': ['yes', 'document'], 'sector-rohs': ['yes', 'document'],
+    'water-consent': ['yes', 'document'], 'water-effluent': ['partly', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['partly', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  // Silver - rural FPO with organic certificate but weak energy story
+  'madurai shg kitting network': sa({
+    'energy-renewable': ['partly', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['yes', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['partly', 'declared'], 'packaging-epr': ['yes', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-rohs': ['na', 'declared'],
+    'water-consent': ['yes', 'document'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['yes', 'declared'],
+    'local-inputs': ['yes', 'declared'], 'local-transport': ['partly', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+  // Bronze - ticking along, no certificates, consent declared only
+  'chakan harness systems': sa({
+    'energy-renewable': ['no', 'declared'], 'energy-audit': ['no', 'declared'], 'energy-tracked': ['partly', 'declared'],
+    'energy-generator-backup': ['no', 'declared'], 'waste-segregation': ['partly', 'declared'],
+    'materials-recycled-input': ['no', 'declared'], 'packaging-epr': ['no', 'declared'],
+    'waste-hazardous-auth': ['na', 'declared'], 'sector-rohs': ['partly', 'declared'],
+    'water-consent': ['yes', 'declared'], 'water-effluent': ['na', 'declared'], 'water-reuse': ['no', 'declared'],
+    'local-inputs': ['partly', 'declared'], 'local-transport': ['no', 'declared'],
+    'cert-iso14001': ['no', 'declared'], 'cert-zed': ['no', 'declared'], 'disclosure-annual': ['no', 'declared'],
+  }),
+};
+
+/** Seed sustainability answers for a demo seller (matched by name), or null = Not assessed. */
+export function seedSustainabilityFor(sellerName: string): SustainabilityAnswers | null {
+  return SEED_SUSTAINABILITY[normName(sellerName)] ?? null;
+}
