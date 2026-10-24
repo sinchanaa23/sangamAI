@@ -19,6 +19,8 @@ export interface DealRecord {
   womenShare?: number;
   wagePerDay?: number;
   livingWagePerDay?: number;
+  /** where the wage and women's share came from, when not from the deal itself */
+  workforceSource?: Provenance;
   source: Provenance;
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { buyer } from '../data';
+import { buyer, sellers } from '../data';
+import { withWorkforce } from './fairwork-link';
 import { crore, district } from '../engine';
 import { architectures } from '../network';
 import { useStore } from '../store';
@@ -31,13 +32,22 @@ export default function ImpactPage() {
 
   // Server deals win over the same deal recorded in this browser
   const seen = new Set(serverDeals.map((d) => d.reqId));
-  const deals = [...serverDeals, ...ledger.deals.filter((d) => !seen.has(d.reqId)), ...localDeals(state)];
+  const raw = [...serverDeals, ...ledger.deals.filter((d) => !seen.has(d.reqId)), ...localDeals(state)];
+  // Awarded quotes take their wages and women's share from the supplier's workforce profile (P3)
+  const [deals, setDeals] = useState<DealRecord[]>(raw);
+  const rawKey = raw.map((d) => d.id).join('|');
+  useEffect(() => {
+    let live = true;
+    setDeals(raw);
+    void withWorkforce(raw, (id) => sellers.find((s) => s.id === id)?.name ?? id).then((d) => { if (live) setDeals(d); });
+    return () => { live = false; };
+  }, [rawKey]);
   const { totals, byDistrict } = computeImpact(deals);
   const arch = architectures(scenario, weights).find((a) => a.id === (state.chosen[state.sector]?.archId ?? 'corridor'));
   const open = ledger.grievances.filter((g) => g.status === 'open').length;
   // Workforce figures are only as real as the deals that carry them
-  const wageSrc = weakest(deals.filter((d) => d.wagePerDay !== undefined).map((d) => d.source));
-  const womenSrc = weakest(deals.filter((d) => d.womenShare !== undefined).map((d) => d.source));
+  const wageSrc = weakest(deals.filter((d) => d.wagePerDay !== undefined).map((d) => d.workforceSource ?? d.source));
+  const womenSrc = weakest(deals.filter((d) => d.womenShare !== undefined).map((d) => d.workforceSource ?? d.source));
 
   const tiles: { label: string; value: string; note: string; sdg?: string; src: Provenance }[] = [
     { label: 'Jobs on confirmed deals', value: totals.jobs.toLocaleString('en-IN'), note: `${totals.deals} deals`, sdg: '8.5', src: totals.jobsSource },

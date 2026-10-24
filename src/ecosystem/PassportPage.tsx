@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { bom, buyer, sellers } from '../data';
 import { district, isRural } from '../engine';
 import { useStore } from '../store';
+import FairWorkBadge from '../components/FairWorkBadge';
+import Src from '../components/Src';
 import CredentialCard from './CredentialCard';
+import { useSupplierWork, workforceProvenance } from './fairwork-link';
 import { issue, useLedger } from './ledger';
 
 const LEVELS = ['Trainee', 'Skilled', 'Highly skilled', 'Supervisor'];
@@ -15,6 +18,7 @@ export default function PassportPage() {
   const s = sellers.find((x) => x.id === sellerId) ?? sellers[0];
   const [form, setForm] = useState({ workerId: workerId(), skill: s?.process ?? '', level: 'Skilled', trainingHours: 40 });
   const [busy, setBusy] = useState(false);
+  const work = useSupplierWork(s?.id ?? '', s?.name ?? '');
   if (!s) return null;
 
   const mine = ledger.credentials.filter((c) => c.subject.supplierId === s.id);
@@ -54,6 +58,9 @@ export default function PassportPage() {
           </select>
         </label>
         <span className="tiny">{s.type} · {district(s.districtId).name}, {district(s.districtId).state} · {s.workers.toLocaleString('en-IN')} workers{isRural(s) ? ' · rural collective' : ''}</span>
+        <span style={{ marginLeft: 'auto' }} className="row">
+          {work ? <><FairWorkBadge score={work.score} /> <Src kind={workforceProvenance(work.source)} /></> : <span className="tiny muted">No workforce profile yet</span>}
+        </span>
       </div>
 
       <div className="grid-2">

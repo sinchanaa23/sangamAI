@@ -42,6 +42,7 @@ export async function recordNegotiation(events: Event[], opts: { source?: Proven
     workers: accepted.labour.workers, workersSource: opts.source ?? 'simulated',
     womenShare: accepted.labour.womenShare, wagePerDay: wage,
     livingWagePerDay: audit?.score.wageVsLivingWage ? wage / audit.score.wageVsLivingWage : undefined,
+    workforceSource: opts.source ?? 'simulated',
     source: opts.source ?? 'simulated',
   };
   if (!addDeal([record])) return 'already-recorded';
