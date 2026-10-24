@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import type { ReactNode } from 'react';
 import type { Workspace } from '../ui';
 import Confluence from '../components/Confluence';
 import WaveDivider from '../components/WaveDivider';
@@ -7,7 +8,7 @@ import { gsap, MOTION_OK, NO_MOTION, ScrollTrigger, SplitText, useGSAP } from '.
 const DOORS: { w: Workspace; page: string; title: string; who: string; does: string; shortcuts?: { page: string; label: string }[] }[] = [
   { w: 'buyer', page: 'today', title: 'I need parts or products', who: 'Manufacturers, builders, food processors, public buyers', does: 'See which inputs depend on one country, get ranked Indian supply chains and a switch-over plan, and let your agent negotiate the order.', shortcuts: [{ page: 'today', label: 'Supply chain today' }, { page: 'india', label: 'Indian options' }, { page: 'network', label: 'Future network' }, { page: 'negotiate', label: 'Agent negotiation' }] },
   { w: 'supplier', page: 'overview', title: 'I make things', who: 'MSMEs, FPOs, SHGs, cooperatives, ODOP clusters', does: 'See pooled demand for what you make, close gaps with scheme support, team up in consortia, and let your agent quote for you.' },
-  { w: 'ecosystem', page: 'districts', title: 'I build clusters and check claims', who: 'The Sangam team, districts and states', does: 'See where demand meets local capability, verify suppliers, sign skill and audit credentials, and track SDG 8 impact.' },
+  { w: 'ecosystem', page: 'negotiate', title: 'We deal and build together', who: 'Buyers, suppliers and the Sangam team', does: 'Let agents negotiate an order, plan a new supply chain, explore skill clusters, rate each other after real orders, check signed credentials and track SDG 8 impact.', shortcuts: [{ page: 'architect', label: 'AI Supply Chain Architect' }, { page: 'clusters', label: 'Skill clusters' }, { page: 'reviews', label: 'Reviews' }] },
 ];
 
 // One step per river, then the meeting. The scroll animation draws each river as its step comes into view.
@@ -18,7 +19,8 @@ const STEPS = [
   { name: 'The confluence', text: 'An agent on each side negotiates, the auditor grades wages, hours and safety, and one signed deal carries all three.' },
 ];
 
-export default function HomePage({ go }: { go: (w: Workspace, page: string) => void }) {
+/** `allowed` limits the doors to the workspaces the signed-in account may open; `signIn` is the sign-in panel for visitors who have not. */
+export default function HomePage({ go, allowed, signIn }: { go: (w: Workspace, page: string) => void; allowed?: Workspace[]; signIn?: ReactNode }) {
   const stepsRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -68,8 +70,10 @@ export default function HomePage({ go }: { go: (w: Workspace, page: string) => v
         <div className="home-hero-art"><Confluence mode="intro" /></div>
       </section>
 
+      {signIn && <section className="home-signin" aria-label="Sign in">{signIn}</section>}
+
       <section className="home-doors" aria-label="Choose where to start">
-        {DOORS.map((d, i) => (
+        {DOORS.filter((d) => !allowed || allowed.includes(d.w)).map((d, i) => (
           <div key={d.w} className={`door${i === 0 ? ' first' : ''}`}>
             <button className="door-main" onClick={() => go(d.w, d.page)}>
               <div>

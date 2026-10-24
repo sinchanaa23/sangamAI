@@ -3,7 +3,8 @@
 // Supplier prices, freight rates, port charges and quality figures are indicative or simulated and labelled so.
 import { bom, buyer } from './data';
 import { district, isImported } from './engine';
-import { lpi } from './realdata';
+import { ROAD_FACTOR, ROAD_RS_PER_TONNE_KM } from './freight';
+import { fxRate, lpi } from './realdata';
 import type { Chokepoint, Scenario } from './scenario';
 import type { District, Provenance } from './types';
 
@@ -11,7 +12,8 @@ export type LonLat = [number, number];
 
 const CHENNAI: LonLat = [80.35, 13.1];
 const SEA_KM_PER_DAY = 700;
-const USD_INR = 94.5;
+/** Rupees per US dollar: the ECB reference rate in src/real/fx.json, the same one every screen and the agents use */
+const USD_INR = fxRate('USD').inrPer;
 const BASE_DUTY = 0.1; // indicative basic customs duty on today's imports
 // Indicative charges per 40-ft container, rupees
 const THC_ORIGIN = 18000, THC_DEST = 16000, CHA_FEE = 9000, DOCS = 3500, FIRST_MILE = 12000, TRUCK_PER_KM = 65;
@@ -296,10 +298,9 @@ const WEST_PORTS: { name: string; at: LonLat }[] = [
 ];
 const COAST_TO_CHENNAI: LonLat[] = [[72.3, 17], [73.2, 14.5], [74.2, 11.5], [75.6, 8.9], [77.5, 7.4], [80.2, 5.7], [82, 7.6], [81.6, 11], CHENNAI];
 
-const RATE = { road: 3.0, rail: 1.6, coastal: 0.9 }; // rupees per tonne-km
+const RATE = { road: ROAD_RS_PER_TONNE_KM, rail: 1.6, coastal: 0.9 }; // rupees per tonne-km (road: the one rate in freight.ts)
 const TERMINAL_RS_PER_T = { rail: 600, coastal: 900 };
 const CO2_KG_PER_TKM = { road: 0.062, rail: 0.022, coastal: 0.015 };
-const ROAD_FACTOR = 1.3;
 
 export interface DomesticLane {
   mode: Mode;

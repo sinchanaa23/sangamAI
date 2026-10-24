@@ -1,0 +1,42 @@
+/* Section navigation: short sidebar, hover list, section landing pages, in-section navigation. Design tokens only. */
+.sidebar .navgroup { margin-bottom: 2px; }
+.sidebar button.navgroup-btn { display: flex; align-items: center; gap: 8px; font-size: 15px; padding: 9px 10px; }
+.sidebar button.navgroup-btn > span:first-child { flex: 1; text-align: left; }
+.sidebar .navgroup-btn .chev { color: var(--ink-3); font-size: 16px; line-height: 1; }
+.sidebar .navgroup-btn.on .chev { color: inherit; }
+
+/* The hover list. Fixed so the sidebar's scrolling does not clip it; it starts at the button's right edge with no gap. */
+.flyout { position: fixed; z-index: 60; list-style: none; margin: 0; padding: 6px; min-width: 230px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); }
+.flyout::before { content: ''; position: absolute; left: -8px; top: 0; bottom: 0; width: 8px; }
+.flyout-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 8px; color: var(--ink-2); font-weight: 500; font-size: 14px; }
+.flyout-item:hover, .flyout-item:focus-visible { background: var(--accent-soft); color: var(--ink-strong); }
+.flyout-item.on { color: var(--ink-strong); font-weight: 600; }
+
+/* A section's landing page */
+.hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.hub-card { display: grid; gap: 8px; align-content: start; text-align: left; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); color: var(--ink); font: inherit; transition: border-color 0.15s, transform 0.15s; }
+.hub-card:hover, .hub-card:focus-visible { border-color: var(--ink-strong); transform: translateY(-2px); }
+.hub-idx { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.hub-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink-strong); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.hub-desc { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.hub-go { font-size: 13px; font-weight: 600; color: var(--ink-strong); margin-top: 4px; }
+.hub-title .count, .subnav .count { font-size: 11px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; color: var(--ink-3); font-family: var(--sans); }
+
+/* Inside a section */
+.subnav { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.subnav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.subnav-back { border: 0; background: none; padding: 4px 0; font-weight: 600; color: var(--ink-strong); font-size: 14px; }
+.subnav-back:hover { text-decoration: underline; text-underline-offset: 3px; }
+.subnav-pill { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 5px 13px; font-size: 13.5px; color: var(--ink-2); display: inline-flex; gap: 6px; align-items: center; }
+.subnav-pill:hover { border-color: var(--ink-3); }
+.subnav-pill.on { background: var(--ink-strong); border-color: var(--ink-strong); color: #fff; font-weight: 600; }
+.subnav-pill.on .count { color: var(--ink-2); }
+
+@media (max-width: 860px) {
+  .sidebar button.navgroup-btn { width: auto; white-space: nowrap; }
+  .sidebar .navgroup-btn .chev { display: none; }
+  .sidebar .navgroup { display: contents; }
+  .hub-grid { grid-template-columns: minmax(0, 1fr); }
+  .subnav { gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .hub-card { transition: none; } .hub-card:hover { transform: none; } }

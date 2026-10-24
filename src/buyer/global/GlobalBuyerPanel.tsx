@@ -1,5 +1,5 @@
 import Src from '../../components/Src';
-import { COUNTRIES, countryOf, DEFAULT_RATES, laneFor, RATES_AS_OF, setGlobalBuyer, useGlobalBuyer } from './settings';
+import { COUNTRIES, countryOf, laneFor, RATES_AS_OF, RATES_SOURCE, setGlobalBuyer, useGlobalBuyer } from './settings';
 import type { Currency } from './settings';
 
 const CURRENCIES: Currency[] = ['INR', 'USD', 'EUR'];
@@ -35,16 +35,11 @@ export default function GlobalBuyerPanel() {
       </p>
       {g.currency !== 'INR' && (
         <details style={{ marginTop: 10 }}>
-          <summary>Exchange rates used ({RATES_AS_OF}) <Src kind="estimated" title="A fixed table, not a live feed. Replace with the RBI reference rate for your date." /></summary>
+          <summary>Exchange rates used ({RATES_AS_OF}) <Src kind="public" title={RATES_SOURCE} /></summary>
           <div className="row small" style={{ gap: 16, flexWrap: 'wrap' }}>
-            {CURRENCIES.filter((c) => c !== 'INR').map((c) => (
-              <label key={c} className="row" style={{ gap: 6 }}>1 {c} = ₹
-                <input className="cell num" style={{ width: 80, border: '1px solid var(--line)' }} type="number" min={1} step={0.01} value={g.rates[c]} onChange={(e) => setGlobalBuyer({ rates: { ...g.rates, [c]: Math.max(0.01, Number(e.target.value)) } })} />
-              </label>
-            ))}
-            <button className="link-btn small" onClick={() => setGlobalBuyer({ rates: DEFAULT_RATES })}>Reset</button>
+            {CURRENCIES.filter((c) => c !== 'INR').map((c) => <span key={c}>1 {c} = ₹{g.rates[c].toFixed(2)}</span>)}
           </div>
-          <p className="tiny" style={{ marginTop: 6 }}>A fixed table so every screen agrees. Check it against the RBI reference rate before you rely on a figure.</p>
+          <p className="tiny" style={{ marginTop: 6 }}>ECB reference rates, one table for the whole app so every screen and the agents show the same rupee figures. Refresh it with <code>npm run data:refresh fx</code>.</p>
         </details>
       )}
     </div>

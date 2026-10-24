@@ -19,6 +19,7 @@ import type { OtpSender } from './auth';
 import type { Ask } from './llm';
 import { createNegotiations, fixture } from './negotiations';
 import { FundingInput, NegotiationInput, RfqInput, SustainabilityInput, WorkforceInput } from './schemas';
+import { mountReviews } from './reviews';
 import { selectProvider } from './verify/provider';
 import type { VerifyProvider } from './verify/provider';
 import { mountVerification, recheckStale, recordCertificate } from './verify/routes';
@@ -54,6 +55,7 @@ export function createApp(db: Db = openDb(), opts: AppOptions = {}) {
     ecosystemAllowlist: opts.ecosystemAllowlist ?? (process.env.ECOSYSTEM_ALLOWLIST ?? '').split(',').map((x) => x.trim()).filter(Boolean),
   });
   mountVerification(app, db, verifier, opts.now);
+  mountReviews(app, db, opts.now);
   // The demo-only signing endpoint stays open unless protection is switched on
   if (opts.protectSigning ?? process.env.AUTH_PROTECT_SIGNING === '1') {
     app.use('/api/credentials/sign', async (c, next) => { const g = guard(c, db, ['ecosystem']); if (g instanceof Response) return g; await next(); });
