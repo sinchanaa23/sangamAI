@@ -40,3 +40,51 @@ export const WorkforceInput = z.object({
 export const SustainabilityInput = z.object({
   answers: z.record(z.string(), z.object({ value: z.enum(['yes', 'partly', 'no', 'na']), evidence: z.enum(['declared', 'document', 'verified']) })),
 });
+
+// Funding applications (src/funding.ts FundingApplication), saved as drafts by the seller funding page and
+// updated by the desk and the marketplace. Strict shape like WorkforceInput; all money is simulated and the
+// projections arrive pre-computed client-side, tagged estimated.
+export const FundingInput = z.object({
+  id: z.string().min(1).optional(),
+  sector: z.enum(['ev', 'construction', 'agri']),
+  sellerId: z.string().min(1),
+  sellerName: z.string().min(1),
+  title: z.string().min(1),
+  purpose: z.string(),
+  items: z.array(z.object({
+    id: z.string().min(1),
+    kind: z.enum(['machine', 'green-tech', 'rnd', 'certification', 'working-capital']),
+    label: z.string().min(1),
+    labelHi: z.string(),
+    costLakh: z.number().nonnegative(),
+    months: z.number().int().nonnegative(),
+    purpose: z.string(),
+    schemes: z.array(z.string().min(1)).optional(),
+    sustainabilityItemId: z.string().min(1).optional(),
+    status: z.enum(['todo', 'doing', 'submitted', 'verified']),
+    evidence: z.string().optional(),
+    updatedAt: z.string().optional(),
+  })),
+  evidence: z.array(z.string().min(1)),
+  status: z.enum(['draft', 'submitted', 'listed', 'funded', 'completed']),
+  commitments: z.array(z.object({
+    buyerId: z.string().min(1),
+    buyerName: z.string().min(1),
+    itemIds: z.array(z.string().min(1)),
+    amountLakh: z.number().nonnegative(),
+    committedAt: z.string().min(1),
+    status: z.enum(['pledged', 'released']),
+  })),
+  projections: z.object({
+    totalAskLakh: z.number().nonnegative(),
+    paybackMonths: z.number().int().positive().nullable(),
+    roi5yrPct: z.number().int().nullable(),
+    capacityUpliftPct: z.number().nullable(),
+    qualityUpliftPct: z.number().nullable(),
+    sustainabilityUplift: z.object({ from: z.string(), to: z.string(), points: z.number() }).nullable(),
+    sangamScoreUplift: z.number().nullable(),
+    source: z.literal('estimated'),
+  }),
+  createdAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+});

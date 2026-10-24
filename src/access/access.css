@@ -16,3 +16,22 @@
 @media (max-width: 860px) {
   .account-bar .who { max-width: 120px; }
 }
+
+/* Header: one line, nothing wraps mid-label. The account area is compact; the full badge is on the Account page. */
+.topbar .btn, .topbar a.btn { white-space: nowrap; }
+.account-bar { flex-wrap: nowrap; white-space: nowrap; gap: 8px; }
+.account-bar .who { max-width: 150px; }
+.account-bar .pill { font-size: 11px; padding: 2px 8px; }
+.account-bar .src { display: none; }
+@media (max-width: 1320px) { .topbar .brand-tag { display: none; } }
+
+/* The "Sign in" link in the header scrolls to the panel; keep it clear of the sticky header */
+#sign-in { scroll-margin-top: 96px; }
+
+/* The header holds the logo, sector, workspaces, language and account. When they do not fit, the header wraps onto a second row
+   instead of pushing the whole page wider than the window (which made every page drift sideways as you scrolled). */
+header.topbar { flex-wrap: wrap; row-gap: 6px; }
+@media (max-width: 1180px) {
+  header.topbar .account-bar .hide-sm { display: none; }
+  header.topbar .sector-pick { max-width: 160px; }
+}

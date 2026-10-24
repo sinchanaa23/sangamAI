@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { buyer, sellers } from '../data';
 import { district, isRural, leadDaysFrom, roadKm } from '../engine';
 import { METRICS } from '../realdata';
@@ -7,6 +7,12 @@ import { checksFor, fieldSource, trustScore } from '../trust';
 import Src from './Src';
 import Stars from './Stars';
 import ReviewForm from './ReviewForm';
+import FundingCard from './FundingCard';
+import SustainabilityBadge from './SustainabilityBadge';
+import { PILLARS, scoreSustainability } from '../sustainability';
+import type { SustainabilityAnswers } from '../sustainability';
+import { seedSustainabilityFor } from '../seeds';
+import { loadSustainability } from '../seller/sustainability';
 
 const CHECK_LABEL = { verified: 'Verified', pending: 'Not yet checked', rejected: 'Rejected' } as const;
 
@@ -24,6 +30,16 @@ export default function SupplierDrawer({ id, onClose }: { id: string; onClose: (
   const perfSrc = s.origin === 'simulated' ? 'simulated' as const : 'declared' as const;
   const free = Math.round(s.monthlyCapacity * (1 - s.details.utilisationPct / 100));
   const onboarded = state.onboarded.find((o) => o.id === s.id);
+  // P3: the seller's funding applications, shown as compact cards (additive card below).
+  const fundingApps = state.funding.filter((a) => a.sellerId === s.id);
+
+  const [susAnswers, setSusAnswers] = useState<SustainabilityAnswers | null>(() => seedSustainabilityFor(s.name));
+  useEffect(() => {
+    loadSustainability(s.id, s.name).then(({ answers }) => {
+      if (answers) setSusAnswers(answers);
+    });
+  }, [s.id, s.name]);
+  const susResult = scoreSustainability(susAnswers ?? {}, state.sector);
 
   return (
     <>
@@ -31,9 +47,10 @@ export default function SupplierDrawer({ id, onClose }: { id: string; onClose: (
       <aside className="drawer" role="dialog" aria-label={s.name}>
         <div className="drawer-head">
           <div>
-            <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
+            <div className="row" style={{ flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
               <span className={`chip ${isRural(s) ? 'rural' : 'plain'}`}>{s.type}</span>
               <span className={`trust-badge trust-${t.band}`}>Trust {t.score} · {t.band}</span>
+              <SustainabilityBadge result={susResult} size="sm" />
               {s.origin === 'simulated' ? <Src kind="simulated" title="A demo company invented for the prototype" /> : <Src kind="declared" title="Profile created in the app" />}
             </div>
             <h2 style={{ fontSize: 20, marginTop: 8 }}>{s.name}</h2>
@@ -55,6 +72,37 @@ export default function SupplierDrawer({ id, onClose }: { id: string; onClose: (
                   <div className="tiny">{p.detail}</div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: 16 }}>
+            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div className="section-title" style={{ fontSize: 14, margin: 0 }}>Sustainability scorecard</div>
+              <SustainabilityBadge result={susResult} size="sm" />
+            </div>
+            <div className="row" style={{ alignItems: 'baseline', gap: 8, marginBottom: 12 }}>
+              <span style={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}>{susResult.score}</span>
+              <span className="muted small">/ 100 · {susResult.level}</span>
+              <Src kind="simulated" title="Based on supplier checklist" />
+            </div>
+            <div className="stack" style={{ gap: 8 }}>
+              {PILLARS.map((p) => {
+                const pScore = susResult.pillarScores[p.id] ?? 0;
+                return (
+                  <div key={p.id}>
+                    <div className="row small" style={{ justifyContent: 'space-between' }}>
+                      <span>{p.label}</span>
+                      <b>{pScore}%</b>
+                    </div>
+                    <div className="meter" style={{ marginTop: 3 }}>
+                      <span style={{ width: `${pScore}%`, background: pScore >= 70 ? 'var(--ready)' : pScore >= 40 ? 'var(--accent)' : 'var(--potential)' }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="tiny muted" style={{ marginTop: 10 }}>
+              {susResult.verifiedCount} evidence item{susResult.verifiedCount === 1 ? '' : 's'} verified by Sangam team.
             </div>
           </div>
 
@@ -97,6 +145,18 @@ export default function SupplierDrawer({ id, onClose }: { id: string; onClose: (
           <div className="card" style={{ padding: 16 }}>
             <div className="section-title" style={{ fontSize: 14 }}>Machines and processes</div>
             <div className="toggle-row">{s.details.machines.map((x) => <span key={x} className="chip plain">{x}</span>)}</div>
+          </div>
+
+          <div className="card" style={{ padding: 16 }}>
+            <div className="section-title" style={{ fontSize: 14 }}>Funding applications</div>
+            {fundingApps.length === 0 ? (
+              <p className="small muted">No funding applications.</p>
+            ) : (
+              <div className="stack" style={{ gap: 12 }}>
+                {fundingApps.map((a) => <FundingCard key={a.id} app={a} mode="compact" />)}
+              </div>
+            )}
+            <p className="tiny muted" style={{ marginTop: 8 }}>Buyer commitments are simulated pledges — no money moves. <Src kind="simulated" /></p>
           </div>
 
           <div className="card" style={{ padding: 16 }}>

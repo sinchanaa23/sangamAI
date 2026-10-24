@@ -28,6 +28,10 @@ import OpportunitiesPage from './seller/OpportunitiesPage';
 import ConsortiaPage from './seller/ConsortiaPage';
 import ProfilePage from './seller/ProfilePage';
 import Diversification from './seller/Diversification';
+import FundingPage from './seller/FundingPage';
+import FundingMarketPage from './buyer/FundingMarketPage';
+import { seedSustainabilityFor } from './seeds';
+import { scoreSustainability } from './sustainability';
 import ArchitectPage from './architect/ArchitectPage';
 import ClustersPage from './buyer/ClustersPage';
 import ReviewsHub from './reviews/ReviewsHub';
@@ -36,6 +40,12 @@ import SignInPanel from './access/SignInPanel';
 import { homeWorkspace, resolvePage, ROLE_LABEL } from './access/roles';
 import VerificationBadge from './auth/VerificationBadge';
 import './access/access.css';
+import SideNav from './nav/SideNav';
+import SectionHub from './nav/SectionHub';
+import SubNav from './nav/SubNav';
+import { groupOf, hubId, isHub } from './nav/catalog';
+import type { NavGroup } from './nav/catalog';
+import './nav/nav.css';
 import VerificationDesk from './ecosystem/VerificationDesk';
 import DistrictDashboard from './ecosystem/DistrictDashboard';
 import ImpactPage from './ecosystem/ImpactPage';
@@ -45,13 +55,13 @@ import GrievancePage from './ecosystem/GrievancePage';
 import DataSourcesPage from './ecosystem/DataSourcesPage';
 import { useLedger } from './ecosystem/ledger';
 import SupplierDrawer from './components/SupplierDrawer';
-import AskSangam from './components/AskSangam';
 import RiverBackdrop from './components/RiverBackdrop';
 import NavRiver from './components/NavRiver';
 import SmoothScroll from './components/SmoothScroll';
 import ScrollProgress from './components/ScrollProgress';
 import useScrollReveal from './components/ScrollReveal';
 import type { Lang } from './seller/i18n';
+import { UiLangProvider, useUiLang, tr, UI_LANGS, WORKSPACE_LABELS } from './i18n';
 
 function Logo() {
   // Two streams meeting: the "sangam" (confluence)
@@ -64,20 +74,18 @@ function Logo() {
 }
 
 /** Pages only a Sangam team account may open. */
-const TEAM_ONLY = ['ecosystem:verify', 'ecosystem:districts'];
+const TEAM_ONLY = ['ecosystem:verify', 'ecosystem:districts', 'ecosystem:@team'];
 
-interface NavItem { id: string; label: string; count?: number }
-interface NavGroup { title: string; items: NavItem[] }
 
 function Shell() {
   const { state, update, dataVersion } = useStore();
   const access = useAccess();
   const signedIn = !!access.role;
   const [notice, setNotice] = useState('');
+  const { lang: uiLang, setLang: setUiLang } = useUiLang();
   const [workspace, setWorkspace] = useState<Workspace>('buyer');
-  const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: 'today', supplier: 'overview', ecosystem: 'negotiate' });
+  const [pages, setPages] = useState<Record<Workspace, string>>({ buyer: '@understand', supplier: '@today', ecosystem: '@deal' });
   const [drawer, setDrawer] = useState<string | null>(null);
-  const [ask, setAsk] = useState<{ open: boolean; q?: string }>({ open: false });
   const [acting, setActing] = useState('s13');
   const [lang, setLang] = useState<Lang>('en');
   const [home, setHome] = useState(true);
@@ -109,24 +117,27 @@ function Shell() {
 
   const nav: Record<Workspace, NavGroup[]> = {
     buyer: [
-      { title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
-      { title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'ranking', label: 'Find suppliers' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
-      { title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
-      { title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
+      { id: 'understand', title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
+      { id: 'design', title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'ranking', label: 'Find suppliers' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
+      { id: 'act', title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'funding', label: 'Fund suppliers', count: state.funding.filter((f) => f.sector === sector && f.status === 'listed').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
+      { id: 'setup', title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
     ],
     supplier: [
-      { title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
-      { title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
-      { title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }] },
+      { id: 'today', title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
+      { id: 'grow', title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'funding', label: 'Funding' }, { id: 'grow', label: 'Future diversification' }] },
+      { id: 'trust', title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }] },
     ],
     ecosystem: [
-      { title: 'Deal together', items: [{ id: 'negotiate', label: 'Agent negotiation' }, { id: 'reviews', label: 'Reviews' }] },
-      { title: 'Build and grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'clusters', label: 'Skill clusters' }] },
-      { title: 'Fair work and trust', items: [{ id: 'impact', label: 'SDG 8 impact' }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }, { id: 'report', label: 'Report a problem' }] },
-      { title: 'About the data', items: [{ id: 'sources', label: 'Data sources' }] },
-      ...(access.isTeam ? [{ title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'districts', label: 'District dashboard' }] }] : []),
+      { id: 'deal', title: 'Deal together', items: [{ id: 'negotiate', label: 'Agent negotiation' }, { id: 'reviews', label: 'Reviews' }] },
+      { id: 'build', title: 'Build and grow', items: [{ id: 'architect', label: 'AI Supply Chain Architect' }, { id: 'clusters', label: 'Skill clusters' }] },
+      { id: 'fair', title: 'Fair work and trust', items: [{ id: 'impact', label: 'SDG 8 impact' }, { id: 'passport', label: 'Skill Passports' }, { id: 'check', label: 'Check a credential' }, { id: 'report', label: 'Report a problem' }] },
+      { id: 'data', title: 'About the data', items: [{ id: 'sources', label: 'Data sources' }] },
+      ...(access.isTeam ? [{ id: 'team', title: 'Sangam team', items: [{ id: 'verify', label: 'Verification desk', count: pendingChecks }, { id: 'districts', label: 'District dashboard' }] }] : []),
     ],
   };
+
+  const groups: NavGroup[] = nav[workspace];
+  const group = groupOf(groups, page);
 
   useScrollReveal(mainRef, `${pageKey}:${dataVersion}`);
 
@@ -134,8 +145,9 @@ function Shell() {
     'buyer:today': <SupplyChainPage />, 'buyer:sim': <SimulatorPage />, 'buyer:routes': <RoutesPage />, 'buyer:india': <StepChains />, 'buyer:ranking': <RankingPage />,
     'buyer:network': <NetworkPage />, 'buyer:location': <LocationPlanner />, 'buyer:requirements': <RequirementsPage />,
     'buyer:switch': <SwitchoverPage />, 'buyer:devel': <DevelopmentPage role="buyer" />, 'buyer:setup': <SetupPage />, 'buyer:integrations': <IntegrationsPage />,
+    'buyer:funding': <FundingMarketPage />,
     'supplier:overview': <SellerView lang={lang} />, 'supplier:opps': <OpportunitiesPage />, 'supplier:consortia': <ConsortiaPage />,
-    'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
+    'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:funding': <FundingPage />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
     'supplier:workforce': <WorkforcePage />, 'supplier:sustainability': <SustainabilityPage />, 'supplier:profile': <ProfilePage />,
     'ecosystem:negotiate': <NegotiationRoom />, 'ecosystem:reviews': <ReviewsHub />, 'ecosystem:architect': <ArchitectPage />, 'ecosystem:clusters': <ClustersPage />,
     'ecosystem:verify': <VerificationDesk />, 'ecosystem:passport': <PassportPage />, 'ecosystem:check': <VerifyPage />,
@@ -143,7 +155,7 @@ function Shell() {
   };
 
   return (
-    <UiContext.Provider value={{ openSupplier: setDrawer, go, askSangam: (q) => setAsk({ open: true, q }), actingSeller, setActingSeller: setActing }}>
+    <UiContext.Provider value={{ openSupplier: setDrawer, go, actingSeller, setActingSeller: setActing }}>
       <RiverBackdrop where={showHome ? 'home' : workspace} />
       <SmoothScroll pageKey={pageKey} />
       <ScrollProgress pageKey={`${pageKey}:${dataVersion}`} />
@@ -160,11 +172,15 @@ function Shell() {
         {signedIn && (
           <div className="segmented" role="tablist" aria-label="Workspace">
             {access.workspaces.map((w) => (
-              <button key={w} className={!showHome && workspace === w ? 'on' : ''} onClick={() => { setNotice(''); setHome(false); setWorkspace(w); }}>{{ buyer: 'Buyer', supplier: 'Supplier', ecosystem: 'Ecosystem' }[w]}</button>
+              <button key={w} className={!showHome && workspace === w ? 'on' : ''} onClick={() => { setNotice(''); setHome(false); setWorkspace(w); }}>{tr(uiLang, WORKSPACE_LABELS, w)}</button>
             ))}
           </div>
         )}
-        <button className="btn small" onClick={() => setAsk({ open: true })}>Ask Sangam</button>
+        <div className="segmented" role="group" aria-label="Language">
+          {UI_LANGS.map((l) => (
+            <button key={l.code} className={uiLang === l.code ? 'pill on' : 'pill'} onClick={() => setUiLang(l.code)}>{l.native}</button>
+          ))}
+        </div>
         {signedIn ? (
           <div className="account-bar">
             <span className="who" title={access.name}>{access.name}</span>
@@ -183,7 +199,12 @@ function Shell() {
             <div className="group" style={{ marginBottom: 14 }}>
               {!linkedSeller && <div className="group-title">Acting as</div>}
               {!linkedSeller && <select value={actingSeller} onChange={(e) => setActing(e.target.value)} style={{ width: '100%', fontSize: 13 }}>
-                {sellers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {sellers.map((s) => {
+                  const seed = seedSustainabilityFor(s.name);
+                  const res = seed ? scoreSustainability(seed, sector) : null;
+                  const label = res ? `${s.name} · ${res.level} (${res.score})` : s.name;
+                  return <option key={s.id} value={s.id}>{label}</option>;
+                })}
               </select>}
               <div className="segmented" style={{ marginTop: 8 }}>
                 <button className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>English</button>
@@ -191,17 +212,7 @@ function Shell() {
               </div>
             </div>
           )}
-          {nav[workspace].map((g) => (
-            <div key={g.title} className="group">
-              <div className="group-title">{g.title}</div>
-              {g.items.map((it) => (
-                <button key={it.id} className={`item ${!showHome && page === it.id ? 'on' : ''}`} onClick={() => go(workspace, it.id)}>
-                  <span>{it.label}</span>
-                  {!!it.count && <span className="count">{it.count}</span>}
-                </button>
-              ))}
-            </div>
-          ))}
+          <SideNav groups={groups} workspace={workspace} activeGroup={showHome ? undefined : group?.id} page={showHome ? '' : page} onHub={(id) => go(workspace, hubId(id))} onPage={(id) => go(workspace, id)} />
           <div className="group" style={{ marginTop: 24 }}>
             <div className="tiny" style={{ margin: '0 8px' }}>Demo companies and figures are labelled <b>Simulated</b>; real data is labelled <b>Public data</b> or <b>Live</b>.</div>
           </div>
@@ -212,24 +223,32 @@ function Shell() {
               {signedIn && notice && <div className="note warn" role="status" style={{ marginBottom: 16 }}>{notice}</div>}
               <HomePage go={go} allowed={signedIn ? access.workspaces : undefined} signIn={signedIn ? undefined : <SignInPanel note={notice} />} />
             </>
-          ) : content[`${workspace}:${page}`]}
+          ) : isHub(page) ? (
+            <SectionHub workspace={workspace} group={group ?? groups[0]!} onPage={(id) => go(workspace, id)} />
+          ) : (
+            <>
+              {group && <SubNav workspace={workspace} group={group} page={page} onHub={() => go(workspace, hubId(group.id))} onPage={(id) => go(workspace, id)} />}
+              {content[`${workspace}:${page}`]}
+            </>
+          )}
         </main>
       </div>
 
       {drawer && <SupplierDrawer id={drawer} onClose={() => setDrawer(null)} />}
-      {ask.open && <AskSangam initial={ask.q} onClose={() => setAsk({ open: false })} context={{ workspace, page }} />}
     </UiContext.Provider>
   );
 }
 
 export default function App() {
   return (
-    <StoreProvider>
+    <UiLangProvider>
       <AccessProvider>
-        <BuyerProvider>
-          <Shell />
-        </BuyerProvider>
+        <StoreProvider>
+          <BuyerProvider>
+            <Shell />
+          </BuyerProvider>
+        </StoreProvider>
       </AccessProvider>
-    </StoreProvider>
+    </UiLangProvider>
   );
 }

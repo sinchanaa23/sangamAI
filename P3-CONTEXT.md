@@ -12,7 +12,7 @@
 - Reference docs (`docs/` folder, untracked .docx/.pptx): the proposal ("…proposal and 24-hour build plan") is the final reference over any agent's own ideas.
 - Teammate branches on origin: `feat/agents` (P1, merged to main twice — PR #1 and PR #3 `agents/use-fairwork`, which integrated my fairwork.ts into their agents and adjusted my reason wording), `feat/buyer` (P2, not merged), `feat/ecosystem` (P4, not merged — **main still has the OLD App.tsx sidebar without the Workforce nav entry**; P4's branch has it).
 
-## Current state (after session 8, 2026-10-24 night) — sustainability feature
+## Current state (after session 10, 2026-10-25) — DotGrid stacking & overlap fix
 
 - **PR #2 (all P3 features) is MERGED to main.** P1 built on it (PR #3).
 - **Design language "Confluence" implemented on branch `feat/supplier-design`** (from main @ f1db058): DESIGN.md + a dependency-free motion kit in `src/components/motion/` (8 files) + wiring across all five P3 pages. Verified: build ✓, tests 41/41 ✓ (P1's tests joined my 22), browser ✓ (staggered reveals, gradient grade label, CountUp with retargeting, badge pop on grade flip, click sparks, spotlight hover, Hindi Devanagari grapheme-safe, real server save through P1's API).
@@ -59,6 +59,12 @@ Browser-verified on localhost:5173 (temporary nav wiring in App.tsx, reverted be
 6. Hour blocks 21–24: rehearsals; fixes only through pull requests.
 
 ## Session log
+
+### Session 10 — 2026-10-25 (DotGrid canvas overlap fix)
+
+Fixed UI effect bleed where interactive background DotGrid canvas rendered over checklist cards, text, and buttons on the Supplier Sustainability, Workforce, and Funding pages. Fixed root cause in CSS stacking context rules: added `position: relative; z-index: 1;` to `.card` in `src/styles.css`, set explicit `zIndex: 0` on `src/components/motion/DotGrid.tsx`, and wrapped page content in `<div className="stack" style={{ position: 'relative', zIndex: 1 }}>` across `SustainabilityPage.tsx`, `WorkforcePage.tsx`, and `FundingPage.tsx`. Verified: 147/147 vitest tests pass, `npm run build` (`tsc -b` + `vite build`) clean.
+
+Executed docs/funding_plan.md (written this session after plan-mode approval): the funding bridge. **Phase 1** (flash): src/funding.ts (itemised asks machine/green-tech/rnd/certification/working-capital, FUNDING_RULES, projections via diversify-style math, commitment arithmetic with pro-rated item coverage + over-commit rejection, fundedFlip, releaseForVerified, fundingUplift via scoreSustainability with linked items forced yes+verified) + 9 tests. **Me**: seedSector now seeds 3 funding applications/sector (listed+committed ₹3/₹7.4 hero, listed-open press, submitted cert+working-capital), model.ts StoreState.funding, store spread + OWN top-up effect (LESSON: a funding top-up nested inside the projects top-up effect after its early-return never ran for stores that had projects — separate effects per seeded collection), src/seller/funding.ts sync helpers (fetch/put/deleteServerFunding). **Phase 2** (flash): src/seller/FundingPage.tsx (applications list + form + funded tracker). **Phase 3** (flash): FundingCard (market/compact modes + commit panel), FundingMarketPage (filters/goal chips/tabs My-commitments), SupplierDrawer funding card. **Me**: App.tsx nav (buyer Act → Fund suppliers with listed-count badge; supplier Grow → Funding), RankingPage "Needs ₹X — fund it" links. **Phase 4** (flash): FundingInput zod, funding table, GET/PUT/DELETE /api/funding, VerificationDesk two queues (application pre-check → listed/draft; funded-work verify → releaseForVerified). API moved to port 8790 (teammate fix, Vite proxy follows). Verified: 147/147 tests, build ✓, browser walkthrough: marketplace cards with badges/meters/projections, live commit ₹6.5L → Listed→Funded flip + "Fully funded — the supplier can start". NOTE: P4's animated landing still blocks automated topbar clicks — enter via its CTA then sidebar.
 
 ### Session 8 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash swarm, night)
 

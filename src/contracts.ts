@@ -99,6 +99,10 @@ export interface SustainabilityProfile {
   updatedAt: string;
 }
 
+// ---- Funding (P4) ----
+/** One supplier's funding application: items, buyer commitments and estimated projections (src/funding.ts). */
+export type { FundingApplication } from './funding';
+
 export interface NegotiationSummary {
   id: string;
   rfqId: string;
@@ -122,4 +126,6 @@ export const ROUTES = {
   credential: '/api/credentials/:id', // P4
   impact: '/api/impact', // P4
   grievances: '/api/grievances', // P4
+  funding: '/api/funding', // P4
+  fundingOne: '/api/funding/:id', // P4
 } as const;

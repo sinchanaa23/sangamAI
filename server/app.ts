@@ -4,7 +4,7 @@ import type { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { ROUTES } from '../src/contracts';
 import type { Grievance } from '../src/ecosystem/ledger';
-import type { FairWorkScore, NegotiationSummary, Rfq, SustainabilityProfile, WorkforceProfile } from '../src/contracts';
+import type { FairWorkScore, FundingApplication, NegotiationSummary, Rfq, SustainabilityProfile, WorkforceProfile } from '../src/contracts';
 import { handleAsk, handleExtract } from './ai';
 import type { AskBody, ExtractBody, Reply } from './ai';
 import { openDb } from './db';
@@ -18,7 +18,7 @@ import { currentUser, guard, mockSender, mountAuth } from './auth';
 import type { OtpSender } from './auth';
 import type { Ask } from './llm';
 import { createNegotiations, fixture } from './negotiations';
-import { NegotiationInput, RfqInput, SustainabilityInput, WorkforceInput } from './schemas';
+import { FundingInput, NegotiationInput, RfqInput, SustainabilityInput, WorkforceInput } from './schemas';
 import { mountReviews } from './reviews';
 import { selectProvider } from './verify/provider';
 import type { VerifyProvider } from './verify/provider';
@@ -156,6 +156,20 @@ export function createApp(db: Db = openDb(), opts: AppOptions = {}) {
     const s = db.get<SustainabilityProfile & Doc>('sustainability', c.req.param('id'));
     return s ? c.json(s) : c.json({ error: 'No sustainability checklist yet' }, 404);
   });
+
+  // Funding applications saved by the seller funding page; the marketplace and the verification desk read the same rows
+  app.get(ROUTES.funding, (c) => c.json(db.list<FundingApplication & Doc>('funding')));
+  app.get(ROUTES.fundingOne, (c) => {
+    const f = db.get<FundingApplication & Doc>('funding', c.req.param('id'));
+    return f ? c.json(f) : c.json({ error: 'No funding application yet' }, 404);
+  });
+  app.put(ROUTES.fundingOne, async (c) => {
+    const p = FundingInput.safeParse(await body(c));
+    if (!p.success) return bad(c, p.error);
+    const id = c.req.param('id');
+    return c.json(db.put('funding', { ...p.data, id } as FundingApplication & Doc));
+  });
+  app.delete(ROUTES.fundingOne, (c) => { db.del('funding', c.req.param('id')); return c.json({ ok: true }); });
 
   app.onError((e, c) => c.json({ error: e.message }, 500));
   return app;

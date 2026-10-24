@@ -238,10 +238,11 @@ export default function WorkforcePage() {
   return (
     <div className="stack" ref={rootRef} style={{ position: 'relative' }}>
       <DotGrid color="#1f6c9f" dim={0.14} spacing={28} />
-      <div>
-        <TextReveal as="h1" className="lead" text={`${t.gradeTitle} · ${t.skills}`} />
-        <p className="muted" style={{ marginTop: 6 }}>{t.intro}</p>
-      </div>
+      <div className="stack" style={{ position: 'relative', zIndex: 1 }}>
+        <div>
+          <TextReveal as="h1" className="lead" text={`${t.gradeTitle} · ${t.skills}`} />
+          <p className="muted" style={{ marginTop: 6 }}>{t.intro}</p>
+        </div>
 
       <div className="card stack" style={{ gap: 10 }}>
         <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -435,5 +436,6 @@ export default function WorkforcePage() {
         </AnimatePresence>
       </div>
     </div>
+  </div>
   );
 }

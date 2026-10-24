@@ -51,6 +51,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       interests: [...s.interests, ...seed.interests],
       reviews: [...s.reviews, ...seed.reviews],
       projects: [...s.projects, ...seed.projects], // P3: seed demo development projects (additive line, flagged in the PR)
+      funding: [...s.funding, ...seed.funding], // P3: seed demo funding applications (additive line, flagged in the PR)
     }));
   }, [state.sector, state.seeded, dataVersion]);
 
@@ -67,6 +68,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     toppedUp.current[state.sector] = true;
     setState((s) => (s.projects.some((p) => p.sector === s.sector) ? s : { ...s, projects: [...s.projects, ...missing] }));
   }, [state.sector, state.seeded, state.projects, dataVersion]);
+
+  // P3: funding top-up for sessions seeded before applications existed (once per sector).
+  const fundingToppedUp = useRef<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!state.seeded[state.sector] || fundingToppedUp.current[state.sector]) return;
+    if (state.funding.some((f) => f.sector === state.sector)) return;
+    const seed = seedSector();
+    const missing = seed.funding.filter((f) => f.sector === state.sector);
+    if (!missing.length) { fundingToppedUp.current[state.sector] = true; return; }
+    fundingToppedUp.current[state.sector] = true;
+    setState((st) => (st.funding.some((f) => f.sector === st.sector) ? st : { ...st, funding: [...st.funding, ...missing] }));
+  }, [state.sector, state.seeded, state.funding, dataVersion]);
 
   const first = useRef(true);
   useEffect(() => {

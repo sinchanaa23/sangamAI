@@ -63,7 +63,7 @@ h1, h2, h3, p { margin: 0; }
 
 /* ---------- Layout ---------- */
 main { max-width: 1080px; margin: 0 auto; padding: 28px 24px 64px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.card { position: relative; z-index: 1; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
 .stack { display: grid; gap: 18px; }
 .stack > * { min-width: 0; }
 .grid-2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; align-items: start; }
