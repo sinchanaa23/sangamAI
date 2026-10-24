@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { sellers } from '../data';
 import { PILLARS, CHECKLIST, scoreSustainability, nextSteps } from '../sustainability';
 import type { SustainabilityAnswers, AnswerValue } from '../sustainability';
+import { seedSustainabilityFor } from '../seeds';
 import SustainabilityBadge from '../components/SustainabilityBadge';
 import Src from '../components/Src';
 import TextReveal from '../components/motion/TextReveal';
@@ -101,7 +102,14 @@ export default function SustainabilityPage() {
         <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <span className="small">Viewing as</span>
           <select className="sector-pick" value={seller.id} aria-label="Viewing as" onChange={(e) => setActingSeller(e.target.value)}>
-            {sellers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            {sellers.map((s) => {
+              const seed = s.id === seller.id && answers && Object.keys(answers).length > 0
+                ? answers
+                : seedSustainabilityFor(s.name);
+              const res = seed ? scoreSustainability(seed, sector) : null;
+              const label = res ? `${s.name} · ${res.level} (${res.score}/100)` : s.name;
+              return <option key={s.id} value={s.id}>{label}</option>;
+            })}
           </select>
         </div>
         {source !== 'blank' ? (

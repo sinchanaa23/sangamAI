@@ -28,6 +28,10 @@ import OpportunitiesPage from './seller/OpportunitiesPage';
 import ConsortiaPage from './seller/ConsortiaPage';
 import ProfilePage from './seller/ProfilePage';
 import Diversification from './seller/Diversification';
+import FundingPage from './seller/FundingPage';
+import FundingMarketPage from './buyer/FundingMarketPage';
+import { seedSustainabilityFor } from './seeds';
+import { scoreSustainability } from './sustainability';
 import ArchitectPage from './architect/ArchitectPage';
 import ClustersPage from './buyer/ClustersPage';
 import ReviewsHub from './reviews/ReviewsHub';
@@ -115,12 +119,12 @@ function Shell() {
     buyer: [
       { id: 'understand', title: 'Understand', items: [{ id: 'today', label: 'Supply chain today' }, { id: 'sim', label: 'Simulator' }, { id: 'routes', label: 'Routes' }] },
       { id: 'design', title: 'Design', items: [{ id: 'india', label: 'Indian options' }, { id: 'ranking', label: 'Find suppliers' }, { id: 'network', label: 'Future network' }, { id: 'location', label: 'Location planner' }] },
-      { id: 'act', title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
+      { id: 'act', title: 'Act', items: [{ id: 'requirements', label: 'Requirements and quotes', count: reqs.filter((r) => r.status === 'open').length }, { id: 'funding', label: 'Fund suppliers', count: state.funding.filter((f) => f.sector === sector && f.status === 'listed').length }, { id: 'switch', label: 'Switch-over plan' }, { id: 'devel', label: 'Supplier development', count: state.projects.filter((p) => p.sector === sector).length }] },
       { id: 'setup', title: 'Set up', items: [{ id: 'setup', label: 'Company and parts' }, { id: 'integrations', label: 'Integrations' }] },
     ],
     supplier: [
       { id: 'today', title: 'Today', items: [{ id: 'overview', label: 'Overview' }, { id: 'opps', label: 'Opportunities and quotes' }, { id: 'consortia', label: 'Consortia' }] },
-      { id: 'grow', title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'grow', label: 'Future diversification' }] },
+      { id: 'grow', title: 'Grow', items: [{ id: 'projects', label: 'Development projects' }, { id: 'funding', label: 'Funding' }, { id: 'grow', label: 'Future diversification' }] },
       { id: 'trust', title: 'Trust', items: [{ id: 'workforce', label: 'Workforce and fair work' }, { id: 'sustainability', label: 'Sustainability' }, { id: 'profile', label: 'Profile and documents' }] },
     ],
     ecosystem: [
@@ -141,8 +145,9 @@ function Shell() {
     'buyer:today': <SupplyChainPage />, 'buyer:sim': <SimulatorPage />, 'buyer:routes': <RoutesPage />, 'buyer:india': <StepChains />, 'buyer:ranking': <RankingPage />,
     'buyer:network': <NetworkPage />, 'buyer:location': <LocationPlanner />, 'buyer:requirements': <RequirementsPage />,
     'buyer:switch': <SwitchoverPage />, 'buyer:devel': <DevelopmentPage role="buyer" />, 'buyer:setup': <SetupPage />, 'buyer:integrations': <IntegrationsPage />,
+    'buyer:funding': <FundingMarketPage />,
     'supplier:overview': <SellerView lang={lang} />, 'supplier:opps': <OpportunitiesPage />, 'supplier:consortia': <ConsortiaPage />,
-    'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
+    'supplier:projects': <DevelopmentPage role="supplier" />, 'supplier:funding': <FundingPage />, 'supplier:grow': <Diversification seller={sellers.find((s) => s.id === actingSeller)!} lang={lang} />,
     'supplier:workforce': <WorkforcePage />, 'supplier:sustainability': <SustainabilityPage />, 'supplier:profile': <ProfilePage />,
     'ecosystem:negotiate': <NegotiationRoom />, 'ecosystem:reviews': <ReviewsHub />, 'ecosystem:architect': <ArchitectPage />, 'ecosystem:clusters': <ClustersPage />,
     'ecosystem:verify': <VerificationDesk />, 'ecosystem:passport': <PassportPage />, 'ecosystem:check': <VerifyPage />,
@@ -190,7 +195,12 @@ function Shell() {
             <div className="group" style={{ marginBottom: 14 }}>
               {!linkedSeller && <div className="group-title">Acting as</div>}
               {!linkedSeller && <select value={actingSeller} onChange={(e) => setActing(e.target.value)} style={{ width: '100%', fontSize: 13 }}>
-                {sellers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {sellers.map((s) => {
+                  const seed = seedSustainabilityFor(s.name);
+                  const res = seed ? scoreSustainability(seed, sector) : null;
+                  const label = res ? `${s.name} · ${res.level} (${res.score})` : s.name;
+                  return <option key={s.id} value={s.id}>{label}</option>;
+                })}
               </select>}
               <div className="segmented" style={{ marginTop: 8 }}>
                 <button className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>English</button>

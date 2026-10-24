@@ -1,5 +1,6 @@
 // Records people create in the app: requirements, quotes, consortia, reviews, projects and verification.
 import type { DatasetOverrides } from './data';
+import type { FundingApplication } from './funding';
 import type { NewSite, SectorId, Seller } from './types';
 
 export type Firmness = 'exploring' | 'rfq' | 'committed';
@@ -120,6 +121,8 @@ export interface StoreState {
   consortia: Consortium[];
   reviews: Review[];
   projects: DevProject[];
+  /** P3: supplier funding applications (demo-seeded + supplier-created) */
+  funding: FundingApplication[];
   /** switch-over gate decisions, key `${sector}:${lineId}:${gateId}` */
   gates: Record<string, 'pending' | 'passed' | 'failed'>;
   views: ViewLog[];
@@ -130,7 +133,7 @@ export interface StoreState {
 
 export const EMPTY: StoreState = {
   version: 2, sector: 'ev', overrides: {}, onboarded: [], customSites: [], seeded: {},
-  requirements: [], interests: [], quotes: [], consortia: [], reviews: [], projects: [], gates: {}, views: [], verifications: {},
+  requirements: [], interests: [], quotes: [], consortia: [], reviews: [], projects: [], funding: [], gates: {}, views: [], verifications: {},
   sharing: { aggregateDemand: true, nameToVerifiedOnly: true, showTargetPriceDefault: false },
   chosen: {},
 };

@@ -207,6 +207,17 @@ export default function RankingPage() {
                               );
                             })}
                             <div className="tiny muted">CO₂ per unit uses the estimated route model and is information only - it never enters the score.</div>
+                            {(() => {
+                              const app = state.funding.find((f) => f.sellerId === r.sellerId && (f.status === 'listed' || f.status === 'funded'));
+                              if (!app) return null;
+                              const remaining = app.projections.totalAskLakh - app.commitments.reduce((a, c) => a + c.amountLakh, 0);
+                              return remaining > 0 ? (
+                                <div className="row small" style={{ gap: 8, marginTop: 6, alignItems: 'center' }}>
+                                  <span>Needs ₹{remaining.toFixed(2)} L for {app.items[0]?.label.toLowerCase()} —</span>
+                                  <button className="link-btn" onClick={() => go('buyer', 'funding')}>fund it</button>
+                                </div>
+                              ) : null;
+                            })()}
                           </div>
                         </td>
                       </tr>
