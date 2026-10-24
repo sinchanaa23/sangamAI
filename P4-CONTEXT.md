@@ -28,7 +28,7 @@ Read `AGENTS.md` first, then this file. Owner of: `src/ecosystem/**`, `src/App.t
 
 ## Deck
 - Claude Slides deck "Sangam for HACK4SDG", 12 slides with timed speaker notes. Pitch follows the original SAP Hackfest problem and solution; SDG 8 is slide 4. Business model: buyers and sellers both pay (subscriptions and commissions).
-- The architecture slide says the agents run on Claude with tool use. P1 now runs them on a free OpenAI-compatible model (Gemini) with engine facts in the prompt: update the slide once the team decides.
+- The architecture slide matches P1's setup: any OpenAI-compatible model (Gemini free tier now), engine facts in the prompt, code-run orchestrator with rule-based fallback and replay.
 
 ## Session log
 - 2026-10-24: rebrand and Integrations; credentials, Skill Passports, checker, SDG 8 impact, grievances, Auditor flags; tagged `sap-hackfest-v1`; deck; merged main, P3 and P2; connected P2's room and P3's scorecard; this file.
