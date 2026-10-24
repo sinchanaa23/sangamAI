@@ -8,7 +8,8 @@ import { partRoute } from '../../src/chainRoute';
 import { EMPTY } from '../../src/model';
 import type { Quote, Requirement } from '../../src/model';
 import { quoteTco } from '../../src/tco';
-import { trustScore } from '../../src/trust';
+import { checksFor, trustScore } from '../../src/trust';
+import { supplierIdentityVerified } from '../verify/tiers';
 import type { FairWorkScore, Offer, Rfq, WorkforceProfile } from '../../src/contracts';
 import { livingWageFor, minimumWageFor, scoreFairWork } from '../../src/fairwork';
 import type { Db, Doc } from '../db';
@@ -126,7 +127,10 @@ export function buildContext(rfq: Rfq, seller: Seller, line: BomLine, db: Db): D
     labourShare,
     nonLabourPerUnit: Math.round(Math.round(line.cost * seller.priceIndex) * (1 - labourShare)),
     budgetInr: rfq.budget.amount * FX_INR[rfq.budget.currency],
-    trust: trustScore(seller, EMPTY).score,
+    // An account that speaks for this supplier and passed a business check earns the identity part of the trust score
+    trust: trustScore(seller, supplierIdentityVerified(db, seller.id)
+      ? { ...EMPTY, verifications: { [seller.id]: { ...checksFor(seller, EMPTY), identity: 'verified', requestedAt: '' } } }
+      : EMPTY).score,
     workforce,
     casualWage: (() => {
       const m = labourMarket(district(seller.districtId).state);
