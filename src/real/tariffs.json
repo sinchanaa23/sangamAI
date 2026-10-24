@@ -1,0 +1,166 @@
+{
+ "source": "World Bank WITS (UNCTAD TRAINS), India applied MFN duty, simple average of tariff lines at HS6; basic duty only (no surcharge or IGST)",
+ "fetched": "2026-10-24",
+ "codes": {
+  "100829": {
+   "hs": "100829",
+   "label": "Millet",
+   "mfnPct": 50,
+   "year": 2023,
+   "lines": 3,
+   "maxPct": 50
+  },
+  "190410": {
+   "hs": "190410",
+   "label": "Cereal flakes and puffed products",
+   "mfnPct": 30,
+   "year": 2023,
+   "lines": 4,
+   "maxPct": 30
+  },
+  "252329": {
+   "hs": "252329",
+   "label": "Portland cement",
+   "mfnPct": 0,
+   "year": 2023,
+   "lines": 5,
+   "maxPct": 0
+  },
+  "390410": {
+   "hs": "390410",
+   "label": "PVC, not mixed",
+   "mfnPct": 7.5,
+   "year": 2023,
+   "lines": 3,
+   "maxPct": 7.5
+  },
+  "390810": {
+   "hs": "390810",
+   "label": "Polyamides (nylon 6, 6-6 and others)",
+   "mfnPct": 10,
+   "year": 2023,
+   "lines": 14,
+   "maxPct": 10
+  },
+  "392321": {
+   "hs": "392321",
+   "label": "Polyethylene sacks and bags",
+   "mfnPct": 15,
+   "year": 2023,
+   "lines": 1,
+   "maxPct": 15
+  },
+  "392690": {
+   "hs": "392690",
+   "label": "Other plastic articles (clips, grommets)",
+   "mfnPct": 15,
+   "year": 2023,
+   "lines": 16,
+   "maxPct": 15
+  },
+  "441873": {
+   "hs": "441873",
+   "label": "Bamboo assembled panels and flooring",
+   "mfnPct": 10,
+   "year": 2023,
+   "lines": 1,
+   "maxPct": 10
+  },
+  "481910": {
+   "hs": "481910",
+   "label": "Corrugated paper cartons and boxes",
+   "mfnPct": 10,
+   "year": 2023,
+   "lines": 2,
+   "maxPct": 10
+  },
+  "690721": {
+   "hs": "690721",
+   "label": "Ceramic tiles, low water absorption",
+   "mfnPct": 15,
+   "year": 2023,
+   "lines": 1,
+   "maxPct": 15
+  },
+  "721420": {
+   "hs": "721420",
+   "label": "Steel reinforcing bars (rebar)",
+   "mfnPct": 7.5,
+   "year": 2023,
+   "lines": 2,
+   "maxPct": 7.5
+  },
+  "740311": {
+   "hs": "740311",
+   "label": "Refined copper cathodes",
+   "mfnPct": 5,
+   "year": 2023,
+   "lines": 1,
+   "maxPct": 5
+  },
+  "740811": {
+   "hs": "740811",
+   "label": "Refined copper wire, over 6 mm",
+   "mfnPct": 5,
+   "year": 2023,
+   "lines": 2,
+   "maxPct": 5
+  },
+  "761010": {
+   "hs": "761010",
+   "label": "Aluminium doors and windows",
+   "mfnPct": 10,
+   "year": 2023,
+   "lines": 1,
+   "maxPct": 10
+  },
+  "841931": {
+   "hs": "841931",
+   "label": "Dryers for agricultural products",
+   "mfnPct": 7.5,
+   "year": 2021,
+   "lines": 1,
+   "maxPct": 7.5
+  },
+  "848180": {
+   "hs": "848180",
+   "label": "Taps, cocks and valves",
+   "mfnPct": 7.5,
+   "year": 2023,
+   "lines": 7,
+   "maxPct": 7.5
+  },
+  "853690": {
+   "hs": "853690",
+   "label": "Connectors and other electrical apparatus, up to 1,000 V",
+   "mfnPct": 10,
+   "year": 2023,
+   "lines": 4,
+   "maxPct": 10
+  },
+  "854430": {
+   "hs": "854430",
+   "label": "Wiring sets for vehicles",
+   "mfnPct": 15,
+   "year": 2023,
+   "lines": 1,
+   "maxPct": 15
+  },
+  "854442": {
+   "hs": "854442",
+   "label": "Insulated conductors fitted with connectors, up to 1,000 V",
+   "mfnPct": 10,
+   "year": 2023,
+   "lines": 7,
+   "maxPct": 10
+  },
+  "071290": {
+   "hs": "071290",
+   "label": "Dried vegetables",
+   "mfnPct": 30,
+   "year": 2023,
+   "lines": 7,
+   "maxPct": 30
+  }
+ }
+}

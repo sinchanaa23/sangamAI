@@ -1,0 +1,1908 @@
+{
+ "source": "MoSPI Annual Survey of Industries 2023-24 (factory sector, NIC 2008 two-digit), via the eSankhyiki data server",
+ "fetched": "2026-10-24",
+ "year": "2023-24",
+ "units": {
+  "money": "rupees lakh (1 lakh = 100,000)",
+  "mandays": "thousand"
+ },
+ "industries": {
+  "10": "Food products",
+  "13": "Textiles",
+  "16": "Wood products",
+  "17": "Paper products",
+  "22": "Rubber and plastics",
+  "23": "Non-metallic minerals",
+  "24": "Basic metals",
+  "25": "Fabricated metal",
+  "27": "Electrical equipment",
+  "28": "Machinery",
+  "29": "Motor vehicles and parts"
+ },
+ "states": {
+  "Punjab": {
+   "10": {
+    "factories": 3310,
+    "factoriesOperating": 3007,
+    "outputLakh": 6718668,
+    "gvaLakh": 765112,
+    "workers": 102069,
+    "femaleWorkers": 2603,
+    "mandaysThousand": 34564,
+    "workerWagesLakh": 159687
+   },
+   "13": {
+    "factories": 743,
+    "factoriesOperating": 619,
+    "outputLakh": 3385616,
+    "gvaLakh": 504749,
+    "workers": 102162,
+    "femaleWorkers": 17380,
+    "mandaysThousand": 36777,
+    "workerWagesLakh": 165384
+   },
+   "16": {
+    "factories": 182,
+    "factoriesOperating": 158,
+    "outputLakh": 132724,
+    "gvaLakh": 30381,
+    "workers": 2221,
+    "femaleWorkers": 0,
+    "mandaysThousand": 989,
+    "workerWagesLakh": 3520
+   },
+   "17": {
+    "factories": 284,
+    "factoriesOperating": 218,
+    "outputLakh": 987122,
+    "gvaLakh": 217742,
+    "workers": 13387,
+    "femaleWorkers": 411,
+    "mandaysThousand": 5655,
+    "workerWagesLakh": 27571
+   },
+   "22": {
+    "factories": 298,
+    "factoriesOperating": 258,
+    "outputLakh": 651058,
+    "gvaLakh": 128097,
+    "workers": 15838,
+    "femaleWorkers": 596,
+    "mandaysThousand": 6104,
+    "workerWagesLakh": 28303
+   },
+   "23": {
+    "factories": 2079,
+    "factoriesOperating": 1756,
+    "outputLakh": 635512,
+    "gvaLakh": 256244,
+    "workers": 44944,
+    "femaleWorkers": 319,
+    "mandaysThousand": 13116,
+    "workerWagesLakh": 52532
+   },
+   "24": {
+    "factories": 928,
+    "factoriesOperating": 688,
+    "outputLakh": 5692145,
+    "gvaLakh": 381638,
+    "workers": 34589,
+    "femaleWorkers": 701,
+    "mandaysThousand": 13125,
+    "workerWagesLakh": 59398
+   },
+   "25": {
+    "factories": 822,
+    "factoriesOperating": 721,
+    "outputLakh": 1421339,
+    "gvaLakh": 246530,
+    "workers": 35164,
+    "femaleWorkers": 1611,
+    "mandaysThousand": 12908,
+    "workerWagesLakh": 58982
+   },
+   "27": {
+    "factories": 143,
+    "factoriesOperating": 133,
+    "outputLakh": 434137,
+    "gvaLakh": 71769,
+    "workers": 7441,
+    "femaleWorkers": 526,
+    "mandaysThousand": 2958,
+    "workerWagesLakh": 12617
+   },
+   "28": {
+    "factories": 1003,
+    "factoriesOperating": 853,
+    "outputLakh": 3256109,
+    "gvaLakh": 794688,
+    "workers": 43721,
+    "femaleWorkers": 1068,
+    "mandaysThousand": 17462,
+    "workerWagesLakh": 84691
+   },
+   "29": {
+    "factories": 286,
+    "factoriesOperating": 252,
+    "outputLakh": 1366085,
+    "gvaLakh": 289621,
+    "workers": 27617,
+    "femaleWorkers": 731,
+    "mandaysThousand": 10459,
+    "workerWagesLakh": 55001
+   }
+  },
+  "Haryana": {
+   "10": {
+    "factories": 919,
+    "factoriesOperating": 815,
+    "outputLakh": 20658031,
+    "gvaLakh": 1005613,
+    "workers": 84523,
+    "femaleWorkers": 1162,
+    "mandaysThousand": 31298,
+    "workerWagesLakh": 144565
+   },
+   "13": {
+    "factories": 1125,
+    "factoriesOperating": 896,
+    "outputLakh": 3337299,
+    "gvaLakh": 590253,
+    "workers": 71777,
+    "femaleWorkers": 4037,
+    "mandaysThousand": 27333,
+    "workerWagesLakh": 128465
+   },
+   "16": {
+    "factories": 379,
+    "factoriesOperating": 237,
+    "outputLakh": 470740,
+    "gvaLakh": 62947,
+    "workers": 7761,
+    "femaleWorkers": 34,
+    "mandaysThousand": 2906,
+    "workerWagesLakh": 11631
+   },
+   "17": {
+    "factories": 274,
+    "factoriesOperating": 184,
+    "outputLakh": 742362,
+    "gvaLakh": 163146,
+    "workers": 12975,
+    "femaleWorkers": 260,
+    "mandaysThousand": 5144,
+    "workerWagesLakh": 24724
+   },
+   "22": {
+    "factories": 565,
+    "factoriesOperating": 406,
+    "outputLakh": 2294254,
+    "gvaLakh": 441757,
+    "workers": 33282,
+    "femaleWorkers": 465,
+    "mandaysThousand": 12591,
+    "workerWagesLakh": 69145
+   },
+   "23": {
+    "factories": 1195,
+    "factoriesOperating": 839,
+    "outputLakh": 1046809,
+    "gvaLakh": 280068,
+    "workers": 34502,
+    "femaleWorkers": 183,
+    "mandaysThousand": 9400,
+    "workerWagesLakh": 42270
+   },
+   "24": {
+    "factories": 347,
+    "factoriesOperating": 309,
+    "outputLakh": 10344890,
+    "gvaLakh": 756665,
+    "workers": 37388,
+    "femaleWorkers": 285,
+    "mandaysThousand": 14799,
+    "workerWagesLakh": 80724
+   },
+   "25": {
+    "factories": 914,
+    "factoriesOperating": 718,
+    "outputLakh": 2882469,
+    "gvaLakh": 534525,
+    "workers": 49255,
+    "femaleWorkers": 402,
+    "mandaysThousand": 19277,
+    "workerWagesLakh": 88601
+   },
+   "27": {
+    "factories": 415,
+    "factoriesOperating": 380,
+    "outputLakh": 5151411,
+    "gvaLakh": 953336,
+    "workers": 60900,
+    "femaleWorkers": 1293,
+    "mandaysThousand": 22951,
+    "workerWagesLakh": 131156
+   },
+   "28": {
+    "factories": 537,
+    "factoriesOperating": 484,
+    "outputLakh": 5018386,
+    "gvaLakh": 1075891,
+    "workers": 60647,
+    "femaleWorkers": 534,
+    "mandaysThousand": 23624,
+    "workerWagesLakh": 142537
+   },
+   "29": {
+    "factories": 907,
+    "factoriesOperating": 810,
+    "outputLakh": 26462579,
+    "gvaLakh": 5080144,
+    "workers": 198573,
+    "femaleWorkers": 1973,
+    "mandaysThousand": 75355,
+    "workerWagesLakh": 424471
+   }
+  },
+  "Uttar Pradesh": {
+   "10": {
+    "factories": 2762,
+    "factoriesOperating": 2359,
+    "outputLakh": 23938249,
+    "gvaLakh": 2086271,
+    "workers": 175153,
+    "femaleWorkers": 4253,
+    "mandaysThousand": 68244,
+    "workerWagesLakh": 306957
+   },
+   "13": {
+    "factories": 1174,
+    "factoriesOperating": 1010,
+    "outputLakh": 1871216,
+    "gvaLakh": 394521,
+    "workers": 66070,
+    "femaleWorkers": 4563,
+    "mandaysThousand": 24346,
+    "workerWagesLakh": 105148
+   },
+   "16": {
+    "factories": 420,
+    "factoriesOperating": 386,
+    "outputLakh": 396979,
+    "gvaLakh": 62941,
+    "workers": 13444,
+    "femaleWorkers": 67,
+    "mandaysThousand": 4775,
+    "workerWagesLakh": 17819
+   },
+   "17": {
+    "factories": 824,
+    "factoriesOperating": 594,
+    "outputLakh": 2555045,
+    "gvaLakh": 382925,
+    "workers": 34761,
+    "femaleWorkers": 865,
+    "mandaysThousand": 13977,
+    "workerWagesLakh": 58953
+   },
+   "22": {
+    "factories": 1217,
+    "factoriesOperating": 928,
+    "outputLakh": 3893698,
+    "gvaLakh": 736599,
+    "workers": 61306,
+    "femaleWorkers": 1564,
+    "mandaysThousand": 23775,
+    "workerWagesLakh": 106291
+   },
+   "23": {
+    "factories": 1262,
+    "factoriesOperating": 1166,
+    "outputLakh": 2688019,
+    "gvaLakh": 523325,
+    "workers": 46143,
+    "femaleWorkers": 372,
+    "mandaysThousand": 15679,
+    "workerWagesLakh": 66052
+   },
+   "24": {
+    "factories": 688,
+    "factoriesOperating": 572,
+    "outputLakh": 6956990,
+    "gvaLakh": 752588,
+    "workers": 42646,
+    "femaleWorkers": 907,
+    "mandaysThousand": 16468,
+    "workerWagesLakh": 101210
+   },
+   "25": {
+    "factories": 1327,
+    "factoriesOperating": 1124,
+    "outputLakh": 2633533,
+    "gvaLakh": 400685,
+    "workers": 48365,
+    "femaleWorkers": 749,
+    "mandaysThousand": 17928,
+    "workerWagesLakh": 77624
+   },
+   "27": {
+    "factories": 970,
+    "factoriesOperating": 799,
+    "outputLakh": 5154252,
+    "gvaLakh": 725613,
+    "workers": 68934,
+    "femaleWorkers": 5411,
+    "mandaysThousand": 26225,
+    "workerWagesLakh": 126783
+   },
+   "28": {
+    "factories": 1175,
+    "factoriesOperating": 1013,
+    "outputLakh": 3722100,
+    "gvaLakh": 881856,
+    "workers": 60122,
+    "femaleWorkers": 648,
+    "mandaysThousand": 27354,
+    "workerWagesLakh": 113632
+   },
+   "29": {
+    "factories": 276,
+    "factoriesOperating": 242,
+    "outputLakh": 3297382,
+    "gvaLakh": 919628,
+    "workers": 41711,
+    "femaleWorkers": 794,
+    "mandaysThousand": 16192,
+    "workerWagesLakh": 85521
+   }
+  },
+  "Tripura": {
+   "10": {
+    "factories": 106,
+    "factoriesOperating": 104,
+    "outputLakh": 59869,
+    "gvaLakh": 11132,
+    "workers": 1799,
+    "femaleWorkers": 213,
+    "mandaysThousand": 708,
+    "workerWagesLakh": 1527
+   },
+   "16": {
+    "factories": 16,
+    "factoriesOperating": 16,
+    "outputLakh": 3468,
+    "gvaLakh": 1471,
+    "workers": 331,
+    "femaleWorkers": 37,
+    "mandaysThousand": 112,
+    "workerWagesLakh": 449
+   },
+   "17": {
+    "factories": 5,
+    "factoriesOperating": 5,
+    "outputLakh": 353,
+    "gvaLakh": 51,
+    "workers": 17,
+    "femaleWorkers": 0,
+    "mandaysThousand": 10,
+    "workerWagesLakh": 14
+   },
+   "22": {
+    "factories": 41,
+    "factoriesOperating": 40,
+    "outputLakh": 70788,
+    "gvaLakh": 5553,
+    "workers": 582,
+    "femaleWorkers": 25,
+    "mandaysThousand": 325,
+    "workerWagesLakh": 730
+   },
+   "23": {
+    "factories": 382,
+    "factoriesOperating": 380,
+    "outputLakh": 47046,
+    "gvaLakh": 17618,
+    "workers": 16229,
+    "femaleWorkers": 0,
+    "mandaysThousand": 3221,
+    "workerWagesLakh": 8145
+   },
+   "24": {
+    "factories": 8,
+    "factoriesOperating": 8,
+    "outputLakh": 13920,
+    "gvaLakh": 1402,
+    "workers": 196,
+    "femaleWorkers": 0,
+    "mandaysThousand": 77,
+    "workerWagesLakh": 198
+   },
+   "25": {
+    "factories": 13,
+    "factoriesOperating": 12,
+    "outputLakh": 3060,
+    "gvaLakh": 1593,
+    "workers": 99,
+    "femaleWorkers": 0,
+    "mandaysThousand": 46,
+    "workerWagesLakh": 62
+   },
+   "27": {
+    "factories": 9,
+    "factoriesOperating": 9,
+    "outputLakh": 495,
+    "gvaLakh": 156,
+    "workers": 24,
+    "femaleWorkers": 0,
+    "mandaysThousand": 11,
+    "workerWagesLakh": 27
+   },
+   "28": {
+    "factories": 3,
+    "factoriesOperating": 1,
+    "outputLakh": 0,
+    "gvaLakh": 0,
+    "workers": 0,
+    "femaleWorkers": 0,
+    "mandaysThousand": 0,
+    "workerWagesLakh": 0
+   }
+  },
+  "Assam": {
+   "10": {
+    "factories": 1625,
+    "factoriesOperating": 1314,
+    "outputLakh": 1823780,
+    "gvaLakh": 359496,
+    "workers": 70233,
+    "femaleWorkers": 7991,
+    "mandaysThousand": 25351,
+    "workerWagesLakh": 62034
+   },
+   "13": {
+    "factories": 31,
+    "factoriesOperating": 31,
+    "outputLakh": 44405,
+    "gvaLakh": 5808,
+    "workers": 1699,
+    "femaleWorkers": 78,
+    "mandaysThousand": 561,
+    "workerWagesLakh": 2503
+   },
+   "16": {
+    "factories": 128,
+    "factoriesOperating": 125,
+    "outputLakh": 31438,
+    "gvaLakh": 5682,
+    "workers": 2189,
+    "femaleWorkers": 240,
+    "mandaysThousand": 594,
+    "workerWagesLakh": 2400
+   },
+   "17": {
+    "factories": 154,
+    "factoriesOperating": 122,
+    "outputLakh": 175840,
+    "gvaLakh": 22699,
+    "workers": 3074,
+    "femaleWorkers": 72,
+    "mandaysThousand": 1211,
+    "workerWagesLakh": 4714
+   },
+   "22": {
+    "factories": 426,
+    "factoriesOperating": 283,
+    "outputLakh": 374604,
+    "gvaLakh": 83527,
+    "workers": 7039,
+    "femaleWorkers": 348,
+    "mandaysThousand": 2549,
+    "workerWagesLakh": 10124
+   },
+   "23": {
+    "factories": 2449,
+    "factoriesOperating": 2160,
+    "outputLakh": 992413,
+    "gvaLakh": 249365,
+    "workers": 82948,
+    "femaleWorkers": 9529,
+    "mandaysThousand": 15261,
+    "workerWagesLakh": 47264
+   },
+   "24": {
+    "factories": 134,
+    "factoriesOperating": 115,
+    "outputLakh": 512044,
+    "gvaLakh": 54385,
+    "workers": 2660,
+    "femaleWorkers": 33,
+    "mandaysThousand": 947,
+    "workerWagesLakh": 4608
+   },
+   "25": {
+    "factories": 128,
+    "factoriesOperating": 111,
+    "outputLakh": 69369,
+    "gvaLakh": 12417,
+    "workers": 1599,
+    "femaleWorkers": 7,
+    "mandaysThousand": 639,
+    "workerWagesLakh": 2946
+   },
+   "27": {
+    "factories": 82,
+    "factoriesOperating": 47,
+    "outputLakh": 61607,
+    "gvaLakh": 5256,
+    "workers": 1219,
+    "femaleWorkers": 13,
+    "mandaysThousand": 473,
+    "workerWagesLakh": 2102
+   },
+   "28": {
+    "factories": 30,
+    "factoriesOperating": 28,
+    "outputLakh": 22098,
+    "gvaLakh": 3313,
+    "workers": 753,
+    "femaleWorkers": 1,
+    "mandaysThousand": 302,
+    "workerWagesLakh": 1156
+   },
+   "29": {
+    "factories": 6,
+    "factoriesOperating": 6,
+    "outputLakh": 3893,
+    "gvaLakh": 595,
+    "workers": 157,
+    "femaleWorkers": 4,
+    "mandaysThousand": 52,
+    "workerWagesLakh": 289
+   }
+  },
+  "West Bengal": {
+   "10": {
+    "factories": 2150,
+    "factoriesOperating": 1943,
+    "outputLakh": 9391768,
+    "gvaLakh": 750262,
+    "workers": 86922,
+    "femaleWorkers": 3938,
+    "mandaysThousand": 33948,
+    "workerWagesLakh": 139749
+   },
+   "13": {
+    "factories": 484,
+    "factoriesOperating": 386,
+    "outputLakh": 2143009,
+    "gvaLakh": 466788,
+    "workers": 125020,
+    "femaleWorkers": 5122,
+    "mandaysThousand": 42719,
+    "workerWagesLakh": 212885
+   },
+   "16": {
+    "factories": 186,
+    "factoriesOperating": 144,
+    "outputLakh": 574376,
+    "gvaLakh": 111789,
+    "workers": 7902,
+    "femaleWorkers": 107,
+    "mandaysThousand": 3399,
+    "workerWagesLakh": 12393
+   },
+   "17": {
+    "factories": 278,
+    "factoriesOperating": 192,
+    "outputLakh": 505307,
+    "gvaLakh": 73166,
+    "workers": 7181,
+    "femaleWorkers": 81,
+    "mandaysThousand": 2900,
+    "workerWagesLakh": 12913
+   },
+   "22": {
+    "factories": 588,
+    "factoriesOperating": 497,
+    "outputLakh": 1580549,
+    "gvaLakh": 268342,
+    "workers": 26000,
+    "femaleWorkers": 1571,
+    "mandaysThousand": 10270,
+    "workerWagesLakh": 40106
+   },
+   "23": {
+    "factories": 358,
+    "factoriesOperating": 284,
+    "outputLakh": 1398124,
+    "gvaLakh": 161336,
+    "workers": 15595,
+    "femaleWorkers": 33,
+    "mandaysThousand": 6121,
+    "workerWagesLakh": 29554
+   },
+   "24": {
+    "factories": 772,
+    "factoriesOperating": 693,
+    "outputLakh": 17994096,
+    "gvaLakh": 2120150,
+    "workers": 113706,
+    "femaleWorkers": 196,
+    "mandaysThousand": 49020,
+    "workerWagesLakh": 327847
+   },
+   "25": {
+    "factories": 739,
+    "factoriesOperating": 552,
+    "outputLakh": 1336308,
+    "gvaLakh": 215738,
+    "workers": 20710,
+    "femaleWorkers": 190,
+    "mandaysThousand": 8117,
+    "workerWagesLakh": 34969
+   },
+   "27": {
+    "factories": 392,
+    "factoriesOperating": 338,
+    "outputLakh": 2332389,
+    "gvaLakh": 292759,
+    "workers": 22249,
+    "femaleWorkers": 255,
+    "mandaysThousand": 9354,
+    "workerWagesLakh": 56827
+   },
+   "28": {
+    "factories": 598,
+    "factoriesOperating": 525,
+    "outputLakh": 1520161,
+    "gvaLakh": 355347,
+    "workers": 19361,
+    "femaleWorkers": 111,
+    "mandaysThousand": 9087,
+    "workerWagesLakh": 38769
+   },
+   "29": {
+    "factories": 34,
+    "factoriesOperating": 30,
+    "outputLakh": 95467,
+    "gvaLakh": 22909,
+    "workers": 3151,
+    "femaleWorkers": 0,
+    "mandaysThousand": 1133,
+    "workerWagesLakh": 4821
+   }
+  },
+  "Jharkhand": {
+   "10": {
+    "factories": 231,
+    "factoriesOperating": 185,
+    "outputLakh": 605970,
+    "gvaLakh": 53835,
+    "workers": 5951,
+    "femaleWorkers": 518,
+    "mandaysThousand": 2229,
+    "workerWagesLakh": 10366
+   },
+   "13": {
+    "factories": 5,
+    "factoriesOperating": 5,
+    "outputLakh": 9542,
+    "gvaLakh": 1980,
+    "workers": 298,
+    "femaleWorkers": 96,
+    "mandaysThousand": 106,
+    "workerWagesLakh": 289
+   },
+   "16": {
+    "factories": 25,
+    "factoriesOperating": 22,
+    "outputLakh": 11929,
+    "gvaLakh": 1378,
+    "workers": 198,
+    "femaleWorkers": 36,
+    "mandaysThousand": 89,
+    "workerWagesLakh": 227
+   },
+   "17": {
+    "factories": 21,
+    "factoriesOperating": 17,
+    "outputLakh": 46013,
+    "gvaLakh": 5764,
+    "workers": 952,
+    "femaleWorkers": 1,
+    "mandaysThousand": 356,
+    "workerWagesLakh": 1163
+   },
+   "22": {
+    "factories": 64,
+    "factoriesOperating": 63,
+    "outputLakh": 236377,
+    "gvaLakh": 34864,
+    "workers": 1967,
+    "femaleWorkers": 10,
+    "mandaysThousand": 789,
+    "workerWagesLakh": 3393
+   },
+   "23": {
+    "factories": 1035,
+    "factoriesOperating": 699,
+    "outputLakh": 1009372,
+    "gvaLakh": 184755,
+    "workers": 21312,
+    "femaleWorkers": 765,
+    "mandaysThousand": 6355,
+    "workerWagesLakh": 34811
+   },
+   "24": {
+    "factories": 373,
+    "factoriesOperating": 360,
+    "outputLakh": 17920674,
+    "gvaLakh": 3844308,
+    "workers": 96907,
+    "femaleWorkers": 1295,
+    "mandaysThousand": 40486,
+    "workerWagesLakh": 367574
+   },
+   "25": {
+    "factories": 134,
+    "factoriesOperating": 95,
+    "outputLakh": 433341,
+    "gvaLakh": 64589,
+    "workers": 3811,
+    "femaleWorkers": 50,
+    "mandaysThousand": 1453,
+    "workerWagesLakh": 6791
+   },
+   "27": {
+    "factories": 8,
+    "factoriesOperating": 8,
+    "outputLakh": 34309,
+    "gvaLakh": 2788,
+    "workers": 345,
+    "femaleWorkers": 18,
+    "mandaysThousand": 127,
+    "workerWagesLakh": 619
+   },
+   "28": {
+    "factories": 50,
+    "factoriesOperating": 49,
+    "outputLakh": 244644,
+    "gvaLakh": 79797,
+    "workers": 3700,
+    "femaleWorkers": 42,
+    "mandaysThousand": 1562,
+    "workerWagesLakh": 12021
+   },
+   "29": {
+    "factories": 170,
+    "factoriesOperating": 170,
+    "outputLakh": 3440140,
+    "gvaLakh": 746137,
+    "workers": 34447,
+    "femaleWorkers": 983,
+    "mandaysThousand": 13329,
+    "workerWagesLakh": 131733
+   }
+  },
+  "Odisha": {
+   "10": {
+    "factories": 1333,
+    "factoriesOperating": 1232,
+    "outputLakh": 3024745,
+    "gvaLakh": 265035,
+    "workers": 39831,
+    "femaleWorkers": 3400,
+    "mandaysThousand": 14593,
+    "workerWagesLakh": 57849
+   },
+   "13": {
+    "factories": 27,
+    "factoriesOperating": 25,
+    "outputLakh": 20587,
+    "gvaLakh": 3867,
+    "workers": 1254,
+    "femaleWorkers": 26,
+    "mandaysThousand": 423,
+    "workerWagesLakh": 1774
+   },
+   "16": {
+    "factories": 74,
+    "factoriesOperating": 68,
+    "outputLakh": 16215,
+    "gvaLakh": 1664,
+    "workers": 653,
+    "femaleWorkers": 0,
+    "mandaysThousand": 335,
+    "workerWagesLakh": 941
+   },
+   "17": {
+    "factories": 47,
+    "factoriesOperating": 29,
+    "outputLakh": 513807,
+    "gvaLakh": 156293,
+    "workers": 6650,
+    "femaleWorkers": 283,
+    "mandaysThousand": 2856,
+    "workerWagesLakh": 12990
+   },
+   "22": {
+    "factories": 108,
+    "factoriesOperating": 105,
+    "outputLakh": 236379,
+    "gvaLakh": 41693,
+    "workers": 4591,
+    "femaleWorkers": 102,
+    "mandaysThousand": 1804,
+    "workerWagesLakh": 7684
+   },
+   "23": {
+    "factories": 561,
+    "factoriesOperating": 440,
+    "outputLakh": 1985431,
+    "gvaLakh": 401064,
+    "workers": 18208,
+    "femaleWorkers": 1062,
+    "mandaysThousand": 8172,
+    "workerWagesLakh": 36638
+   },
+   "24": {
+    "factories": 308,
+    "factoriesOperating": 278,
+    "outputLakh": 32059505,
+    "gvaLakh": 5286199,
+    "workers": 192529,
+    "femaleWorkers": 6225,
+    "mandaysThousand": 81304,
+    "workerWagesLakh": 634410
+   },
+   "25": {
+    "factories": 144,
+    "factoriesOperating": 121,
+    "outputLakh": 174550,
+    "gvaLakh": 22560,
+    "workers": 4339,
+    "femaleWorkers": 53,
+    "mandaysThousand": 1600,
+    "workerWagesLakh": 6675
+   },
+   "27": {
+    "factories": 41,
+    "factoriesOperating": 41,
+    "outputLakh": 397951,
+    "gvaLakh": 46273,
+    "workers": 3692,
+    "femaleWorkers": 36,
+    "mandaysThousand": 1311,
+    "workerWagesLakh": 6590
+   },
+   "28": {
+    "factories": 37,
+    "factoriesOperating": 37,
+    "outputLakh": 161334,
+    "gvaLakh": 29934,
+    "workers": 2968,
+    "femaleWorkers": 14,
+    "mandaysThousand": 1115,
+    "workerWagesLakh": 5960
+   },
+   "29": {
+    "factories": 8,
+    "factoriesOperating": 8,
+    "outputLakh": 17012,
+    "gvaLakh": 2859,
+    "workers": 705,
+    "femaleWorkers": 0,
+    "mandaysThousand": 246,
+    "workerWagesLakh": 1325
+   }
+  },
+  "Madhya Pradesh": {
+   "10": {
+    "factories": 1078,
+    "factoriesOperating": 928,
+    "outputLakh": 7597732,
+    "gvaLakh": 648562,
+    "workers": 62418,
+    "femaleWorkers": 5614,
+    "mandaysThousand": 23838,
+    "workerWagesLakh": 102976
+   },
+   "13": {
+    "factories": 162,
+    "factoriesOperating": 148,
+    "outputLakh": 2274409,
+    "gvaLakh": 420238,
+    "workers": 36893,
+    "femaleWorkers": 7956,
+    "mandaysThousand": 14666,
+    "workerWagesLakh": 70818
+   },
+   "16": {
+    "factories": 43,
+    "factoriesOperating": 42,
+    "outputLakh": 28807,
+    "gvaLakh": 5569,
+    "workers": 823,
+    "femaleWorkers": 3,
+    "mandaysThousand": 318,
+    "workerWagesLakh": 1159
+   },
+   "17": {
+    "factories": 209,
+    "factoriesOperating": 168,
+    "outputLakh": 572886,
+    "gvaLakh": 63902,
+    "workers": 7061,
+    "femaleWorkers": 334,
+    "mandaysThousand": 2715,
+    "workerWagesLakh": 14727
+   },
+   "22": {
+    "factories": 396,
+    "factoriesOperating": 339,
+    "outputLakh": 2176965,
+    "gvaLakh": 412750,
+    "workers": 28540,
+    "femaleWorkers": 1265,
+    "mandaysThousand": 11200,
+    "workerWagesLakh": 59978
+   },
+   "23": {
+    "factories": 373,
+    "factoriesOperating": 345,
+    "outputLakh": 2731405,
+    "gvaLakh": 766448,
+    "workers": 28458,
+    "femaleWorkers": 235,
+    "mandaysThousand": 12167,
+    "workerWagesLakh": 60434
+   },
+   "24": {
+    "factories": 205,
+    "factoriesOperating": 195,
+    "outputLakh": 2701069,
+    "gvaLakh": 301504,
+    "workers": 15508,
+    "femaleWorkers": 150,
+    "mandaysThousand": 6224,
+    "workerWagesLakh": 31139
+   },
+   "25": {
+    "factories": 327,
+    "factoriesOperating": 248,
+    "outputLakh": 525454,
+    "gvaLakh": 96088,
+    "workers": 10689,
+    "femaleWorkers": 67,
+    "mandaysThousand": 4242,
+    "workerWagesLakh": 20637
+   },
+   "27": {
+    "factories": 170,
+    "factoriesOperating": 154,
+    "outputLakh": 2076035,
+    "gvaLakh": 395695,
+    "workers": 20928,
+    "femaleWorkers": 224,
+    "mandaysThousand": 8547,
+    "workerWagesLakh": 67389
+   },
+   "28": {
+    "factories": 248,
+    "factoriesOperating": 235,
+    "outputLakh": 1716699,
+    "gvaLakh": 321666,
+    "workers": 17877,
+    "femaleWorkers": 722,
+    "mandaysThousand": 7193,
+    "workerWagesLakh": 37778
+   },
+   "29": {
+    "factories": 160,
+    "factoriesOperating": 157,
+    "outputLakh": 3276286,
+    "gvaLakh": 614554,
+    "workers": 45753,
+    "femaleWorkers": 260,
+    "mandaysThousand": 16987,
+    "workerWagesLakh": 88150
+   }
+  },
+  "Gujarat": {
+   "10": {
+    "factories": 2512,
+    "factoriesOperating": 1995,
+    "outputLakh": 24462003,
+    "gvaLakh": 1932040,
+    "workers": 112216,
+    "femaleWorkers": 11017,
+    "mandaysThousand": 45894,
+    "workerWagesLakh": 212300
+   },
+   "13": {
+    "factories": 3227,
+    "factoriesOperating": 2372,
+    "outputLakh": 14462645,
+    "gvaLakh": 2257579,
+    "workers": 331087,
+    "femaleWorkers": 16793,
+    "mandaysThousand": 125171,
+    "workerWagesLakh": 674142
+   },
+   "16": {
+    "factories": 723,
+    "factoriesOperating": 524,
+    "outputLakh": 960188,
+    "gvaLakh": 82458,
+    "workers": 10022,
+    "femaleWorkers": 200,
+    "mandaysThousand": 3601,
+    "workerWagesLakh": 17836
+   },
+   "17": {
+    "factories": 1361,
+    "factoriesOperating": 1059,
+    "outputLakh": 3998302,
+    "gvaLakh": 516925,
+    "workers": 47488,
+    "femaleWorkers": 3247,
+    "mandaysThousand": 18730,
+    "workerWagesLakh": 98711
+   },
+   "22": {
+    "factories": 2671,
+    "factoriesOperating": 2091,
+    "outputLakh": 11425807,
+    "gvaLakh": 2059976,
+    "workers": 152162,
+    "femaleWorkers": 4468,
+    "mandaysThousand": 58937,
+    "workerWagesLakh": 315086
+   },
+   "23": {
+    "factories": 3210,
+    "factoriesOperating": 2576,
+    "outputLakh": 10353594,
+    "gvaLakh": 1807993,
+    "workers": 136484,
+    "femaleWorkers": 6051,
+    "mandaysThousand": 53828,
+    "workerWagesLakh": 274828
+   },
+   "24": {
+    "factories": 2803,
+    "factoriesOperating": 2284,
+    "outputLakh": 25344785,
+    "gvaLakh": 2878271,
+    "workers": 147364,
+    "femaleWorkers": 1496,
+    "mandaysThousand": 58672,
+    "workerWagesLakh": 329212
+   },
+   "25": {
+    "factories": 2607,
+    "factoriesOperating": 1985,
+    "outputLakh": 5110979,
+    "gvaLakh": 899178,
+    "workers": 83140,
+    "femaleWorkers": 2340,
+    "mandaysThousand": 32579,
+    "workerWagesLakh": 170882
+   },
+   "27": {
+    "factories": 857,
+    "factoriesOperating": 714,
+    "outputLakh": 7206856,
+    "gvaLakh": 1248601,
+    "workers": 64635,
+    "femaleWorkers": 2963,
+    "mandaysThousand": 25716,
+    "workerWagesLakh": 138290
+   },
+   "28": {
+    "factories": 3221,
+    "factoriesOperating": 2722,
+    "outputLakh": 13623197,
+    "gvaLakh": 3065462,
+    "workers": 158142,
+    "femaleWorkers": 3558,
+    "mandaysThousand": 66004,
+    "workerWagesLakh": 344718
+   },
+   "29": {
+    "factories": 341,
+    "factoriesOperating": 283,
+    "outputLakh": 7853470,
+    "gvaLakh": 644937,
+    "workers": 49729,
+    "femaleWorkers": 657,
+    "mandaysThousand": 18476,
+    "workerWagesLakh": 112701
+   }
+  },
+  "Maharashtra": {
+   "10": {
+    "factories": 2628,
+    "factoriesOperating": 2186,
+    "outputLakh": 26643347,
+    "gvaLakh": 2938718,
+    "workers": 199853,
+    "femaleWorkers": 7250,
+    "mandaysThousand": 89138,
+    "workerWagesLakh": 445508
+   },
+   "13": {
+    "factories": 1725,
+    "factoriesOperating": 1292,
+    "outputLakh": 5975844,
+    "gvaLakh": 1117038,
+    "workers": 127620,
+    "femaleWorkers": 7514,
+    "mandaysThousand": 48166,
+    "workerWagesLakh": 278819
+   },
+   "16": {
+    "factories": 182,
+    "factoriesOperating": 177,
+    "outputLakh": 429431,
+    "gvaLakh": 79555,
+    "workers": 7046,
+    "femaleWorkers": 96,
+    "mandaysThousand": 2645,
+    "workerWagesLakh": 15220
+   },
+   "17": {
+    "factories": 869,
+    "factoriesOperating": 735,
+    "outputLakh": 2633285,
+    "gvaLakh": 576848,
+    "workers": 27537,
+    "femaleWorkers": 677,
+    "mandaysThousand": 11095,
+    "workerWagesLakh": 67992
+   },
+   "22": {
+    "factories": 1689,
+    "factoriesOperating": 1423,
+    "outputLakh": 8784210,
+    "gvaLakh": 1805149,
+    "workers": 119137,
+    "femaleWorkers": 5669,
+    "mandaysThousand": 47030,
+    "workerWagesLakh": 291820
+   },
+   "23": {
+    "factories": 903,
+    "factoriesOperating": 592,
+    "outputLakh": 4288010,
+    "gvaLakh": 1004429,
+    "workers": 52517,
+    "femaleWorkers": 399,
+    "mandaysThousand": 21616,
+    "workerWagesLakh": 99982
+   },
+   "24": {
+    "factories": 1413,
+    "factoriesOperating": 1228,
+    "outputLakh": 27161852,
+    "gvaLakh": 3273934,
+    "workers": 135315,
+    "femaleWorkers": 1921,
+    "mandaysThousand": 56107,
+    "workerWagesLakh": 395007
+   },
+   "25": {
+    "factories": 3180,
+    "factoriesOperating": 2361,
+    "outputLakh": 8188624,
+    "gvaLakh": 1750395,
+    "workers": 133870,
+    "femaleWorkers": 3364,
+    "mandaysThousand": 55323,
+    "workerWagesLakh": 337552
+   },
+   "27": {
+    "factories": 1333,
+    "factoriesOperating": 1051,
+    "outputLakh": 9803378,
+    "gvaLakh": 2203564,
+    "workers": 102205,
+    "femaleWorkers": 4883,
+    "mandaysThousand": 42055,
+    "workerWagesLakh": 274333
+   },
+   "28": {
+    "factories": 2241,
+    "factoriesOperating": 1911,
+    "outputLakh": 18712866,
+    "gvaLakh": 4403264,
+    "workers": 175591,
+    "femaleWorkers": 2305,
+    "mandaysThousand": 78996,
+    "workerWagesLakh": 535768
+   },
+   "29": {
+    "factories": 1429,
+    "factoriesOperating": 1231,
+    "outputLakh": 28946822,
+    "gvaLakh": 4986017,
+    "workers": 233042,
+    "femaleWorkers": 6096,
+    "mandaysThousand": 91260,
+    "workerWagesLakh": 699122
+   }
+  },
+  "Andhra Pradesh": {
+   "10": {
+    "factories": 5012,
+    "factoriesOperating": 3696,
+    "outputLakh": 16748169,
+    "gvaLakh": 1362453,
+    "workers": 158185,
+    "femaleWorkers": 49260,
+    "mandaysThousand": 61242,
+    "workerWagesLakh": 287411
+   },
+   "13": {
+    "factories": 365,
+    "factoriesOperating": 291,
+    "outputLakh": 1566138,
+    "gvaLakh": 186471,
+    "workers": 38041,
+    "femaleWorkers": 13016,
+    "mandaysThousand": 15000,
+    "workerWagesLakh": 70322
+   },
+   "16": {
+    "factories": 155,
+    "factoriesOperating": 120,
+    "outputLakh": 297169,
+    "gvaLakh": 38980,
+    "workers": 3393,
+    "femaleWorkers": 356,
+    "mandaysThousand": 1178,
+    "workerWagesLakh": 7297
+   },
+   "17": {
+    "factories": 426,
+    "factoriesOperating": 330,
+    "outputLakh": 1149093,
+    "gvaLakh": 165206,
+    "workers": 9338,
+    "femaleWorkers": 1083,
+    "mandaysThousand": 3811,
+    "workerWagesLakh": 20415
+   },
+   "22": {
+    "factories": 738,
+    "factoriesOperating": 532,
+    "outputLakh": 1155704,
+    "gvaLakh": 329117,
+    "workers": 12978,
+    "femaleWorkers": 1264,
+    "mandaysThousand": 4985,
+    "workerWagesLakh": 26555
+   },
+   "23": {
+    "factories": 4711,
+    "factoriesOperating": 3701,
+    "outputLakh": 3865689,
+    "gvaLakh": 821680,
+    "workers": 66904,
+    "femaleWorkers": 1572,
+    "mandaysThousand": 24391,
+    "workerWagesLakh": 140178
+   },
+   "24": {
+    "factories": 334,
+    "factoriesOperating": 281,
+    "outputLakh": 8021374,
+    "gvaLakh": 577485,
+    "workers": 47452,
+    "femaleWorkers": 286,
+    "mandaysThousand": 18576,
+    "workerWagesLakh": 204080
+   },
+   "25": {
+    "factories": 449,
+    "factoriesOperating": 355,
+    "outputLakh": 1208954,
+    "gvaLakh": 143812,
+    "workers": 13923,
+    "femaleWorkers": 527,
+    "mandaysThousand": 5231,
+    "workerWagesLakh": 36490
+   },
+   "27": {
+    "factories": 125,
+    "factoriesOperating": 122,
+    "outputLakh": 2458294,
+    "gvaLakh": 995021,
+    "workers": 16379,
+    "femaleWorkers": 1160,
+    "mandaysThousand": 6320,
+    "workerWagesLakh": 41230
+   },
+   "28": {
+    "factories": 143,
+    "factoriesOperating": 122,
+    "outputLakh": 1383219,
+    "gvaLakh": 190205,
+    "workers": 21124,
+    "femaleWorkers": 424,
+    "mandaysThousand": 7433,
+    "workerWagesLakh": 55825
+   },
+   "29": {
+    "factories": 66,
+    "factoriesOperating": 57,
+    "outputLakh": 5312812,
+    "gvaLakh": 585297,
+    "workers": 26385,
+    "femaleWorkers": 3137,
+    "mandaysThousand": 9265,
+    "workerWagesLakh": 58580
+   }
+  },
+  "Karnataka": {
+   "10": {
+    "factories": 2311,
+    "factoriesOperating": 1962,
+    "outputLakh": 14585541,
+    "gvaLakh": 1337791,
+    "workers": 109717,
+    "femaleWorkers": 20619,
+    "mandaysThousand": 45780,
+    "workerWagesLakh": 248171
+   },
+   "13": {
+    "factories": 308,
+    "factoriesOperating": 216,
+    "outputLakh": 559843,
+    "gvaLakh": 164050,
+    "workers": 18400,
+    "femaleWorkers": 5614,
+    "mandaysThousand": 6593,
+    "workerWagesLakh": 36685
+   },
+   "16": {
+    "factories": 258,
+    "factoriesOperating": 176,
+    "outputLakh": 161888,
+    "gvaLakh": 26227,
+    "workers": 4145,
+    "femaleWorkers": 614,
+    "mandaysThousand": 1528,
+    "workerWagesLakh": 8170
+   },
+   "17": {
+    "factories": 421,
+    "factoriesOperating": 338,
+    "outputLakh": 1711529,
+    "gvaLakh": 272025,
+    "workers": 16533,
+    "femaleWorkers": 1741,
+    "mandaysThousand": 6139,
+    "workerWagesLakh": 42343
+   },
+   "22": {
+    "factories": 782,
+    "factoriesOperating": 616,
+    "outputLakh": 2641179,
+    "gvaLakh": 493350,
+    "workers": 45876,
+    "femaleWorkers": 3013,
+    "mandaysThousand": 16562,
+    "workerWagesLakh": 109221
+   },
+   "23": {
+    "factories": 830,
+    "factoriesOperating": 573,
+    "outputLakh": 3227028,
+    "gvaLakh": 918791,
+    "workers": 24905,
+    "femaleWorkers": 872,
+    "mandaysThousand": 10320,
+    "workerWagesLakh": 65661
+   },
+   "24": {
+    "factories": 556,
+    "factoriesOperating": 501,
+    "outputLakh": 13961774,
+    "gvaLakh": 2607222,
+    "workers": 57655,
+    "femaleWorkers": 1753,
+    "mandaysThousand": 24243,
+    "workerWagesLakh": 209527
+   },
+   "25": {
+    "factories": 1609,
+    "factoriesOperating": 1206,
+    "outputLakh": 2618155,
+    "gvaLakh": 588495,
+    "workers": 52336,
+    "femaleWorkers": 3452,
+    "mandaysThousand": 19384,
+    "workerWagesLakh": 131467
+   },
+   "27": {
+    "factories": 807,
+    "factoriesOperating": 625,
+    "outputLakh": 7320575,
+    "gvaLakh": 1293274,
+    "workers": 57258,
+    "femaleWorkers": 4123,
+    "mandaysThousand": 21960,
+    "workerWagesLakh": 164979
+   },
+   "28": {
+    "factories": 1340,
+    "factoriesOperating": 1055,
+    "outputLakh": 5655501,
+    "gvaLakh": 1406857,
+    "workers": 67558,
+    "femaleWorkers": 3482,
+    "mandaysThousand": 28222,
+    "workerWagesLakh": 217043
+   },
+   "29": {
+    "factories": 520,
+    "factoriesOperating": 429,
+    "outputLakh": 10775959,
+    "gvaLakh": 1588456,
+    "workers": 86502,
+    "femaleWorkers": 1996,
+    "mandaysThousand": 30971,
+    "workerWagesLakh": 273243
+   }
+  },
+  "Kerala": {
+   "10": {
+    "factories": 1612,
+    "factoriesOperating": 1508,
+    "outputLakh": 5791902,
+    "gvaLakh": 637043,
+    "workers": 82204,
+    "femaleWorkers": 38028,
+    "mandaysThousand": 29517,
+    "workerWagesLakh": 160025
+   },
+   "13": {
+    "factories": 405,
+    "factoriesOperating": 392,
+    "outputLakh": 446424,
+    "gvaLakh": 86544,
+    "workers": 16518,
+    "femaleWorkers": 5820,
+    "mandaysThousand": 5662,
+    "workerWagesLakh": 30659
+   },
+   "16": {
+    "factories": 856,
+    "factoriesOperating": 810,
+    "outputLakh": 593246,
+    "gvaLakh": 58596,
+    "workers": 11607,
+    "femaleWorkers": 1492,
+    "mandaysThousand": 3948,
+    "workerWagesLakh": 17467
+   },
+   "17": {
+    "factories": 138,
+    "factoriesOperating": 138,
+    "outputLakh": 104712,
+    "gvaLakh": 18883,
+    "workers": 3569,
+    "femaleWorkers": 1567,
+    "mandaysThousand": 1323,
+    "workerWagesLakh": 7477
+   },
+   "22": {
+    "factories": 658,
+    "factoriesOperating": 566,
+    "outputLakh": 1314437,
+    "gvaLakh": 226970,
+    "workers": 20940,
+    "femaleWorkers": 2440,
+    "mandaysThousand": 8396,
+    "workerWagesLakh": 67435
+   },
+   "23": {
+    "factories": 785,
+    "factoriesOperating": 732,
+    "outputLakh": 604620,
+    "gvaLakh": 205982,
+    "workers": 17583,
+    "femaleWorkers": 1181,
+    "mandaysThousand": 6551,
+    "workerWagesLakh": 44083
+   },
+   "24": {
+    "factories": 117,
+    "factoriesOperating": 115,
+    "outputLakh": 817873,
+    "gvaLakh": 57757,
+    "workers": 6038,
+    "femaleWorkers": 158,
+    "mandaysThousand": 2557,
+    "workerWagesLakh": 14987
+   },
+   "25": {
+    "factories": 221,
+    "factoriesOperating": 205,
+    "outputLakh": 246577,
+    "gvaLakh": 28515,
+    "workers": 4429,
+    "femaleWorkers": 340,
+    "mandaysThousand": 1728,
+    "workerWagesLakh": 9916
+   },
+   "27": {
+    "factories": 110,
+    "factoriesOperating": 103,
+    "outputLakh": 153904,
+    "gvaLakh": 36007,
+    "workers": 3817,
+    "femaleWorkers": 987,
+    "mandaysThousand": 1525,
+    "workerWagesLakh": 11243
+   },
+   "28": {
+    "factories": 110,
+    "factoriesOperating": 109,
+    "outputLakh": 192398,
+    "gvaLakh": 44350,
+    "workers": 4265,
+    "femaleWorkers": 506,
+    "mandaysThousand": 1735,
+    "workerWagesLakh": 13150
+   },
+   "29": {
+    "factories": 25,
+    "factoriesOperating": 23,
+    "outputLakh": 18229,
+    "gvaLakh": 3668,
+    "workers": 695,
+    "femaleWorkers": 21,
+    "mandaysThousand": 289,
+    "workerWagesLakh": 1701
+   }
+  },
+  "Tamil Nadu": {
+   "10": {
+    "factories": 4649,
+    "factoriesOperating": 3723,
+    "outputLakh": 13035796,
+    "gvaLakh": 1565159,
+    "workers": 157129,
+    "femaleWorkers": 47234,
+    "mandaysThousand": 59414,
+    "workerWagesLakh": 263329
+   },
+   "13": {
+    "factories": 6382,
+    "factoriesOperating": 4552,
+    "outputLakh": 10676568,
+    "gvaLakh": 1764690,
+    "workers": 340797,
+    "femaleWorkers": 129384,
+    "mandaysThousand": 121768,
+    "workerWagesLakh": 489195
+   },
+   "16": {
+    "factories": 353,
+    "factoriesOperating": 299,
+    "outputLakh": 300537,
+    "gvaLakh": 58718,
+    "workers": 7819,
+    "femaleWorkers": 1485,
+    "mandaysThousand": 2839,
+    "workerWagesLakh": 13367
+   },
+   "17": {
+    "factories": 1177,
+    "factoriesOperating": 988,
+    "outputLakh": 2077576,
+    "gvaLakh": 418773,
+    "workers": 36663,
+    "femaleWorkers": 5326,
+    "mandaysThousand": 13498,
+    "workerWagesLakh": 73137
+   },
+   "22": {
+    "factories": 1560,
+    "factoriesOperating": 1279,
+    "outputLakh": 6380432,
+    "gvaLakh": 1359704,
+    "workers": 102617,
+    "femaleWorkers": 14190,
+    "mandaysThousand": 38013,
+    "workerWagesLakh": 224235
+   },
+   "23": {
+    "factories": 2381,
+    "factoriesOperating": 1979,
+    "outputLakh": 3902538,
+    "gvaLakh": 931794,
+    "workers": 81591,
+    "femaleWorkers": 4449,
+    "mandaysThousand": 29149,
+    "workerWagesLakh": 165152
+   },
+   "24": {
+    "factories": 1150,
+    "factoriesOperating": 897,
+    "outputLakh": 7444552,
+    "gvaLakh": 874276,
+    "workers": 93920,
+    "femaleWorkers": 3145,
+    "mandaysThousand": 34030,
+    "workerWagesLakh": 203853
+   },
+   "25": {
+    "factories": 2623,
+    "factoriesOperating": 1945,
+    "outputLakh": 4782102,
+    "gvaLakh": 940181,
+    "workers": 103740,
+    "femaleWorkers": 8017,
+    "mandaysThousand": 38320,
+    "workerWagesLakh": 283105
+   },
+   "27": {
+    "factories": 779,
+    "factoriesOperating": 692,
+    "outputLakh": 5994481,
+    "gvaLakh": 948240,
+    "workers": 83980,
+    "femaleWorkers": 11607,
+    "mandaysThousand": 30725,
+    "workerWagesLakh": 204030
+   },
+   "28": {
+    "factories": 2134,
+    "factoriesOperating": 1935,
+    "outputLakh": 13736632,
+    "gvaLakh": 2724456,
+    "workers": 176861,
+    "femaleWorkers": 8689,
+    "mandaysThousand": 70572,
+    "workerWagesLakh": 433047
+   },
+   "29": {
+    "factories": 1528,
+    "factoriesOperating": 1369,
+    "outputLakh": 27846590,
+    "gvaLakh": 4669772,
+    "workers": 256789,
+    "femaleWorkers": 13899,
+    "mandaysThousand": 93264,
+    "workerWagesLakh": 749403
+   }
+  },
+  "Dadra & Nagar Havelli and Daman & Diu": {
+   "10": {
+    "factories": 20,
+    "factoriesOperating": 19,
+    "outputLakh": 76692,
+    "gvaLakh": 10820,
+    "workers": 943,
+    "femaleWorkers": 79,
+    "mandaysThousand": 392,
+    "workerWagesLakh": 1531
+   },
+   "13": {
+    "factories": 296,
+    "factoriesOperating": 209,
+    "outputLakh": 3122290,
+    "gvaLakh": 608940,
+    "workers": 45819,
+    "femaleWorkers": 2324,
+    "mandaysThousand": 18277,
+    "workerWagesLakh": 94127
+   },
+   "16": {
+    "factories": 7,
+    "factoriesOperating": 3,
+    "outputLakh": 15059,
+    "gvaLakh": 5203,
+    "workers": 689,
+    "femaleWorkers": 0,
+    "mandaysThousand": 223,
+    "workerWagesLakh": 1135
+   },
+   "17": {
+    "factories": 175,
+    "factoriesOperating": 88,
+    "outputLakh": 498942,
+    "gvaLakh": 128640,
+    "workers": 6925,
+    "femaleWorkers": 425,
+    "mandaysThousand": 2732,
+    "workerWagesLakh": 14214
+   },
+   "22": {
+    "factories": 1146,
+    "factoriesOperating": 692,
+    "outputLakh": 2779623,
+    "gvaLakh": 533796,
+    "workers": 50761,
+    "femaleWorkers": 5373,
+    "mandaysThousand": 19118,
+    "workerWagesLakh": 90274
+   },
+   "23": {
+    "factories": 56,
+    "factoriesOperating": 55,
+    "outputLakh": 356008,
+    "gvaLakh": 79530,
+    "workers": 5117,
+    "femaleWorkers": 252,
+    "mandaysThousand": 2030,
+    "workerWagesLakh": 10637
+   },
+   "24": {
+    "factories": 141,
+    "factoriesOperating": 128,
+    "outputLakh": 2694841,
+    "gvaLakh": 83221,
+    "workers": 7326,
+    "femaleWorkers": 331,
+    "mandaysThousand": 3027,
+    "workerWagesLakh": 14814
+   },
+   "25": {
+    "factories": 88,
+    "factoriesOperating": 62,
+    "outputLakh": 482300,
+    "gvaLakh": 62527,
+    "workers": 5309,
+    "femaleWorkers": 310,
+    "mandaysThousand": 1921,
+    "workerWagesLakh": 9891
+   },
+   "27": {
+    "factories": 162,
+    "factoriesOperating": 105,
+    "outputLakh": 4211514,
+    "gvaLakh": 374403,
+    "workers": 17688,
+    "femaleWorkers": 1136,
+    "mandaysThousand": 6750,
+    "workerWagesLakh": 35323
+   },
+   "28": {
+    "factories": 67,
+    "factoriesOperating": 61,
+    "outputLakh": 556617,
+    "gvaLakh": 97128,
+    "workers": 4587,
+    "femaleWorkers": 192,
+    "mandaysThousand": 1768,
+    "workerWagesLakh": 9187
+   },
+   "29": {
+    "factories": 9,
+    "factoriesOperating": 9,
+    "outputLakh": 42070,
+    "gvaLakh": 12813,
+    "workers": 1383,
+    "femaleWorkers": 7,
+    "mandaysThousand": 493,
+    "workerWagesLakh": 2367
+   }
+  },
+  "All India": {
+   "10": {
+    "factories": 41596,
+    "factoriesOperating": 35081,
+    "outputLakh": 202831001,
+    "gvaLakh": 18184184,
+    "workers": 1681312,
+    "femaleWorkers": 215509,
+    "mandaysThousand": 655818,
+    "workerWagesLakh": 3060997
+   },
+   "13": {
+    "factories": 18352,
+    "factoriesOperating": 14079,
+    "outputLakh": 56081792,
+    "gvaLakh": 9570290,
+    "workers": 1452833,
+    "femaleWorkers": 233808,
+    "mandaysThousand": 538994,
+    "workerWagesLakh": 2646927
+   },
+   "16": {
+    "factories": 4889,
+    "factoriesOperating": 4128,
+    "outputLakh": 5184354,
+    "gvaLakh": 786633,
+    "workers": 95648,
+    "femaleWorkers": 5764,
+    "mandaysThousand": 35329,
+    "workerWagesLakh": 157245
+   },
+   "17": {
+    "factories": 7991,
+    "factoriesOperating": 6296,
+    "outputLakh": 22993576,
+    "gvaLakh": 4049163,
+    "workers": 300786,
+    "femaleWorkers": 19790,
+    "mandaysThousand": 117219,
+    "workerWagesLakh": 619543
+   },
+   "22": {
+    "factories": 15907,
+    "factoriesOperating": 12516,
+    "outputLakh": 55554171,
+    "gvaLakh": 10740018,
+    "workers": 836300,
+    "femaleWorkers": 48850,
+    "mandaysThousand": 320300,
+    "workerWagesLakh": 1777897
+   },
+   "23": {
+    "factories": 29897,
+    "factoriesOperating": 24316,
+    "outputLakh": 52451179,
+    "gvaLakh": 11861887,
+    "workers": 921949,
+    "femaleWorkers": 32110,
+    "mandaysThousand": 316884,
+    "workerWagesLakh": 1556009
+   },
+   "24": {
+    "factories": 12817,
+    "factoriesOperating": 10834,
+    "outputLakh": 222144598,
+    "gvaLakh": 28423673,
+    "workers": 1242968,
+    "femaleWorkers": 21224,
+    "mandaysThousand": 502368,
+    "workerWagesLakh": 3538623
+   },
+   "25": {
+    "factories": 17670,
+    "factoriesOperating": 13612,
+    "outputLakh": 38348301,
+    "gvaLakh": 7032032,
+    "workers": 659162,
+    "femaleWorkers": 23719,
+    "mandaysThousand": 253376,
+    "workerWagesLakh": 1482785
+   },
+   "27": {
+    "factories": 8100,
+    "factoriesOperating": 6662,
+    "outputLakh": 65676879,
+    "gvaLakh": 11682552,
+    "workers": 672359,
+    "femaleWorkers": 45534,
+    "mandaysThousand": 258775,
+    "workerWagesLakh": 1590358
+   },
+   "28": {
+    "factories": 14393,
+    "factoriesOperating": 12406,
+    "outputLakh": 76789578,
+    "gvaLakh": 17090617,
+    "workers": 913840,
+    "femaleWorkers": 24864,
+    "mandaysThousand": 379233,
+    "workerWagesLakh": 2300232
+   },
+   "29": {
+    "factories": 6618,
+    "factoriesOperating": 5809,
+    "outputLakh": 129597915,
+    "gvaLakh": 22393329,
+    "workers": 1109398,
+    "femaleWorkers": 33364,
+    "mandaysThousand": 415434,
+    "workerWagesLakh": 2923605
+   }
+  }
+ }
+}

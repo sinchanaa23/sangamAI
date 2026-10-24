@@ -3,6 +3,7 @@
 import type { BomLine, Seller } from '../../src/types';
 import { bom, loadDataset, sellers } from '../../src/data';
 import { district, isRural } from '../../src/engine';
+import { fxRate, industryStats, labourMarket } from '../../src/realdata';
 import { partRoute } from '../../src/chainRoute';
 import { EMPTY } from '../../src/model';
 import { trustScore } from '../../src/trust';
@@ -16,8 +17,8 @@ import { openGrievances } from '../grievances';
 const FALLBACK_FLOOR_PER_DAY = Math.round(14926 / 26); // GLWC rural Nilgiris, estimated
 /** Share of the price that is wages, by process. A modelling assumption (estimated), not a measured figure. */
 const LABOUR_SHARE = { assembly: 0.6, other: 0.3 };
-/** Rupees per unit of currency: a fixed table, same values as the buyer's global mode (estimated, 2026-10-24). */
-export const FX_INR: Record<'INR' | 'USD' | 'EUR', number> = { INR: 1, USD: 94.5, EUR: 108 };
+/** Rupees per unit of currency, from the ECB reference rates in src/real/fx.json (refresh with `npm run data:refresh fx`). */
+export const FX_INR: Record<'INR' | 'USD' | 'EUR', number> = { INR: 1, USD: fxRate('USD').inrPer, EUR: fxRate('EUR').inrPer };
 
 /** The living-wage floor per worker-day for a district (id or name). */
 export const wageFloorPerDay = (district: string) => livingWageFor(district)?.perDayInr ?? FALLBACK_FLOOR_PER_DAY;
@@ -41,6 +42,24 @@ export interface DealContext {
   budgetInr: number;
   trust: number;
   workforce?: WorkforceProfile;
+  /** what factory workers in this state and industry were actually paid per worker-day (ASI 2023-24), for context only */
+  marketWage?: { perDay: number; scope: 'state' | 'all-india'; industry: string; source: string };
+  /** what casual labourers in the state earn a day, for everyone and for women (PLFS 2025), for context only */
+  casualWage?: { perDay: number; perDayFemale: number | null; source: string };
+}
+
+/** Two-digit industry (NIC 2008) a process belongs to, for matching it to Annual Survey of Industries figures. */
+export function nicFor(process: string): string {
+  const p = process.toLowerCase();
+  if (/wire|cable|connector|harness|electric/.test(p)) return '27';
+  if (/plastic|polymer|mould|extrus|film|rubber/.test(p)) return '22';
+  if (/cement|tile|block|brick|ceramic|glass/.test(p)) return '23';
+  if (/steel|metal|alumin|rebar/.test(p)) return '24';
+  if (/fabricat|window|fitting|valve/.test(p)) return '25';
+  if (/carton|packag|paper/.test(p)) return '17';
+  if (/panel|wood|bamboo/.test(p)) return '16';
+  if (/food|millet|spice|vegetable|flake|dry|dehydrat|mix/.test(p)) return '10';
+  return '27';
 }
 
 export function ensureDataset() {
@@ -74,6 +93,14 @@ export function buildContext(rfq: Rfq, seller: Seller, line: BomLine, db: Db): D
     budgetInr: rfq.budget.amount * FX_INR[rfq.budget.currency],
     trust: trustScore(seller, EMPTY).score,
     workforce,
+    casualWage: (() => {
+      const m = labourMarket(district(seller.districtId).state);
+      return m?.casualPerDay ? { perDay: Math.round(m.casualPerDay), perDayFemale: m.casualPerDayFemale ? Math.round(m.casualPerDayFemale) : null, source: m.source } : undefined;
+    })(),
+    marketWage: (() => {
+      const st = industryStats(district(seller.districtId).state, nicFor(line.process));
+      return st ? { perDay: Math.round(st.wagePerWorkerDay), scope: st.scope, industry: st.industry, source: st.source } : undefined;
+    })(),
   };
 }
 
@@ -186,6 +213,8 @@ export function supplierFacts(c: DealContext) {
   return {
     freeUnitsPerMonth: c.freeUnitsPerMonth, availableWorkers: c.availableWorkers, unitsPerWorkerDay: +c.unitsPerWorkerDay.toFixed(2),
     transitDays: c.transitDays, referenceUnitPriceInr: c.referenceUnitPrice, wageFloorPerWorkerDayInr: c.wageFloor, labourShareOfPrice: c.labourShare,
+    ...(c.marketWage ? { averageFactoryWagePerWorkerDayInr: c.marketWage.perDay, averageFactoryWageSource: c.marketWage.source } : {}),
+    ...(c.casualWage ? { casualLabourWagePerDayInr: c.casualWage.perDay, casualLabourWageWomenPerDayInr: c.casualWage.perDayFemale } : {}),
   };
 }
 
