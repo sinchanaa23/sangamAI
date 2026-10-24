@@ -2,7 +2,8 @@
 import { active, bom, buyer, sellers } from './data';
 import { isImported, leadDaysFrom } from './engine';
 import { rng } from './sectors/helpers';
-import type { Interest, Quote, Requirement, Review } from './model';
+import { RURAL_TYPES, type SectorId } from './types';
+import type { DevProject, Interest, Quote, Requirement, Review } from './model';
 import type { WorkforceProfile, WorkforceSkill } from './fairwork';
 
 const day = (offset: number) => new Date(Date.now() + offset * 864e5).toISOString();
@@ -67,7 +68,115 @@ export function seedSector() {
       });
     }
   });
-  return { requirements, quotes, interests, reviews };
+  // ---------- Development projects ----------
+  // Two showcase supplier-development projects per sector so the supplier
+  // Development-projects tab is not empty on first visit. Statuses are mixed on
+  // purpose so the ecosystem Verification desk has a submitted milestone waiting.
+  // The hero of the demo story is the EV sector's Krishnagiri Mahila Harness
+  // Collective; other sectors use their first rural/cooperative seller. Every
+  // figure here is simulated demo data.
+  const hero = sellers.find((s) => s.name === 'Krishnagiri Mahila Harness Collective') ??
+    sellers.find((s) => RURAL_TYPES.includes(s.type)) ?? sellers[0];
+  const rest = sellers.filter((s) => s.id !== hero.id);
+  const partner = rest.find((s) => RURAL_TYPES.includes(s.type)) ?? rest[0];
+  const lineFor = (proc: string) => (bom.find((l) => l.process === proc) ?? bom[0]).id;
+
+  // Milestone labels shaped to each sector's parts, tests and certifications.
+  const heroLabels: Record<SectorId, { training: string; workspace: string; test: string; audit: string }> = {
+    ev: {
+      training: 'IPC/WHMA-A-620 operator training for 40 women across 14 SHGs',
+      workspace: 'ESD-safe workbenches, wrist straps and ioniser',
+      test: 'Calibrated crimp pull-test and continuity test station',
+      audit: 'Buyer PPAP audit and first-article approval',
+    },
+    construction: {
+      training: 'Mix design, casting and curing certification for SHG crews',
+      workspace: 'Covered curing yard and calibrated batching scales',
+      test: 'Compression test fixture and moisture meter',
+      audit: 'Buyer quality audit and vendor approval',
+    },
+    agri: {
+      training: 'FSSAI hygiene and quality certification for SHG operators',
+      workspace: 'Food-grade handling and packing room upgrade',
+      test: 'Moisture analyser and calibrated sample scale',
+      audit: 'Buyer quality audit and vendor approval',
+    },
+  };
+  const partnerLabels: Record<SectorId, { cert: string; tooling: string }> = {
+    ev: {
+      cert: 'ISO 9001 quality system and internal audit',
+      tooling: 'Semi-automatic crimp press for one assembly bench',
+    },
+    construction: {
+      cert: 'ISO 9001 quality system and internal audit',
+      tooling: 'Hydraulic press refurbishment with a new mould set',
+    },
+    agri: {
+      cert: 'HACCP documentation and internal audit',
+      tooling: 'Stainless tray-dryer upgrade and sealing machine',
+    },
+  };
+  const hl = heroLabels[sector];
+  const pl = partnerLabels[sector];
+  const projects: DevProject[] = [
+    {
+      // Hero project: skills + workspace upgrade co-funded by the anchor buyer.
+      // One milestone verified, one submitted awaiting the Verification desk, one
+      // in progress and one not started.
+      id: `prj-${sector}-1`, sector, sellerId: hero.id, lineId: lineFor(hero.process),
+      buyerSharePct: 60, createdAt: day(-75),
+      milestones: [
+        { id: `ms-${sector}-1a`, label: hl.training, costLakh: 3.2, months: 2, status: 'verified', evidence: 'ipc-a-620-training-certificates.pdf', updatedAt: day(-40) },
+        { id: `ms-${sector}-1b`, label: hl.workspace, costLakh: 4.6, months: 3, status: 'submitted', evidence: 'workspace-audit-photos.pdf', updatedAt: day(-6) },
+        { id: `ms-${sector}-1c`, label: hl.test, costLakh: 2.4, months: 2, status: 'doing' },
+        { id: `ms-${sector}-1d`, label: hl.audit, costLakh: 1.1, months: 1, status: 'todo' },
+      ],
+    },
+    {
+      // Second project: certification and tooling, still early stage.
+      id: `prj-${sector}-2`, sector, sellerId: partner.id, lineId: lineFor(partner.process),
+      buyerSharePct: 40, createdAt: day(-35),
+      milestones: [
+        { id: `ms-${sector}-2a`, label: pl.cert, costLakh: 1.8, months: 3, status: 'doing' },
+        { id: `ms-${sector}-2b`, label: pl.tooling, costLakh: 6.5, months: 4, status: 'todo' },
+        { id: `ms-${sector}-2c`, label: 'Buyer capacity and quality assessment', costLakh: 0.9, months: 1, status: 'todo' },
+      ],
+    },
+  ];
+
+  // Two fully verified flagship reviews for the hero seller so the Reviews page
+  // shows a strong record even when the random loop above leaves it thin.
+  const heroBuyers: Record<SectorId, { author: string; text: string }> = {
+    ev: {
+      author: 'EV scooter maker, Tamil Nadu',
+      text: 'Sub-assembly kits arrived on time through a six-month ramp-up and passed incoming inspection with zero defects. Daily build-tracker updates from the SHG team made scheduling easy.',
+    },
+    construction: {
+      author: 'Affordable housing developer, Maharashtra',
+      text: 'Blocks arrived on schedule across a six-month build programme and passed site quality checks with no rejected lots. Clear daily dispatch updates made our planning easy.',
+    },
+    agri: {
+      author: 'Millet snack brand, Bengaluru',
+      text: 'Cleaned and graded lots arrived on time through a six-month contract and passed every incoming quality check. Lot-level quality reports made our planning easy.',
+    },
+  };
+  const hb = heroBuyers[sector];
+  reviews.push({
+    id: `rv-${hero.id}-flag-b`, sellerId: hero.id, author: hb.author, authorType: 'buyer',
+    orderRef: 'PO-2026-4821', orderValueLakh: 38,
+    ratings: { quality: 5, delivery: 5, communication: 5, compliance: 5 },
+    text: hb.text,
+    evidence: 'Purchase order and goods receipt notes', status: 'verified', at: day(-45), sample: true,
+  });
+  reviews.push({
+    id: `rv-${hero.id}-flag-p`, sellerId: hero.id, author: 'Consortium partner (MSME)', authorType: 'partner',
+    orderRef: 'PO-2026-2760', orderValueLakh: 22,
+    ratings: { quality: 4, delivery: 4, communication: 3, compliance: 4 },
+    text: 'Reliable partner through our capacity crunch; work met spec and the agreed dates. Coordination needed more back-and-forth than expected, but the joint quality checklist worked well.',
+    evidence: 'Consortium work order and completion report', status: 'verified', at: day(-130), sample: true,
+  });
+
+  return { requirements, quotes, interests, reviews, projects };
 }
 
 // ---------- Fair-work seed workforces (features F4 and F5) ----------

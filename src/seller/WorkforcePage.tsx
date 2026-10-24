@@ -5,18 +5,16 @@
 // always available. Workers are stored by skill and wage band only - never by
 // name, phone or Aadhaar.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
 import { districts, sellers } from '../data';
 import { GRADE_LABEL, FAIR_WORK_RULES, labourFromProfile, livingWageFor, minimumWageFor, scoreProfile } from '../fairwork';
 import type { WorkforceProfile, WorkforceSkill } from '../fairwork';
-import FairWorkBadge, { GRADE_GLOW } from '../components/FairWorkBadge';
+import FairWorkBadge from '../components/FairWorkBadge';
+import { motion, AnimatePresence } from 'motion/react';
 import Src from '../components/Src';
 import TextReveal from '../components/motion/TextReveal';
 import GradientText from '../components/motion/GradientText';
 import CountUp from '../components/motion/CountUp';
-import Reveal from '../components/motion/Reveal';
-import SpotlightCard from '../components/motion/SpotlightCard';
-import ClickSpark from '../components/motion/ClickSpark';
+import SpotlightCard from '../components/motion/SpotlightCard';import ClickSpark from '../components/motion/ClickSpark';
 import DotGrid from '../components/motion/DotGrid';
 import Waves from '../components/motion/Waves';
 import Magnetic from '../components/motion/Magnetic';
@@ -28,7 +26,8 @@ import { listenOnce, matchChoice, parseNumber, speak, speechSupported, stopSpeak
 import type { ListenHandle, VoiceLang } from '../voice';
 import { VOICE_LANGS } from '../voice';
 import { useUi } from '../ui';
-import { useSupplierTheme } from '../components/motion/theme';
+import useScrollReveal from '../components/ScrollReveal';
+import WaveDivider from '../components/WaveDivider';
 
 type UiLang = 'en' | VoiceLang;
 
@@ -128,7 +127,8 @@ const BLANK = (district: string): WorkforceProfile => ({
 });
 
 export default function WorkforcePage() {
-  useSupplierTheme();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef, 'workforce');
   const { actingSeller, setActingSeller } = useUi();
   const seller = sellers.find((s) => s.id === actingSeller) ?? sellers[0];
   const [lang, setLang] = useState<UiLang>('en');
@@ -236,8 +236,8 @@ export default function WorkforcePage() {
   const totalWorkers = labour.workers;
 
   return (
-    <div className="stack" style={{ position: 'relative' }}>
-      <DotGrid dim={0.1} spacing={28} />
+    <div className="stack" ref={rootRef} style={{ position: 'relative' }}>
+      <DotGrid color="#1f6c9f" dim={0.14} spacing={28} />
       <div>
         <TextReveal as="h1" className="lead" text={`${t.gradeTitle} · ${t.skills}`} />
         <p className="muted" style={{ marginTop: 6 }}>{t.intro}</p>
@@ -269,8 +269,8 @@ export default function WorkforcePage() {
 
       {/* live grade */}
       <div style={{ position: 'relative' }}>
-        <Waves opacity={0.3} />
-        <SpotlightCard className="card"><div className="stack fw-glass fw-glow" style={{ gap: 10, '--fw-glow-color': score ? GRADE_GLOW[score.grade] : undefined } as CSSProperties}>
+        <Waves colors={['#a4552c', '#1f6c9f', '#346538']} opacity={0.2} />
+        <SpotlightCard className="card"><div className="stack" style={{ gap: 10 }}>
         <div className="section-title" style={{ margin: 0 }}>{t.gradeTitle}</div>
         {loading ? <p className="muted">…</p> : score && (
           <>
@@ -296,8 +296,9 @@ export default function WorkforcePage() {
       </div></SpotlightCard>
       </div>
 
+      <WaveDivider />
+
       {/* the form: typed input always available */}
-      <Reveal>
       <div className="card stack" style={{ gap: 14 }}>
         <label className="field">{t.district}
           <select value={profile.district} onChange={(e) => set('district', e.target.value)}>
@@ -310,18 +311,27 @@ export default function WorkforcePage() {
           <table>
             <thead><tr><th>{t.skill}</th><th>{t.headcount}</th><th>{t.wage}</th><th /></tr></thead>
             <tbody>
-              {profile.skills.map((s, i) => (
-                <tr key={i}>
-                  <td><input className="cell" value={s.skill} onChange={(e) => setSkill(i, { skill: e.target.value })} /></td>
-                  <td><input className="cell" type="number" min={0} value={s.headcount} onChange={(e) => setSkill(i, { headcount: Number(e.target.value) })} /></td>
-                  <td><input className="cell" type="number" min={0} value={s.wagePerWorkerDay} onChange={(e) => setSkill(i, { wagePerWorkerDay: Number(e.target.value) })} /></td>
-                  <td>
-                    {profile.skills.length > 1 && (
-                      <button className="btn small" onClick={() => set('skills', profile.skills.filter((_, j) => j !== i))}>{t.remove}</button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              <AnimatePresence>
+                {profile.skills.map((s, i) => (
+                  <motion.tr
+                    key={i}
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                  >
+                    <td><input className="cell" value={s.skill} onChange={(e) => setSkill(i, { skill: e.target.value })} /></td>
+                    <td><input className="cell" type="number" min={0} value={s.headcount} onChange={(e) => setSkill(i, { headcount: Number(e.target.value) })} /></td>
+                    <td><input className="cell" type="number" min={0} value={s.wagePerWorkerDay} onChange={(e) => setSkill(i, { wagePerWorkerDay: Number(e.target.value) })} /></td>
+                    <td>
+                      {profile.skills.length > 1 && (
+                        <button className="btn small" onClick={() => set('skills', profile.skills.filter((_, j) => j !== i))}>{t.remove}</button>
+                      )}
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
             </tbody>
           </table>
           <button className="btn small" style={{ marginTop: 8 }}
@@ -362,16 +372,29 @@ export default function WorkforcePage() {
               </button>
             </ClickSpark>
           </Magnetic>
-          {saveMsg && <span className="small">{saveMsg}</span>}
+          <AnimatePresence>
+            {saveMsg && (
+              <motion.span
+                key={saveMsg}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="small"
+              >
+                {saveMsg}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
         <p className="tiny" style={{ margin: 0 }}>
           Legal hours ceiling {FAIR_WORK_RULES.maxHoursPerDay}/day and {FAIR_WORK_RULES.maxOvertimeHoursPerWeek} h/week overtime; a missing safety record or an open grievance lowers the grade one step; a child- or forced-labour flag blocks every deal.
         </p>
       </div>
-      </Reveal>
+
+      <WaveDivider />
 
       {/* voice: one question at a time */}
-      <Reveal>
       <div className="card stack" style={{ gap: 10 }}>
         <div className="section-title" style={{ margin: 0 }}>{t.voiceTitle}</div>
         <p className="muted small" style={{ margin: 0 }}>{t.voiceIntro}</p>
@@ -393,16 +416,24 @@ export default function WorkforcePage() {
             </>
           )}
         </div>
-        {voiceStep != null && (
-          <div className="note">
-            <b>{QUESTIONS[voiceStep].ask[voiceLang]}</b>
-            <div className="muted small" style={{ marginTop: 4 }}>
-              {heard ? <>{t.heard}: “{heard}”</> : t.listening}
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {voiceStep != null && (
+            <motion.div
+              key={voiceStep}
+              className="note"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <b>{QUESTIONS[voiceStep].ask[voiceLang]}</b>
+              <div className="muted small" style={{ marginTop: 4 }}>
+                {heard ? <>{t.heard}: “{heard}”</> : t.listening}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      </Reveal>
     </div>
   );
 }

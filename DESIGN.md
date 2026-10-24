@@ -224,3 +224,15 @@ Global-but-gentle polish of the existing `.btn` classes (equal specificity, load
 13. Save button: magnetic pull near cursor, spark on click, shine sweep on label.
 14. SlideTabs: indicator slides between the three safety options; switching safety updates the grade as before (E/D downgrade logic intact).
 15. All 51 tests still pass; tsc + build clean.
+
+---
+
+# Delta 3: Light unification (session 7) — SUPERSEDES the dark theme
+
+User direction: no dark theme; the supplier tab matches the buyer tab's light river language, with GSAP + Lenis + motion.dev + ReactBits patterns doing the work. What changed:
+
+- **Dark scope deleted**: theme.ts/theme.css removed; no body.fw-dark anywhere. All workspaces render main's warm paper language.
+- **River components adopted**: every seller page calls `useScrollReveal`; WaveDividers (native ink stroke) between sections; the animated Confluence mark on the Overview identity card; serif display headings inherited globally from styles.css (`.lead` already uses var(--serif)).
+- **Kit retuned for light**: Waves/DotGrid/Aurora call sites use the river palette (#a4552c/#1f6c9f/#346538) at low opacity; SlideTabs indicator token-driven; the badge keeps main's warm colours via var() fallbacks (dark overrides gone with theme.css); charts back to main's warm hexes.
+- **motion.dev added** (`motion@14`, flagged dep): spring layout on skills rows, AnimatePresence on the save message and voice note.
+- **Superseded**: D1–D5 (dark) and the fw-glass/fw-glow utilities remain in glow.css but are unused on pages.

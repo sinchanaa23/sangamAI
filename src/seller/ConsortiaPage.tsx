@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { sellers, unitLabel } from '../data';
 import { district, isRural, roadKm } from '../engine';
 import { now, uid } from '../model';
@@ -7,12 +7,13 @@ import { useStore } from '../store';
 import { trustScore } from '../trust';
 import { useUi } from '../ui';
 import { visibleTo } from './visibility';
-import { useSupplierTheme } from '../components/motion/theme';
+import useScrollReveal from '../components/ScrollReveal';
 
 const STATUS_CLS = { invited: 'potential', accepted: 'ready', declined: 'danger' } as const;
 
 export default function ConsortiaPage() {
-  useSupplierTheme();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef, 'consortia');
   const { state, update } = useStore();
   const { actingSeller, openSupplier, setActingSeller } = useUi();
   const seller = sellers.find((s) => s.id === actingSeller);
@@ -41,7 +42,7 @@ export default function ConsortiaPage() {
   }));
 
   return (
-    <div className="stack">
+    <div className="stack" ref={rootRef}>
       <div>
         <h1 className="lead">Consortia</h1>
         <p className="muted" style={{ marginTop: 6 }}>Team up with nearby suppliers to meet volumes none of you can supply alone. The lead company quotes for the group; each member supplies its share.</p>

@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { bom, buyer, certGaps, districts, processes, sellers, unitLabel } from '../data';
 import { now, uid } from '../model';
 import type { DocItem, OnboardedSeller } from '../model';
 import { scoreProfile } from '../fairwork';
 import type { ScoredWork } from '../fairwork';
-import FairWorkBadge, { GRADE_GLOW } from '../components/FairWorkBadge';
+import FairWorkBadge from '../components/FairWorkBadge';
 import SpotlightCard from '../components/motion/SpotlightCard';
 import FadeContent from '../components/motion/FadeContent';
 import CountUp from '../components/motion/CountUp';
@@ -15,7 +14,7 @@ import { useStore } from '../store';
 import { checksFor } from '../trust';
 import { useUi } from '../ui';
 import type { CertDetail, OrgType } from '../types';
-import { useSupplierTheme } from '../components/motion/theme';
+import useScrollReveal from '../components/ScrollReveal';
 
 const TYPES: OrgType[] = ['MSME', 'SHG federation', 'FPO', 'Cooperative'];
 
@@ -33,13 +32,11 @@ function WorkforceGradeCard({ sellerId, sellerName }: { sellerId: string; seller
   if (!score) return null;
   return (
     <FadeContent>
-      <div style={{ '--fw-glow-color': GRADE_GLOW[score.grade] } as CSSProperties}>
-      <SpotlightCard className="card fw-glass fw-glow"><div className="row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+      <SpotlightCard className="card"><div className="row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <FairWorkBadge score={score} />
         <span className="small muted">The Fair Work grade buyers see on every quote, from the workforce profile.</span>
         <button className="btn small" onClick={() => go('supplier', 'workforce')}>Workforce and fair work</button>
       </div></SpotlightCard>
-      </div>
     </FadeContent>
   );
 }
@@ -52,7 +49,8 @@ const toBase64 = (f: File) => new Promise<string>((res, rej) => {
 });
 
 export default function ProfilePage() {
-  useSupplierTheme();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef, 'profile');
   const { state, update } = useStore();
   const { actingSeller, setActingSeller, openSupplier } = useUi();
   const current = state.onboarded.find((o) => o.id === actingSeller);
@@ -61,7 +59,7 @@ export default function ProfilePage() {
 
   if (demo && !creating) {
     return (
-      <div className="stack">
+      <div className="stack" ref={rootRef}>
         <h1 className="lead">Profile and documents</h1>
         <WorkforceGradeCard sellerId={demo.id} sellerName={demo.name} />
         <div className="card stack" style={{ gap: 10 }}>
@@ -79,6 +77,8 @@ export default function ProfilePage() {
 
 function ProfileForm({ existing, onSaved, stateSector, update }: { existing?: OnboardedSeller; onSaved: (id: string) => void; stateSector: OnboardedSeller['sector']; update: ReturnType<typeof useStore>['update'] }) {
   const { state } = useStore();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef, 'profile');
   const [name, setName] = useState(existing?.name ?? '');
   const [type, setType] = useState<OrgType>(existing?.type ?? 'MSME');
   const [districtId, setDistrictId] = useState(existing?.districtId ?? districts[0].id);
@@ -140,7 +140,7 @@ function ProfileForm({ existing, onSaved, stateSector, update }: { existing?: On
   const checks = existing ? checksFor(existing, state) : null;
 
   return (
-    <div className="stack">
+    <div className="stack" ref={rootRef}>
       <div>
         <h1 className="lead">{existing ? `Profile: ${existing.name}` : 'Register your company'}</h1>
         <p className="muted" style={{ marginTop: 6 }}>Buyers see what you enter, marked "self-declared" until the Sangam team checks it. Verified details raise your trust score and your place in matches.</p>

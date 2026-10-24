@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { bom, buyer, sellers, unitLabel } from '../data';
 import { inr, leadDaysFrom, sellerGaps } from '../engine';
 import { bidderKey, now, uid } from '../model';
@@ -7,7 +7,7 @@ import { useStore } from '../store';
 import { useUi } from '../ui';
 import { FIRMNESS } from '../buyer/RequirementsPage';
 import { buyerLabel, visibleTo, volumeLabel } from './visibility';
-import { useSupplierTheme } from '../components/motion/theme';
+import useScrollReveal from '../components/ScrollReveal';
 
 function QuoteForm({ req, bidders, onDone }: { req: Requirement; bidders: { b: Bidder; label: string; capacity: number; districtId: string }[]; onDone: () => void }) {
   const { update } = useStore();
@@ -52,7 +52,8 @@ function QuoteForm({ req, bidders, onDone }: { req: Requirement; bidders: { b: B
 }
 
 export default function OpportunitiesPage() {
-  useSupplierTheme();
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef, 'opps');
   const { state, update } = useStore();
   const { actingSeller, go } = useUi();
   const [open, setOpen] = useState<string | null>(null);
@@ -70,7 +71,7 @@ export default function OpportunitiesPage() {
   const interest = (r: Requirement) => update((s) => ({ ...s, interests: [...s.interests, { id: uid('i'), reqId: r.id, bidder: { kind: 'seller', id: seller.id }, note, at: now() }] }));
 
   return (
-    <div className="stack">
+    <div className="stack" ref={rootRef}>
       <div>
         <h1 className="lead">Opportunities for {seller.name}</h1>
         <p className="muted" style={{ marginTop: 6 }}>Requirements from buyers that match your process. Buyers see that you looked; your quotes are visible only to that buyer.</p>
