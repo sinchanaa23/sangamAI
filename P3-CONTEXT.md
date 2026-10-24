@@ -12,7 +12,7 @@
 - Reference docs (`docs/` folder, untracked .docx/.pptx): the proposal ("…proposal and 24-hour build plan") is the final reference over any agent's own ideas.
 - Teammate branches on origin: `feat/agents` (P1, merged to main twice — PR #1 and PR #3 `agents/use-fairwork`, which integrated my fairwork.ts into their agents and adjusted my reason wording), `feat/buyer` (P2, not merged), `feat/ecosystem` (P4, not merged — **main still has the OLD App.tsx sidebar without the Workforce nav entry**; P4's branch has it).
 
-## Current state (after session 6, 2026-10-24 latest)
+## Current state (after session 7, 2026-10-24 end of day)
 
 - **PR #2 (all P3 features) is MERGED to main.** P1 built on it (PR #3).
 - **Design language "Confluence" implemented on branch `feat/supplier-design`** (from main @ f1db058): DESIGN.md + a dependency-free motion kit in `src/components/motion/` (8 files) + wiring across all five P3 pages. Verified: build ✓, tests 41/41 ✓ (P1's tests joined my 22), browser ✓ (staggered reveals, gradient grade label, CountUp with retargeting, badge pop on grade flip, click sparks, spotlight hover, Hindi Devanagari grapheme-safe, real server save through P1's API).
@@ -59,6 +59,10 @@ Browser-verified on localhost:5173 (temporary nav wiring in App.tsx, reverted be
 6. Hour blocks 21–24: rehearsals; fixes only through pull requests.
 
 ## Session log
+
+### Session 7 — 2026-10-24 (ZCode / GLM-5.3-Flash + Flash subagents, end of day)
+
+Light pivot + demo data. Three flash agents (river unification, seeds, light re-style) + main-session debugging: the empty Development-projects tab traced to store.tsx never spreading seed.projects (one flagged line) + multi-tab localStorage races; hardened with a once-per-sector top-up. Unit-verified seeds (58/58 tests). Browser automation could not click through P4's animated landing (overlapping door pills) — visual check of that one page left to a human.
 
 ### Session 6 — 2026-10-24 (ZCode / GLM-5.3-Flash, latest)
 
