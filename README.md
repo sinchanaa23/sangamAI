@@ -145,5 +145,3 @@ Everything numeric comes from deterministic code. AI is used only to read docume
 | Credentials checked in the app | A DID-based issuer and DigiLocker or a wallet app |
 | Browser speech recognition | Bhashini for speech, translation and text-to-speech |
 | In-memory supply network graph | Neo4j once there are thousands of suppliers |
-
-This is the HACK4SDG build. The earlier SAP Hackfest prototype it grew from is kept at the git tag `sap-hackfest-v1`.
