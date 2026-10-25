@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkCertificate, readCertificate } from './certificates';
+import { Certificate, checkCertificate, readCertificate } from './certificates';
 import type { CertificateFields } from './certificates';
 import type { Ask } from './llm';
 
@@ -41,5 +41,12 @@ describe('certificate checks', () => {
     expect(seenFiles).toBe(1);
     expect(r.fields.certificateNumber).toBe('QMS-2291');
     expect(r.checks.numberPresent).toBe(true);
+  });
+
+  it('accepts null for fields the document does not show, as some providers return', () => {
+    const parsed = Certificate.parse({ documentType: 'ISO 9001 certificate', standard: null, holderName: 'X', certificateNumber: 'N1', issuer: 'Y', issueDate: null, expiryDate: '2027-01-31', scope: null, confidence: 'high', notes: null });
+    expect(parsed.notes).toBe('');
+    expect(parsed.standard).toBe('');
+    expect(parsed.scope).toBe('');
   });
 });

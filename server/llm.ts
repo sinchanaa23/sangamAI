@@ -69,11 +69,19 @@ function retryDelayMs(r: Response, body: string): number {
   return (Number.isFinite(header) && header > 0 ? header : Number.isFinite(text) ? text + 0.5 : 2) * 1000;
 }
 
-async function post(base: string, rpm: number, key: string, body: unknown, signal: AbortSignal) {
+interface ChatResponse { choices: { message: { content: string | null; tool_calls?: ToolCall[] } }[] }
+interface NativeResponse { candidates?: { content?: { parts?: { text?: string }[] } }[] }
+
+/** Gemini's OpenAI-style endpoint rejects PDFs, so a PDF goes to its native generateContent endpoint instead (same key, same host). */
+const isGeminiCompat = (base: string) => base.endsWith('/v1beta/openai');
+
+async function post<T = ChatResponse>(base: string, rpm: number, key: string, body: unknown, signal: AbortSignal, native?: { model: string }): Promise<T> {
   for (let attempt = 0; ; attempt++) {
     await slot(base, rpm);
-    const r = await fetch(`${base}/chat/completions`, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(body) });
-    if (r.ok) return (await r.json()) as { choices: { message: { content: string | null; tool_calls?: ToolCall[] } }[] };
+    const r = native
+      ? await fetch(`${base.replace(/\/openai$/, '')}/models/${native.model}:generateContent`, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body) })
+      : await fetch(`${base}/chat/completions`, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(body) });
+    if (r.ok) return (await r.json()) as T;
     const text = await r.text();
     // Free tiers rate-limit hard: wait as long as the provider asks (up to 15 s), at most twice
     if (r.status === 429 && attempt < 2 && retryDelayMs(r, text) <= 15_000) { await sleep(retryDelayMs(r, text)); continue; }
@@ -94,6 +102,14 @@ export const ask: Ask = async <T>({ role, system, user, tools = [], files = [], 
   const cfg = settings();
   if (!(role === 'vision' ? cfg.visionKey : cfg.key)) throw new Error('LLM_API_KEY is not set');
   const signal = AbortSignal.timeout(timeoutMs); // one deadline for the whole turn, tool calls included
+  if (role === 'vision' && isGeminiCompat(cfg.visionBase) && files.some((f) => f.mediaType === 'application/pdf')) {
+    const res = await post<NativeResponse>(cfg.visionBase, cfg.visionRpm, cfg.visionKey, {
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: 'user', parts: [...files.map((f) => ({ inline_data: { mime_type: f.mediaType, data: f.data } })), { text: user }] }],
+      generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+    }, signal, { model: cfg.visionModel });
+    return schema.parse(extractJson(res.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? ''));
+  }
   // Images go as image_url data URIs and a PDF as a file part. Both are OpenAI-style and accepted by Gemini and OpenRouter.
   const part = (f: { mediaType: string; data: string; filename?: string }) => f.mediaType === 'application/pdf'
     ? { type: 'file', file: { filename: f.filename ?? 'document.pdf', file_data: `data:application/pdf;base64,${f.data}` } }

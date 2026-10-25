@@ -22,6 +22,9 @@ Your text must agree with your decision. "pass" means the contract can be signed
 /** Models sometimes write "blocked" for a flag. A flagged deal is held for review, not refused, so the words must say so. */
 const consistent = (d: Decision, text: string) => (d === 'block' ? text : text.replace(/\b(is |was |are |has been )?(blocked|rejected|refused)\b/gi, (_m, aux) => `${aux ?? ''}held for review`));
 
+/** The grade comes from the scorecard, not from the model: a model that writes "grade C" for a B is corrected before anyone reads it. */
+const rightGrade = (text: string, grade: string) => text.replace(/(\bgrade\s+(?:of\s+)?)([A-E])\b/gi, (_m, lead: string) => `${lead}${grade}`);
+
 export async function audit(ask: Ask, c: DealContext, offer: Offer, score: FairWorkScore, openIssues: string[] = []): Promise<{ decision: Decision; text: string }> {
   // Any open issue (a certificate gap, or a wage floor that is only estimated) takes "pass" off the table
   const allowed = openIssues.length ? ALLOWED[score.grade].filter((d) => d !== 'pass') : ALLOWED[score.grade];
@@ -35,7 +38,7 @@ export async function audit(ask: Ask, c: DealContext, offer: Offer, score: FairW
       .catch((e) => { logFallback('auditor (strong model)', e); return ask({ role: 'turn', system: SYSTEM, user, schema: Turn, timeoutMs: 30_000 }); });
     // The open issues always travel with the decision, whatever the model wrote, so the Verification desk sees why it was held
     const withIssues = (text: string) => `${text}${gapText}`.slice(0, 700);
-    return allowed.includes(t.decision) ? { decision: t.decision, text: withIssues(consistent(t.decision, t.text).slice(0, 400)) } : { decision: dflt, text: withIssues(`${t.text.slice(0, 300)} (Decision set to ${dflt} by the grade and certificate rules.)`) };
+    return allowed.includes(t.decision) ? { decision: t.decision, text: withIssues(rightGrade(consistent(t.decision, t.text), score.grade).slice(0, 400)) } : { decision: dflt, text: withIssues(`${rightGrade(t.text, score.grade).slice(0, 300)} (Decision set to ${dflt} by the grade and certificate rules.)`) };
   } catch (e) {
     logFallback('auditor', e);
     return fallback('Reviewed by the rule-based check.');
