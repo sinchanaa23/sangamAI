@@ -146,4 +146,4 @@ Everything numeric comes from deterministic code. AI is used only to read docume
 | Browser speech recognition | Bhashini for speech, translation and text-to-speech |
 | In-memory supply network graph | Neo4j once there are thousands of suppliers |
 
-The SAP Hackfest version of this prototype is tagged `sap-hackfest-v1`.
+This is the HACK4SDG build. The earlier SAP Hackfest prototype it grew from is kept at the git tag `sap-hackfest-v1`.
